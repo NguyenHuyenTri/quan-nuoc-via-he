@@ -458,6 +458,7 @@ async function sing(name){
   const route=[seat,{x:seat.x<400?260:545,y:seat.y},{x:505,y:5},{x:496,y:-119},stageMic];
   layers.walking.append(performer);
   status(name+' đang lên sân khấu…');
+  get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
   if(!await walk(performer,route,1450,session,true))return;
   setStage(true,name+' đang biểu diễn ♫');
   status(name+' bắt đầu biểu diễn!');
