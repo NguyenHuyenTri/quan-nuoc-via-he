@@ -19,6 +19,8 @@ Khi quán vắng, bàn giữa có Trí, Đào, Mai và Cường. Hai bàn bên m
 
 Lượt hát khoảng 15 giây dành cho khách tặng quà LIVE. Dùng nút **Thử tặng quà để lên hát** để mô phỏng sự kiện nhận quà. Khách tặng quà có thể lên sân khấu ngay cả khi chưa có bàn.
 
+Nút **Xem một lượt phục vụ** gọi nước mẫu cho tất cả khách đang ngồi và chưa có nước. Nhân viên ghé hỏi món và gom các ly đã gọi của từng bàn lên một khay. Khách đã có nước vẫn giữ ly của mình. Khi rời bàn, khách có nước sẽ tính tiền hoặc đôi khi diễn một cảnh lén chuồn để tạo tình huống vui.
+
 ## Cấu trúc
 
 - `index.html` chứa giao diện, cảnh SVG và xử lý tương tác.
