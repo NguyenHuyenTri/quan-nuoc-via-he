@@ -34,7 +34,7 @@ button:focus-visible,input:focus-visible {
 }
 
 main {
-  max-width:1180px;
+  max-width:640px;
   margin:auto;
   padding:32px clamp(14px,4vw,40px) 38px;
 }
@@ -86,7 +86,7 @@ h2 {
 
 .layout {
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(280px,330px);
+  grid-template-columns:minmax(0,1fr);
   gap:16px;
   align-items:start;
 }
@@ -301,4 +301,23 @@ form {
   *,*::before,*::after {
     scroll-behavior:auto!important;
   }
+}
+
+/* Khung dọc, bảng lệnh nằm dưới cảnh chơi. */
+svg#quang-canh {
+  aspect-ratio: 9 / 16;
+}
+.sing-button {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+#stage-beams.performing {
+  animation: stage-lights .9s ease-in-out infinite alternate;
+}
+@keyframes stage-lights {
+  from { opacity: .38; }
+  to { opacity: .9; }
+}
+@media(prefers-reduced-motion:reduce) {
+  #stage-beams.performing { animation: none; opacity: .72; }
 }

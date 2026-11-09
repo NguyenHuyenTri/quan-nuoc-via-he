@@ -16,15 +16,68 @@
 <div class="layout">
 <section class="scene" aria-labelledby="scene-title">
 <div class="scene-head"><strong id="scene-title">BÀN NGOÀI HIÊN</strong><span class="badge" id="seat-count">4 ghế trống</span></div>
-<svg id="quang-canh" viewBox="0 0 800 520" role="img" aria-label="Quán nước buổi tối có một bàn vuông, bốn ghế nhựa và quầy pha chế">
+<svg id="quang-canh" viewBox="0 0 800 1422" role="img" aria-label="Sân khấu phòng trà ngoài trời phía trên và quán nước bốn ghế phía dưới">
 <defs>
 <linearGradient id="yard" x2="0" y2="1"><stop stop-color="#295346"/><stop offset="1" stop-color="#1b332c"/></linearGradient>
 <linearGradient id="roof" x2="1" y2="1"><stop stop-color="#c26b42"/><stop offset="1" stop-color="#9b4c35"/></linearGradient>
 <radialGradient id="lamp"><stop stop-color="#ffd988" stop-opacity=".34"/><stop offset="1" stop-color="#ffd988" stop-opacity="0"/></radialGradient>
 <pattern id="floor" width="90" height="45" patternUnits="userSpaceOnUse"><path d="M0 45 90 0M-90 45 0 0M90 45 180 0" stroke="#79927a" opacity=".17" fill="none"/></pattern>
 </defs>
-<rect width="800" height="520" fill="url(#yard)"/>
-<rect y="193" width="800" height="327" fill="url(#floor)"/>
+<defs>
+  <linearGradient id="stage-sky" x2="0" y2="1"><stop stop-color="#122237"/><stop offset=".62" stop-color="#263b4b"/><stop offset="1" stop-color="#29483c"/></linearGradient>
+  <linearGradient id="stage-wood" x2="0" y2="1"><stop stop-color="#966141"/><stop offset="1" stop-color="#59392c"/></linearGradient>
+  <radialGradient id="stage-glow"><stop stop-color="#ffd28b" stop-opacity=".44"/><stop offset="1" stop-color="#ffd28b" stop-opacity="0"/></radialGradient>
+  <pattern id="speaker-grille" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#68747c" opacity=".45"/></pattern>
+  <g id="pine"><path d="M0-110-32-54h17l-28 38h24l-31 38H50L19-16h24L15-54h17Z" fill="currentColor"/><path d="M0 18v22" stroke="currentColor" stroke-width="6"/></g>
+  <g id="speaker-stack">
+    <rect width="105" height="231" rx="10" fill="#161d25" stroke="#7c7776" stroke-width="3"/>
+    <rect x="9" y="9" width="87" height="213" rx="6" fill="url(#speaker-grille)" stroke="#373b40"/>
+    <rect x="31" y="18" width="43" height="17" rx="4" fill="#303744" stroke="#67757d"/>
+    <circle cx="52" cy="76" r="32" fill="#222b34" stroke="#58616b" stroke-width="3"/>
+    <circle cx="52" cy="76" r="13" fill="#151d25" stroke="#48535d"/>
+    <circle cx="52" cy="158" r="36" fill="#222b34" stroke="#58616b" stroke-width="3"/>
+    <circle cx="52" cy="158" r="16" fill="#151d25" stroke="#48535d"/>
+    <rect x="39" y="207" width="26" height="4" rx="2" fill="#efaa64"/>
+    <rect x="-12" y="236" width="129" height="99" rx="9" fill="#171e27" stroke="#756969" stroke-width="3"/>
+    <circle cx="52" cy="285" r="37" fill="#242e38" stroke="#4f5a63" stroke-width="3"/>
+    <circle cx="52" cy="285" r="17" fill="#141b23"/>
+    <rect x="-3" y="245" width="111" height="81" rx="6" fill="url(#speaker-grille)"/>
+  </g>
+</defs>
+<rect width="800" height="1422" fill="#29483c"/>
+<rect width="800" height="848" fill="url(#stage-sky)"/>
+<circle cx="640" cy="105" r="36" fill="#efd9af" opacity=".84"/>
+<g fill="#e9d1a4" opacity=".72"><circle cx="83" cy="97" r="2"/><circle cx="171" cy="135" r="2"/><circle cx="246" cy="69" r="2.6"/><circle cx="464" cy="115" r="2"/><circle cx="544" cy="68" r="1.8"/><circle cx="735" cy="149" r="2.5"/></g>
+<path d="M0 275 130 166 207 240 327 143 462 253 585 157 800 280V470H0Z" fill="#304c59"/>
+<path d="M0 328 132 254 240 315 397 225 532 310 679 218 800 312V535H0Z" fill="#213f47"/>
+<g style="color:#203b3b"><use href="#pine" transform="translate(45 381) scale(1.8)"/><use href="#pine" transform="translate(134 385) scale(1.35)"/><use href="#pine" transform="translate(746 369) scale(1.95)"/><use href="#pine" transform="translate(679 391) scale(1.26)"/></g>
+<ellipse cx="400" cy="410" rx="326" ry="275" fill="url(#stage-glow)"/>
+<path d="M0 160 Q400 261 800 156" stroke="#0d2029" stroke-width="4" fill="none"/>
+<g fill="#ffdb8e"><circle cx="53" cy="174" r="5"/><circle cx="116" cy="187" r="5"/><circle cx="184" cy="198" r="5"/><circle cx="252" cy="206" r="5"/><circle cx="322" cy="210" r="5"/><circle cx="400" cy="211" r="5"/><circle cx="475" cy="209" r="5"/><circle cx="550" cy="203" r="5"/><circle cx="620" cy="193" r="5"/><circle cx="686" cy="182" r="5"/><circle cx="753" cy="167" r="5"/></g>
+<path d="M173 299H627V552H173Z" fill="#422f37" stroke="#9c7460" stroke-width="4"/>
+<path d="M174 314 127 290l65-56h416l65 56-46 24Z" fill="#623d39" stroke="#d6a474" stroke-width="4" stroke-linejoin="round"/>
+<path d="M195 316V556M605 316V556" stroke="#b18664" stroke-width="9"/>
+<path d="M205 334H595M205 360H595M205 386H595M205 412H595M205 438H595M205 464H595M205 490H595M205 516H595" stroke="#72544c" stroke-width="2" opacity=".56"/>
+<rect x="255" y="273" width="290" height="65" rx="13" fill="#252938" stroke="#e8a96e" stroke-width="3"/>
+<text x="400" y="300" text-anchor="middle" fill="#ffe0ad" font-size="22" font-weight="800" letter-spacing="3">SÂN KHẤU NGOÀI TRỜI</text>
+<text x="400" y="322" text-anchor="middle" fill="#dbaf88" font-size="14" letter-spacing="4">ĐÊM PHÒNG TRÀ</text>
+<g id="stage-beams" opacity=".28"><path d="M240 348 292 348 484 553H210Z" fill="#ffe4a5"/><path d="M509 348H560L592 553H315Z" fill="#e8b2f3"/></g>
+<circle cx="266" cy="347" r="10" fill="#ffda8a"/><circle cx="535" cy="347" r="10" fill="#efc4f6"/>
+<path d="M155 545H645L688 602H112Z" fill="url(#stage-wood)" stroke="#e0a874" stroke-width="4" stroke-linejoin="round"/>
+<path d="M112 602H688V628H112Z" fill="#573e34" stroke="#a97855" stroke-width="3"/>
+<path d="M313 629h174l30 41H283zM284 670h232v17H284z" fill="#80573f" stroke="#bc8c61" stroke-width="2"/>
+<path d="M147 566H653M129 584H671" stroke="#e5b177" opacity=".44" stroke-width="2"/>
+<use href="#speaker-stack" transform="translate(43 267)"/>
+<use href="#speaker-stack" transform="translate(652 267)"/>
+<path d="M232 568l30-25 40 10-12 30h-58ZM510 583l-12-30 40-10 30 25v15Z" fill="#222a33" stroke="#78818a" stroke-width="3"/>
+<path d="M402 535v54m-15 0h30" fill="none" stroke="#dfd1c6" stroke-width="4" stroke-linecap="round"/>
+<path d="M402 535l-12-7" stroke="#eee0cf" stroke-width="8" stroke-linecap="round"/>
+<g id="stage-notes" visibility="hidden" fill="#ffd393" font-size="35" font-weight="800" aria-hidden="true"><text x="340" y="450">♪</text><text x="452" y="431">♫</text><text x="490" y="474">♪</text></g>
+<rect x="180" y="708" width="440" height="57" rx="17" fill="#1a292d" stroke="#987b61" stroke-width="2"/>
+<text id="stage-status" x="400" y="743" text-anchor="middle" fill="#ffe2aa" font-size="22" font-weight="800">SÂN KHẤU ĐANG CHỜ KHÁCH</text>
+<g transform="translate(0 800)">
+<rect width="800" height="622" fill="url(#yard)"/>
+<rect y="193" width="800" height="429" fill="url(#floor)"/>
 <path d="M0 192H800M0 198H800" stroke="#7b8b61" opacity=".4" stroke-width="2"/>
 <ellipse cx="408" cy="310" rx="320" ry="208" fill="url(#lamp)"/>
 <path d="M0 39 Q250 102 470 40 Q655 2 800 46" fill="none" stroke="#142720" stroke-width="3"/>
@@ -65,6 +118,7 @@
 <rect x="394" y="290" width="12" height="19" rx="4" fill="#e3d293"/><path d="M400 292q-9-9-3-15 7 5 3 15" fill="#a9bd68"/>
 </g>
 <g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="walking"></g>
+</g>
 </svg>
 
 </section>
@@ -77,7 +131,7 @@
 <div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: VÀO BÀN" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
 </form>
 <div class="grid-buttons" aria-label="Lệnh nhanh">
-<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="ORDER TRÀ ĐÁ">Trà đá</button><button type="button" data-command="ORDER CÀ PHÊ">Cà phê</button><button type="button" data-command="ORDER NƯỚC MÍA">Nước mía</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button>
+<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="ORDER TRÀ ĐÁ">Trà đá</button><button type="button" data-command="ORDER CÀ PHÊ">Cà phê</button><button type="button" data-command="ORDER NƯỚC MÍA">Nước mía</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" data-command="LÊN HÁT" class="sing-button">♫ Lên hát</button>
 </div>
 
 <div id="queue" class="queue"></div>
@@ -110,6 +164,7 @@ function guestRoute(seat){
 }
 const queue=[],orders=[];
 let running=false,epoch=0,audio=null;
+let singer=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' ');
 const key=s=>s.trim().toLocaleLowerCase('vi');
@@ -186,8 +241,8 @@ function character(color,{host=false,sitting=false,carry=null}={}){
   if(carry){const c=cup(carry);c.setAttribute('transform','translate(20 -17) scale(.72 .48)');g.append(c);}
   return actor;
 }
-function walk(actor,route,ms,session){
-  if(reduce.matches)ms=100;
+function walk(actor,route,ms,session,keepDuration=false){
+  if(reduce.matches&&!keepDuration)ms=100;
   return new Promise(resolve=>{
     let begin;
     function tick(now){
@@ -284,6 +339,7 @@ async function leave(name){
   }
   const person=seat.person;
   if(person.state==='leaving')return;
+  if(singer===person){status(name+' đang trên sân khấu. Chờ tiết mục kết thúc nhé.');return;}
   if(person.state==='entering'){status(name+' đang tới ghế. Chờ ngồi xuống rồi hãy rời bàn nhé.');return;}
   person.state='leaving';person.cup?.remove();person.actor.remove();
   wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
@@ -358,6 +414,68 @@ function cheers(name){
   }
   setTimeout(ding,reduce.matches?0:245);status(name+' cụng ly với '+other.person.name+'!');
 }
+const stageMic={x:382,y:-225};
+const stageTitle='SÂN KHẤU ĐANG CHỜ KHÁCH';
+let stageSound=null;
+function setStage(active,label){
+  get('stage-beams').classList.toggle('performing',active);
+  get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
+  get('stage-status').textContent=label;
+}
+function stopStageSound(){
+  if(!stageSound)return;
+  stageSound.disconnect();
+  stageSound=null;
+}
+function playStageSound(){
+  if(!audio||audio.state!=='running')return;
+  const bus=audio.createGain();
+  bus.gain.value=.55;
+  bus.connect(audio.destination);
+  stageSound=bus;
+  const notes=[60,64,67,69,67,64,62,65,69,72,69,65,64,67,71,74,72,67,64,60];
+  const start=audio.currentTime;
+  notes.forEach((note,index)=>{
+    const when=start+index*.35;
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    osc.type=index%4===0?'triangle':'sine';
+    osc.frequency.value=440*2**((note-69)/12);
+    gain.gain.setValueAtTime(.001,when);
+    gain.gain.exponentialRampToValueAtTime(.10,when+.035);
+    gain.gain.exponentialRampToValueAtTime(.001,when+.33);
+    osc.connect(gain);gain.connect(bus);
+    osc.start(when);osc.stop(when+.35);
+  });
+}
+async function sing(name){
+  const seat=seated(name);
+  if(!seat||seat.person.state!=='seated'){status(name+' vào bàn và ngồi xuống trước khi lên hát nhé.');return;}
+  if(singer){status(singer.name+' đang hát. Chờ hết lượt nhé.');return;}
+  const person=seat.person, session=epoch;
+  singer=person;
+  person.actor.remove();
+  const performer=character(colors[seat.index]);
+  const route=[seat,{x:seat.x<400?260:545,y:seat.y},{x:505,y:5},{x:496,y:-119},stageMic];
+  layers.walking.append(performer);
+  status(name+' đang lên sân khấu…');
+  if(!await walk(performer,route,1450,session,true))return;
+  setStage(true,name+' đang biểu diễn ♫');
+  status(name+' bắt đầu biểu diễn!');
+  playStageSound();
+  const animation=reduce.matches?null:performer.firstElementChild.nextElementSibling.animate(
+    [{translate:'0 0'},{translate:'-3px -2px'},{translate:'2px 0'},{translate:'0 0'}],{duration:850,iterations:Infinity});
+  await new Promise(resolve=>setTimeout(resolve,7100));
+  animation?.cancel();
+  if(epoch!==session)return;
+  stopStageSound();
+  setStage(false,stageTitle);
+  status('Cảm ơn '+name+'! Khách đang về ghế.');
+  if(!await walk(performer,[...route].reverse(),1450,session,true))return;
+  performer.remove();
+  (seat.back?layers.backPeople:layers.frontPeople).append(person.actor);
+  singer=null;
+  status(name+' đã trở về ghế '+(seat.index+1)+'.');
+}
 function submit(name,value){
   name=name.trim().slice(0,24);
   if(!name){get('guest').focus();return;}
@@ -365,6 +483,7 @@ function submit(name,value){
   if(cmd==='vao ban')return join(name);
   if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
   if(cmd==='cung ly')return cheers(name);
+  if(cmd==='len hat'||cmd==='len hat mot bai')return sing(name);
   const item=cmd.replace(/^order /,'');
   if(Object.hasOwn(drinks,item))return order(name,drinks[item]);
   if(seated(name))status(name+': '+value.trim().slice(0,80));
@@ -372,6 +491,7 @@ function submit(name,value){
 }
 function reset(){
   epoch++;running=false;queue.length=0;orders.length=0;
+  singer=null;stopStageSound();setStage(false,stageTitle);
   seats.forEach(s=>{s.person=null;});
   for(const name of ['backPeople','frontPeople','drinks','walking'])layers[name].replaceChildren();
   host=serverIdle();get('events').replaceChildren();get('demo').disabled=false;
