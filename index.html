@@ -196,7 +196,7 @@ const minSeatTime=60000;
 let seatTimer=null;
 let running=false,epoch=0,audio=null;
 const rapperName='Hái Thứ Hiêu';
-let activeShow=null,idleTimer=null,lastIdleSinger=null;
+let activeShow=null,idleTimer=null,lastIdleSinger=null,lastIdleFromRoad=false;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' ');
 const key=s=>s.normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase('vi');
@@ -946,12 +946,14 @@ function addPerformer(show,gift,seat){
   const person=seat?.person??gift;
   const spot={x:stageSlots[show.members.size],y:-115};
   const passer=seat?null:takePasser(gift.id);
-  const route=stageRoute(seat,spot,passer?.origin??gift.origin??entry);
+  const origin=passer?.origin??gift.origin??entry;
+  const route=stageRoute(seat,spot,origin);
   const color=person.color??(seat?colors[seat.index]:colors[show.members.size%colors.length]);
   const actor=passer?.actor??character(color,{name:person.name,avatar:gift.avatar||person.avatar});
   actor.setAttribute('data-performer','');
+  actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
   positionActor(actor,route[0]);
-  const member={person,seat,spot,actor,ready:false,animation:null};
+  const member={person,seat,spot,actor,origin,ready:false,animation:null};
   show.members.set(person.id,member);
   if(seat){
     person.actor.setAttribute('visibility','hidden');
@@ -992,10 +994,10 @@ async function endShow(show){
   await Promise.all([...show.members.values()].map(async member=>{
     await member.arrival;
     if(activeShow!==show)return;
-    const {person,seat,spot,actor}=member;
+    const {person,seat,spot,actor,origin}=member;
     member.animation?.cancel();
     const reserved=seat?.person===person?seat:null;
-    if(!await walk(actor,stageRoute(reserved,spot).reverse(),1450,show.epoch,true))return;
+    if(!await walk(actor,stageRoute(reserved,spot,origin).reverse(),1450,show.epoch,true))return;
     actor.remove();
     if(seat?.person===person){
       person.stageMarker?.remove();
@@ -1019,15 +1021,20 @@ function armIdle(){
     idleTimer=null;
     if(activeShow||stageQueue.length)return;
     const samples=seats.filter(seat=>seat.person?.sample&&seat.person.state==='seated');
-    const fallback=samples.find(seat=>seat.person.name===rapperName);
-    const choices=samples.filter(seat=>seat.person.id!==lastIdleSinger);
-    const seat=lastIdleSinger===null&&fallback?fallback:oneOf(choices.length?choices:samples);
-    const streetChoices=visitors.filter(([name])=>key(name)!==lastIdleSinger&&!seated(name,true)
-      &&!queue.some(guest=>guest.id===key(name)));
-    const [name,color,hair]=oneOf(streetChoices)??['Ca sĩ vỉa hè','#f0a365','#413143'];
-    const person=seat?.person??{id:key(name),name,color,avatar:sampleAvatar(color,hair)};
+    const opener=lastIdleSinger===null?samples.find(seat=>seat.person.name===rapperName):null;
+    const seatedChoices=samples.filter(seat=>seat.person.id!==lastIdleSinger);
+    const roadChoices=[...passers.values()].filter(passer=>passer.sample&&passer.id!==lastIdleSinger
+      &&passer.actor.walkPosition.x>=60&&passer.actor.walkPosition.x<=740
+      &&!queue.some(guest=>guest.id===passer.id));
+    const passer=!opener&&(!lastIdleFromRoad||!samples.length)?oneOf(roadChoices):null;
+    const seat=opener??(passer?null:oneOf(seatedChoices.length?seatedChoices:samples));
+    const [name,color,hair]=oneOf(visitors.filter(([name])=>!seated(name,true)&&!passers.has(key(name))
+      &&!queue.some(guest=>guest.id===key(name))))??['Ca sĩ vỉa hè','#f0a365','#413143'];
+    const person=seat?.person??passer??{id:key(name),name,color,avatar:sampleAvatar(color,hair)};
     lastIdleSinger=person.id;
+    lastIdleFromRoad=Boolean(passer);
     const show=openShow(true,person.name===rapperName);
+    if(passer)status(person.name+' đang đi ngang, ghé lên hát!');
     addPerformer(show,person,seat);
   },lastIdleSinger===null?20000:32000);
 }
@@ -1076,7 +1083,7 @@ function reset(showSamples=true){
   epoch++;running=false;queue.length=0;orders.length=0;bills.length=0;stageQueue.length=0;
   get('service-dialogue').replaceChildren();get('audience-dialogue').replaceChildren();
   clearTimeout(seatTimer);seatTimer=null;
-  clearTimeout(idleTimer);idleTimer=null;lastIdleSinger=null;
+  clearTimeout(idleTimer);idleTimer=null;lastIdleSinger=null;lastIdleFromRoad=false;
   if(activeShow){
     clearInterval(activeShow.tick);clearTimeout(activeShow.timer);
     activeShow.members.forEach(member=>member.animation?.cancel());
