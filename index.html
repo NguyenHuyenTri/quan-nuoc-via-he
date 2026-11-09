@@ -4,14 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Quán Nước Vỉa Hè · Bản chơi thử</title>
-<style>
-:root{color-scheme:dark;--ink:#faf2df;--mute:#b9c1b6;--paper:#172923;--panel:#1f352c;--line:#3f5345;--lime:#d0e97b;--amber:#ffd085}
-*{box-sizing:border-box}body{margin:0;background:#10211b;color:var(--ink);font:15px/1.5 system-ui,sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
-main{max-width:1180px;margin:auto;padding:32px clamp(14px,4vw,40px) 38px}.top{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:22px}.eyebrow{font-size:.72rem;letter-spacing:.16em;font-weight:750;color:var(--lime)}h1,h2,p{margin:0}h1{font-family:Georgia,serif;font-size:clamp(2.1rem,5.7vw,4.2rem);line-height:1.04;letter-spacing:-.055em;font-weight:500;margin:5px 0 9px}h2{font-size:1.04rem}.subtitle{color:var(--mute)}.badge{font-size:.73rem;white-space:nowrap;padding:5px 10px;border:1px solid #68865c;border-radius:999px;color:var(--lime)}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,330px);gap:16px;align-items:start}.scene,.controls{border:1px solid var(--line);border-radius:18px;background:var(--paper);overflow:hidden}.scene-head{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:12px 15px}.scene-head strong{font-size:.84rem}.action-banner{display:flex;flex-direction:column;justify-content:center;gap:3px;min-height:78px;padding:12px 17px;margin-bottom:14px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:12px}.action-banner small{color:var(--amber);font-size:.72rem;font-weight:750;letter-spacing:.08em}.action-banner span{font-size:clamp(1rem,2vw,1.16rem);font-weight:650;overflow-wrap:anywhere}
-svg#quang-canh{display:block;width:100%;height:auto;background:#244236}.controls{padding:16px;display:grid;gap:13px}.controls .hint{color:var(--mute);font-size:.83rem}.grid-buttons{display:flex;flex-wrap:wrap;gap:7px}button{padding:8px 10px;background:#29483a;color:var(--ink);border:1px solid #4a6854;border-radius:8px;font-weight:650;font-size:.82rem;min-height:38px}button:hover{background:#355a49}button.primary{background:var(--lime);color:#192a13;border-color:var(--lime)}button.primary:hover{background:#e0f49c}button:disabled{opacity:.5;cursor:default}.controls label{display:grid;gap:5px;font-size:.79rem;color:var(--mute)}input{min-width:0;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#11251c;color:var(--ink)}form{display:grid;gap:8px}.sendline{display:grid;grid-template-columns:1fr auto;gap:7px}.event-header{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px}.event-header button{min-height:32px;padding:4px 8px;background:transparent}.events{padding:0;margin:0;list-style:none;height:116px;overflow:auto;color:var(--mute);font-size:.79rem;scrollbar-color:#5f7664 transparent}.events li{padding:5px 0;border-bottom:1px solid #32473a}.events li:first-child{color:var(--ink)}.queue{min-height:1.2em;font-size:.79rem;color:var(--mute)}.legend{margin-top:10px;color:var(--mute);font-size:.82rem}
-@media(max-width:780px){.layout{grid-template-columns:1fr}.top{align-items:start}.events{height:87px}}@media(max-width:420px){.top{display:block}.badge{display:inline-block;margin-top:8px}.action-banner{min-height:76px;padding:10px 13px}.controls{padding:12px}button{min-height:42px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
-</style>
+<link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <main>
@@ -59,6 +52,7 @@ svg#quang-canh{display:block;width:100%;height:auto;background:#244236}.controls
 <path d="M0 19Q-10-20-32-14Q-25 10 0 19M0 19Q8-19 32-13Q24 9 0 19M0 19Q-14 1-25 8Q-18 23 0 19" fill="#85a766"/>
 </g>
 <g id="back-seats"></g><g id="back-people"></g>
+<g id="square-table" transform="translate(400 312) scale(.8) translate(-400 -312)">
 <path d="M285 305H515L548 392H252Z" fill="#13271f" opacity=".54"/>
 <path d="M310 267L305 320M490 267l5 53M266 359l-6 42M534 359l6 42" stroke="#654837" stroke-width="10" stroke-linecap="round"/>
 <path d="M303 259H497L541 349V364H259V349Z" fill="#86583e" stroke="#d6a66e" stroke-width="3" stroke-linejoin="round"/>
@@ -66,6 +60,7 @@ svg#quang-canh{display:block;width:100%;height:auto;background:#244236}.controls
 <path d="M292 280H508M280 305H520M268 330H532" fill="none" stroke="#8d5c42" stroke-width="2" opacity=".64"/>
 <ellipse cx="400" cy="310" rx="22" ry="10" fill="#996a46" opacity=".55"/>
 <rect x="394" y="290" width="12" height="19" rx="4" fill="#e3d293"/><path d="M400 292q-9-9-3-15 7 5 3 15" fill="#a9bd68"/>
+</g>
 <g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="walking"></g>
 </svg>
 
@@ -95,10 +90,10 @@ const NS='http://www.w3.org/2000/svg';
 const get=id=>document.getElementById(id);
 const layers={back:get('back-seats'),front:get('front-seats'),backPeople:get('back-people'),frontPeople:get('front-people'),drinks:get('drinks'),walking:get('walking')};
 const points=[
-  {x:340,y:242,back:true,drink:[344,278]},
-  {x:460,y:242,back:true,drink:[456,278]},
-  {x:463,y:415,back:false,drink:[461,336]},
-  {x:337,y:415,back:false,drink:[339,336]}
+  {x:345,y:250,back:true,drink:[353,286]},
+  {x:455,y:250,back:true,drink:[447,286]},
+  {x:455,y:399,back:false,drink:[447,331]},
+  {x:345,y:399,back:false,drink:[353,331]}
 ];
 const seats=points.map((p,i)=>({...p,index:i,person:null}));
 const colors=['#f1b55d','#7dbe9b','#ef9878','#9db1eb'];
@@ -107,7 +102,7 @@ const drinks={
 const entry={x:24,y:479}, counter={x:693,y:221};
 function guestRoute(seat){
   return seat.back
-    ? [entry,{x:211,y:446},{x:228,y:243},seat]
+    ? [entry,{x:211,y:446},{x:228,y:seat.y},seat]
     : [entry,{x:176,y:457},{x:seat.x,y:456},seat];
 }
 const queue=[],orders=[];
