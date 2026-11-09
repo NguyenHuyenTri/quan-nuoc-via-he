@@ -115,6 +115,12 @@
 <path d="M30 104v30m24-30v30m24-30v30m24-30v30m24-30v30" stroke="#5a4338" opacity=".55" stroke-width="2"/>
 <path d="M24 66h17l-2 18H26zM52 63h18l-2 21H54z" fill="#f0bc71" opacity=".8"/>
 </g>
+<g id="counter-dialogue" aria-hidden="true" transform="translate(396 343)">
+  <path d="M257 66l26 23 4-23" fill="#162e2a" stroke="#d2ad77" stroke-width="2" stroke-linejoin="round"/>
+  <rect width="383" height="69" rx="14" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
+  <text x="18" y="23" fill="#ffd391" font-size="14" font-weight="800">NHÂN VIÊN QUẦY</text>
+  <text id="counter-line" x="18" y="49" fill="#fff2cf" font-size="19" font-weight="750">Bình luận VÀO BÀN để ngồi chơi!</text>
+</g>
 <g id="back-seats"></g><g id="back-people"></g>
 <defs><g id="square-table" transform="translate(400 312) scale(.4) translate(-400 -312)">
 <path d="M285 305H515L548 392H252Z" fill="#13271f" opacity=".54"/>
@@ -141,7 +147,7 @@
 <div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: VÀO BÀN" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
 </form>
 <div class="grid-buttons" aria-label="Lệnh nhanh">
-<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="ORDER TRÀ ĐÁ">Trà đá</button><button type="button" data-command="ORDER CÀ PHÊ">Cà phê</button><button type="button" data-command="ORDER NƯỚC MÍA">Nước mía</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" data-command="LÊN HÁT" class="sing-button">♫ Lên hát</button>
+<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="ORDER TRÀ ĐÁ">Trà đá</button><button type="button" data-command="ORDER CÀ PHÊ">Cà phê</button><button type="button" data-command="ORDER NƯỚC MÍA">Nước mía</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử tặng quà để lên hát</button>
 </div>
 
 <div id="queue" class="queue"></div>
@@ -177,7 +183,10 @@ const entry={x:24,y:655}, serverHome={x:548,y:610}, pickup={x:664,y:585};
 function guestRoute(seat){
   return [entry,{x:24,y:walkwayY},{x:seat.aisleX,y:walkwayY},{x:seat.aisleX,y:seat.y},seat];
 }
-const queue=[],orders=[];
+const queue=[],orders=[],stageQueue=[];
+const seenGifts=new Set();
+const minSeatTime=60000;
+let seatTimer=null;
 let running=false,epoch=0,audio=null;
 let singer=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
@@ -206,6 +215,28 @@ function info(){
   const free=seats.filter(s=>!s.person).length;
   get('seat-count').textContent=free?free+' ghế trống':'Quán đã đầy';
   get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
+}
+const counterTips=[
+  'Bình luận VÀO BÀN để ngồi chơi!',
+  'Gọi TRÀ ĐÁ, CÀ PHÊ hoặc NƯỚC MÍA!',
+  'Có ly rồi, bình luận CỤNG LY nha!',
+  'Tặng quà LIVE để lên sân khấu hát!'
+];
+let counterTip=0,counterTimer=null;
+function counterTalk(message){
+  const line=get('counter-line');
+  line.textContent=message;
+  line.removeAttribute('textLength');
+  if(line.getComputedTextLength()>348){
+    line.setAttribute('textLength',348);
+    line.setAttribute('lengthAdjust','spacingAndGlyphs');
+  }
+  clearTimeout(counterTimer);
+  counterTimer=setTimeout(nextCounterTip,5600);
+}
+function nextCounterTip(){
+  counterTalk(counterTips[counterTip]);
+  counterTip=(counterTip+1)%counterTips.length;
 }
 function chair(s){
   const seatRoot=group(s.x,s.y), g=group(0,0);
@@ -388,24 +419,49 @@ function takeSeat(guest,seat){
     person.actor.setAttribute('transform','translate('+seat.x+' '+seat.y+')');
     layers[seat.back?'backPeople':'frontPeople'].append(person.actor);
     wiggle(person.actor.firstElementChild,[{opacity:.35},{opacity:1}],210);
-    person.state='seated';
+    person.state='seated';person.seatedAt=performance.now();
+    counterTalk('Có chỗ rồi, ngồi chill nha!');
     status(guest.name+' đã ngồi vào bàn. Mời gọi món!');
     serve();
+    advanceStage();advanceWaiting();
   })();
 }
 function join(name,avatar){
   if(seated(name)){status(name+' đã có ghế rồi. Mời gọi món!');return;}
   if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
+  if(singer?.id===key(name)){status(name+' biểu diễn xong rồi vào bàn nhé!');return;}
   const guest={id:key(name),name,avatar};
   const free=seats.find(s=>!s.person);
   if(free)return takeSeat(guest,free);
-  queue.push(guest);info();status('Quán đầy rồi, '+name+' chờ ghế số '+queue.length+' trong hàng nhé.');
+  queue.push(guest);info();
+  status('Quán đầy rồi, '+name+' chờ ghế số '+queue.length+' trong hàng nhé.');
+  counterTalk('Đầy bàn rồi, chờ mình xếp chỗ nha!');
+  advanceWaiting();
 }
-async function leave(name){
+function advanceWaiting(){
+  clearTimeout(seatTimer);seatTimer=null;
+  while(queue.length&&queue[0].id!==singer?.id){
+    const free=seats.find(s=>!s.person);
+    if(!free)break;
+    takeSeat(queue.shift(),free);
+  }
+  if(!queue.length||queue[0].id===singer?.id||seats.some(s=>s.person?.state==='leaving'))return;
+  const oldest=seats.filter(s=>s.person?.state==='seated'&&s.person!==singer
+    &&!stageQueue.some(gift=>gift.id===s.person.id))
+    .sort((a,b)=>a.person.seatedAt-b.person.seatedAt)[0];
+  if(!oldest)return;
+  const wait=minSeatTime-(performance.now()-oldest.person.seatedAt);
+  if(wait>0){
+    seatTimer=setTimeout(advanceWaiting,Math.ceil(wait));
+    return;
+  }
+  leave(oldest.person.name,true);
+}
+async function leave(name,makeRoom=false){
   const session=epoch, seat=seated(name);
   if(!seat){
     const i=queue.findIndex(p=>p.id===key(name));
-    if(i>=0){queue.splice(i,1);info();status(name+' đã rời hàng chờ.');}
+    if(i>=0){queue.splice(i,1);info();status(name+' đã rời hàng chờ.');advanceWaiting();}
     else status(name+' chưa có ghế trong quán.');
     return;
   }
@@ -417,11 +473,12 @@ async function leave(name){
   person.state='leaving';person.cup?.remove();person.actor.remove();
   wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
   const walker=character(colors[seat.index],{name,avatar:person.avatar});layers.walking.append(walker);
-  status(name+' đứng dậy nhường chỗ.');
+  status(makeRoom?name+' đã ngồi lâu nhất, mời bạn nhường ghế cho khách mới.':name+' đứng dậy nhường chỗ.');
   if(!await walk(walker,guestRoute(seat).reverse(),1330,session))return;
   walker.remove();seat.person=null;info();
-  const next=queue.shift();info();
-  if(next)takeSeat(next,seat);else status('Quán có chỗ trống. Mời khách mới!');
+  advanceStage();
+  if(queue.length)advanceWaiting();
+  else status('Quán có chỗ trống. Mời khách mới!');
 }
 async function serve(){
   if(running)return;
@@ -432,6 +489,7 @@ async function serve(){
   if(job.seat.person!==job.person||job.person.state!=='seated'){serve();return;}
   running=true;
   const session=epoch,{seat,person,drink}=job;
+  counterTalk('Đang pha '+drink.name+', chờ xíu nha!');
   status('Nhân viên đang pha '+drink.name+' tại quầy…');
   if(!await walk(host,[serverHome,pickup],420,session))return;
   const mixingCup=cup(drink);
@@ -567,6 +625,7 @@ function cheers(name){
     tableToasts.delete(seat.tableX);
     toastEffect(table,seat.tableX,quote);
     status('Cả bàn cùng cụng ly · '+quote);
+    counterTalk('Cả bàn nâng ly, zô nè!');
     return;
   }
   const other=neighbors.sort((a,b)=>Math.hypot(a.x-seat.x,a.y-seat.y)-Math.hypot(b.x-seat.x,b.y-seat.y))[0];
@@ -630,17 +689,39 @@ function playStageSound(){
     osc.start(when);osc.stop(when+.35);
   });
 }
-async function sing(name){
-  const seat=seated(name);
-  if(!seat||seat.person.state!=='seated'){status(name+' vào bàn và ngồi xuống trước khi lên hát nhé.');return;}
-  if(singer){status(singer.name+' đang hát. Chờ hết lượt nhé.');return;}
-  const person=seat.person, session=epoch;
+function receiveGift({name,avatarUrl:photo,eventId}={}){
+  name=typeof name==='string'?name.trim().slice(0,24):'';
+  if(!name||typeof eventId==='string'&&seenGifts.has(eventId))return;
+  if(typeof eventId==='string'&&eventId){
+    seenGifts.add(eventId);
+    if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
+  }
+  primeAudio();
+  stageQueue.push({id:key(name),name,avatar:avatarUrl(photo)});
+  counterTalk('Cảm ơn quà LIVE! Mời lên hát nha!');
+  if(singer||stageQueue.length>1)status(name+' đã tặng quà và đang chờ lượt hát.');
+  advanceStage();advanceWaiting();
+}
+function advanceStage(){
+  if(singer||!stageQueue.length)return;
+  const gift=stageQueue[0];
+  const seat=seated(gift.name);
+  if(seat&&seat.person.state!=='seated')return;
+  stageQueue.shift();
+  sing(gift,seat);
+}
+async function sing(gift,seat){
+  const {name}=gift;
+  const person=seat?.person??gift, session=epoch;
   singer=person;
-  person.actor.remove();
-  const performer=character(colors[seat.index],{name,avatar:person.avatar});
-  const route=[seat,{x:seat.aisleX,y:seat.y},{x:seat.aisleX,y:58},{x:400,y:15},{x:400,y:-37},stageMic];
+  person.actor?.remove();
+  const performer=character(seat?colors[seat.index]:colors[0],{name,avatar:gift.avatar||person.avatar});
+  const start=seat
+    ? [seat,{x:seat.aisleX,y:seat.y},{x:seat.aisleX,y:58}]
+    : [entry,{x:24,y:walkwayY},{x:309,y:walkwayY},{x:309,y:58}];
+  const route=[...start,{x:400,y:15},{x:400,y:-37},stageMic];
   layers.walking.append(performer);
-  status(name+' đang lên sân khấu…');
+  status(name+' đã tặng quà và đang lên sân khấu…');
   get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
   if(!await walk(performer,route,1450,session,true))return;
   setStage(true);
@@ -659,12 +740,13 @@ async function sing(name){
   animation?.cancel();
   stopStageSound();
   setStage(false);
-  status('Cảm ơn '+name+'! Khách đang về ghế.');
+  status('Cảm ơn '+name+'! Tiết mục đã kết thúc.');
   if(!await walk(performer,[...route].reverse(),1450,session,true))return;
   performer.remove();
-  (seat.back?layers.backPeople:layers.frontPeople).append(person.actor);
+  if(seat)(seat.back?layers.backPeople:layers.frontPeople).append(person.actor);
   singer=null;
-  status(name+' đã về lại bàn.');
+  status(name+(seat?' đã về lại bàn.':' đã rời sân khấu.'));
+  advanceStage();advanceWaiting();
 }
 function submit(name,value,avatar){
   name=name.trim().slice(0,24);
@@ -673,14 +755,15 @@ function submit(name,value,avatar){
   if(cmd==='vao ban')return join(name,avatar);
   if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
   if(cmd==='cung ly')return cheers(name);
-  if(cmd==='len hat'||cmd==='len hat mot bai')return sing(name);
+  if(cmd==='len hat'||cmd==='len hat mot bai'){status('Lượt hát dành cho khách tặng quà LIVE.');return;}
   const item=cmd.replace(/^order /,'');
   if(Object.hasOwn(drinks,item))return order(name,drinks[item]);
   if(seated(name))status(name+': '+value.trim().slice(0,80));
   else status('Gõ VÀO BÀN để lấy ghế, rồi gọi món bằng bình luận.');
 }
 function reset(){
-  epoch++;running=false;queue.length=0;orders.length=0;
+  epoch++;running=false;queue.length=0;orders.length=0;stageQueue.length=0;
+  clearTimeout(seatTimer);seatTimer=null;
   singer=null;stopStageSound();setStage(false);
   tableToasts.clear();get('toast-effects').replaceChildren();
   seats.forEach(s=>{s.person=null;});
@@ -694,6 +777,12 @@ get('comment-form').addEventListener('submit',e=>{
 document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',()=>{
   primeAudio();submit(get('guest').value,btn.dataset.command,avatarUrl(get('guest-avatar').value));
 }));
+get('demo-gift').addEventListener('click',()=>{
+  receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value});
+});
+window.addEventListener('quannuoc:gift',event=>{
+  if(event.detail&&typeof event.detail==='object')receiveGift(event.detail);
+});
 get('preview-viewer').addEventListener('click',()=>{
   const name=get('guest').value.trim().slice(0,24);
   const avatarField=get('guest-avatar');
@@ -738,12 +827,11 @@ get('demo').addEventListener('click',async()=>{
     if(epoch!==session)return;
     submit('Mai','CỤNG LY');
     await sleep(2300);
-    if(epoch!==session)return;
-    await submit('Mai','RỜI BÀN');
   }finally{
     if(epoch===session)get('demo').disabled=false;
   }
 });
+nextCounterTip();
 info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 })();
 </script>

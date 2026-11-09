@@ -1,6 +1,6 @@
 # Quán Nước Vỉa Hè
 
-Bản mô phỏng một quán nước tương tác có ba bàn vuông, mỗi bàn bốn ghế. Khách vào bàn, gọi nước, cụng ly và nhường ghế qua ô bình luận giả lập. Khi cả ba bàn đầy, người đến trước được mời vào trước.
+Bản mô phỏng một quán nước tương tác có ba bàn vuông, mỗi bàn bốn ghế. Khách vào bàn, gọi nước, cụng ly và nhường ghế qua ô bình luận giả lập. Khách có thể ngồi bao lâu tuỳ thích khi quán còn chỗ. Khi đủ 12 ghế và có khách chờ, quán mời khách đã ngồi lâu nhất nhường ghế sau tối thiểu 60 giây. Người chờ được mời theo thứ tự.
 
 [Chơi thử trên Netlify](https://quannuocviahe.netlify.app/)
 
@@ -13,8 +13,9 @@ Bấm **Xem một lượt phục vụ** hoặc nhập tên khách và gửi từ
 | `VÀO BÀN` | Xin ghế trống hoặc vào hàng chờ |
 | `ORDER TRÀ ĐÁ`, `ORDER CÀ PHÊ`, `ORDER NƯỚC MÍA` | Gọi một món từ quầy |
 | `CỤNG LY` | Cụng ly với khách cùng bàn đã có nước. Khi mọi khách cùng bàn đều hô, cả bàn cụng ly và hiện câu thoại ngẫu nhiên |
-| `LÊN HÁT` | Từ ghế lên sân khấu, biểu diễn rồi trở về trong khoảng 15 giây. Hiện lời trên sân khấu và đọc theo nếu thiết bị có giọng tiếng Việt |
 | `RỜI BÀN` | Trả ghế hoặc rời hàng chờ |
+
+Lượt hát khoảng 15 giây dành cho khách tặng quà LIVE. Dùng nút **Thử tặng quà để lên hát** để mô phỏng sự kiện nhận quà. Khách tặng quà có thể lên sân khấu ngay cả khi chưa có bàn.
 
 ## Cấu trúc
 
@@ -35,4 +36,12 @@ window.dispatchEvent(new CustomEvent('quannuoc:viewer', {
 }));
 ```
 
-Sự kiện này chỉ hiển thị khách đi ngang. Bình luận giả lập vẫn được xử lý riêng trong từng phiên.
+Khi nguồn LIVE xác nhận một lượt tặng quà, cầu nối có thể gửi một sự kiện riêng. Nếu nguồn gửi lại cùng một sự kiện, dùng cùng `eventId` để tránh tạo lượt hát trùng.
+
+```js
+window.dispatchEvent(new CustomEvent('quannuoc:gift', {
+  detail: {name: displayName, avatarUrl: profilePhotoUrl, eventId: giftEventId}
+}));
+```
+
+Các sự kiện chỉ chạy trong phiên trình duyệt đang mở. Bình luận giả lập vẫn được xử lý riêng.
