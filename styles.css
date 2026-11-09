@@ -166,9 +166,6 @@ svg#quang-canh {
   color:var(--amber);
   font-size:.76rem;
 }
-.counter-hint .hint {
-  margin-top:3px;
-}
 
 .grid-buttons {
   display:flex;

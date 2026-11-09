@@ -119,7 +119,7 @@
   <path d="M257 66l26 23 4-23" fill="#162e2a" stroke="#d2ad77" stroke-width="2" stroke-linejoin="round"/>
   <rect width="383" height="69" rx="14" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
   <text x="18" y="23" fill="#ffd391" font-size="14" font-weight="800">NHÂN VIÊN QUẦY</text>
-  <text id="counter-line" x="18" y="49" fill="#fff2cf" font-size="19" font-weight="750">Bình luận VÀO BÀN để ngồi chơi!</text>
+  <text id="counter-line" x="18" y="49" fill="#fff2cf" font-size="19" font-weight="750">vào bàn</text>
 </g>
 <g id="back-seats"></g><g id="back-people"></g>
 <defs><g id="square-table" transform="translate(400 312) scale(.4) translate(-400 -312)">
@@ -144,10 +144,9 @@
 <label>Link ảnh đại diện (tuỳ chọn)<input id="guest-avatar" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></label>
 <button type="button" id="preview-viewer">Thử khách ghé LIVE</button>
 <label for="comment">Bình luận</label>
-<div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: vào bàn" aria-describedby="comment-case" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
+<div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: vào bàn" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
 <div class="counter-hint">
-  <p><strong>Nhân viên quầy</strong><span id="counter-comment-tip">Bình luận VÀO BÀN để ngồi chơi!</span></p>
-  <p id="comment-case" class="hint">Gõ chữ thường hay chữ hoa đều được, ví dụ <b>vào bàn</b> hoặc <b>VÀO BÀN</b>.</p>
+  <p><strong>Nhân viên quầy</strong><span id="counter-comment-tip">vào bàn</span></p>
 </div>
 </form>
 <div class="grid-buttons" aria-label="Lệnh nhanh">
@@ -221,12 +220,7 @@ function info(){
   get('seat-count').textContent=samples?samples+' khách mẫu':free?free+' ghế trống':'Quán đã đầy';
   get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
 }
-const counterTips=[
-  'Bình luận VÀO BÀN để ngồi chơi!',
-  'Gọi TRÀ ĐÁ, CÀ PHÊ hoặc NƯỚC MÍA!',
-  'Có ly rồi, bình luận CỤNG LY nha!',
-  'Tặng quà LIVE để lên sân khấu hát!'
-];
+const counterTips=['vào bàn','trà đá','cà phê','nước mía','cụng ly','rời bàn'];
 let counterTip=0,counterTimer=null;
 function counterTalk(message){
   const line=get('counter-line');
@@ -454,7 +448,6 @@ function takeSeat(guest,seat){
     person.actor=seatActor(seat,person);
     wiggle(person.actor.firstElementChild,[{opacity:.35},{opacity:1}],210);
     person.state='seated';person.seatedAt=performance.now();
-    counterTalk('Có chỗ rồi, ngồi chill nha!');
     status(guest.name+' đã ngồi vào bàn. Mời gọi món!');
     serve();
     advanceStage();advanceWaiting();
@@ -470,7 +463,6 @@ function join(name,avatar){
   if(free)return takeSeat(guest,free);
   queue.push(guest);info();
   status('Quán đầy rồi, '+name+' chờ ghế số '+queue.length+' trong hàng nhé.');
-  counterTalk('Đầy bàn rồi, chờ mình xếp chỗ nha!');
   advanceWaiting();
 }
 function advanceWaiting(){
@@ -527,7 +519,6 @@ async function serve(){
   if(job.seat.person!==job.person||job.person.state!=='seated'){serve();return;}
   running=true;
   const session=epoch,{seat,person,drink}=job;
-  counterTalk('Đang pha '+drink.name+', chờ xíu nha!');
   status('Nhân viên đang pha '+drink.name+' tại quầy…');
   if(!await walk(host,[serverHome,pickup],420,session))return;
   const mixingCup=cup(drink);
@@ -663,7 +654,6 @@ function cheers(name){
     tableToasts.delete(seat.tableX);
     toastEffect(table,seat.tableX,quote);
     status('Cả bàn cùng cụng ly · '+quote);
-    counterTalk('Cả bàn nâng ly, zô nè!');
     return;
   }
   const other=neighbors.sort((a,b)=>Math.hypot(a.x-seat.x,a.y-seat.y)-Math.hypot(b.x-seat.x,b.y-seat.y))[0];
@@ -737,7 +727,6 @@ function receiveGift({name,avatarUrl:photo,eventId}={}){
   primeAudio();
   clearSampleGuests();info();
   stageQueue.push({id:key(name),name,avatar:avatarUrl(photo)});
-  counterTalk('Cảm ơn quà LIVE! Mời lên hát nha!');
   if(singer||stageQueue.length>1)status(name+' đã tặng quà và đang chờ lượt hát.');
   advanceStage();advanceWaiting();
 }
