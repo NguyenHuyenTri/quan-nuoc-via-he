@@ -38,8 +38,11 @@
 </g>
 <g transform="translate(607 73)">
 <rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
+<g id="prep-station" aria-label="Nhân viên pha chế"></g>
+<g transform="translate(0 -10)">
 <path d="M-6 15h166l13 42H-19z" fill="url(#roof)" stroke="#eea26a" stroke-width="2"/>
 <path d="M20 16 13 55m40-39-4 39m37-39v39m32-39 4 39m29-39 8 39" stroke="#ffc584" opacity=".65" stroke-width="3"/>
+</g>
 <rect x="-1" y="84" width="158" height="15" rx="4" fill="#cb955f"/>
 <rect x="9" y="99" width="136" height="40" rx="4" fill="#8f6247"/>
 <path d="M30 104v30m24-30v30m24-30v30m24-30v30m24-30v30" stroke="#5a4338" opacity=".55" stroke-width="2"/>
@@ -52,7 +55,7 @@
 <path d="M0 19Q-10-20-32-14Q-25 10 0 19M0 19Q8-19 32-13Q24 9 0 19M0 19Q-14 1-25 8Q-18 23 0 19" fill="#85a766"/>
 </g>
 <g id="back-seats"></g><g id="back-people"></g>
-<g id="square-table" transform="translate(400 312) scale(.8) translate(-400 -312)">
+<g id="square-table" transform="translate(400 312) scale(.4) translate(-400 -312)">
 <path d="M285 305H515L548 392H252Z" fill="#13271f" opacity=".54"/>
 <path d="M310 267L305 320M490 267l5 53M266 359l-6 42M534 359l6 42" stroke="#654837" stroke-width="10" stroke-linecap="round"/>
 <path d="M303 259H497L541 349V364H259V349Z" fill="#86583e" stroke="#d6a66e" stroke-width="3" stroke-linejoin="round"/>
@@ -90,16 +93,16 @@ const NS='http://www.w3.org/2000/svg';
 const get=id=>document.getElementById(id);
 const layers={back:get('back-seats'),front:get('front-seats'),backPeople:get('back-people'),frontPeople:get('front-people'),drinks:get('drinks'),walking:get('walking')};
 const points=[
-  {x:345,y:250,back:true,drink:[353,286]},
-  {x:455,y:250,back:true,drink:[447,286]},
-  {x:455,y:399,back:false,drink:[447,331]},
-  {x:345,y:399,back:false,drink:[353,331]}
+  {x:370,y:279,back:true,drink:[381,298]},
+  {x:430,y:279,back:true,drink:[419,298]},
+  {x:430,y:375,back:false,drink:[412,323]},
+  {x:370,y:375,back:false,drink:[388,323]}
 ];
 const seats=points.map((p,i)=>({...p,index:i,person:null}));
 const colors=['#f1b55d','#7dbe9b','#ef9878','#9db1eb'];
 const drinks={
 'tra da':{name:'trà đá',color:'#e6b65d'},'ca phe':{name:'cà phê',color:'#916244'},'nuoc mia':{name:'nước mía',color:'#cfcd68'}};
-const entry={x:24,y:479}, counter={x:693,y:221};
+const entry={x:24,y:479}, serverHome={x:584,y:228}, pickup={x:666,y:225};
 function guestRoute(seat){
   return seat.back
     ? [entry,{x:211,y:446},{x:228,y:seat.y},seat]
@@ -138,7 +141,7 @@ function info(){
   get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
   for(const s of seats) {
     const name=s.person?.name;
-    s.chairTag.textContent=name?(name.length>15?name.slice(0,14)+'…':name):'Ghế '+(s.index+1);
+    s.chairTag.textContent=name?(name.length>12?name.slice(0,11)+'…':name):'Ghế '+(s.index+1);
     s.chairTag.setAttribute('aria-label',name||'Ghế '+(s.index+1));
     s.chairTag.setAttribute('fill',s.person?'#fff0c8':'#bccbb3');
   }
@@ -150,9 +153,9 @@ function chair(s){
   line(g,'M-20 2 -26 16 M20 2 26 16 M-10 5 -11 16 M10 5 11 16','#9b5242',4);
   rect(g,-24,-14,48,23,5,'#bd6950','#e78d68');
   line(g,'M-19 -10H19','#f2a276',2);
-  const tag=group(s.x,s.y+(s.back?-60:34));
-  rect(tag,-51,-15,102,22,8,'#192e26','#52715d');
-  s.chairTag=node('text',{x:0,y:0,'text-anchor':'middle','font-size':11,'font-weight':750,fill:'#bccbb3'});
+  const tag=group(s.x+(s.x<400?-36:36),s.y+(s.back?-89:38));
+  rect(tag,-61,-21,122,29,9,'#192e26','#52715d');
+  s.chairTag=node('text',{x:0,y:0,'text-anchor':'middle','font-size':16,'font-weight':800,fill:'#bccbb3'});
   tag.append(s.chairTag);
   layers[s.back?'back':'front'].append(seatRoot,tag);
 }
@@ -165,11 +168,13 @@ function cup(drink){
   return g;
 }
 function character(color,{host=false,sitting=false,carry=null}={}){
-  const g=group(0,0);
-  ellipse(g,0,1,17,5,'#16291f');
+  const actor=group(0,0);
+  ellipse(actor,0,1,17,5,'#16291f');
+  const g=node('g',{transform:'scale(1 1.5)'});
+  actor.append(g);
   const legs=node('g');
   line(legs,sitting?'M-8-12 -16-7 -14 0M8-12 16-7 14 0':'M-7-14 -9 0M7-14 9 0','#344943',5);
-  if(!sitting)g.stepLegs=legs.firstElementChild;
+  if(!sitting)actor.stepLegs=legs.firstElementChild;
   g.append(legs);
   rect(g,-14,-33,28,24,8,color);
   if(host)rect(g,-8,-30,16,18,4,'#f7dc9c');
@@ -178,8 +183,8 @@ function character(color,{host=false,sitting=false,carry=null}={}){
   g.append(node('path',{d:'M-10-45Q-8-57 3-55Q12-52 10-45L7-48-8-45Z',fill:'#403830'}));
   if(host)line(g,'M-10-51Q0-59 10-51M-12-50H12','#e8bc6f',3);
   ellipse(g,-3,-42,1,1,'#4b3c2f');ellipse(g,4,-42,1,1,'#4b3c2f');
-  if(carry){const c=cup(carry);c.setAttribute('transform','translate(20 -17) scale(.72)');g.append(c);}
-  return g;
+  if(carry){const c=cup(carry);c.setAttribute('transform','translate(20 -17) scale(.72 .48)');g.append(c);}
+  return actor;
 }
 function walk(actor,route,ms,session){
   if(reduce.matches)ms=100;
@@ -223,8 +228,22 @@ function primeAudio(){
   if(!audio&&window.AudioContext)audio=new AudioContext();
   if(audio?.state==='suspended')audio.resume().catch(()=>{});
 }
-const hostIdle=()=>{const g=character('#edba64',{host:true});g.setAttribute('transform','translate('+counter.x+' '+counter.y+')');layers.walking.append(g);return g;};
-let host=hostIdle();
+const prep=character('#81c6b3',{host:true});
+prep.setAttribute('transform','translate(86 130)');
+get('prep-station').append(prep);
+function serviceWorker(carry=null){
+  const actor=character('#edba64',{host:true,carry});
+  actor.setAttribute('aria-label','Nhân viên bưng nước');
+  actor.setAttribute('data-server','');
+  layers.walking.append(actor);
+  return actor;
+}
+function serverIdle(){
+  const actor=serviceWorker();
+  actor.setAttribute('transform','translate('+serverHome.x+' '+serverHome.y+')');
+  return actor;
+}
+let host=serverIdle();
 seats.forEach(chair);
 function seated(name){return seats.find(s=>s.person?.id===key(name));}
 function takeSeat(guest,seat){
@@ -284,12 +303,21 @@ async function serve(){
   if(job.seat.person!==job.person||job.person.state!=='seated'){serve();return;}
   running=true;
   const session=epoch,{seat,person,drink}=job;
+  status('Nhân viên đang pha '+drink.name+' tại quầy…');
+  if(!await walk(host,[serverHome,pickup],420,session))return;
+  const mixingCup=cup(drink);
+  mixingCup.setAttribute('transform','translate(111 80) scale(.75)');
+  get('prep-station').append(mixingCup);
+  wiggle(mixingCup.firstElementChild,[{opacity:.4},{opacity:1}],380);
+  await sleep(400);
+  mixingCup.remove();
+  if(session!==epoch)return;
   host.remove();
-  let server=character('#edba64',{host:true,carry:drink});
-  layers.walking.append(server);
-  const stop={x:seat.x+35,y:seat.y+(seat.back?2:16)};
-  const route=seat.back?[counter,{x:620,y:213},{x:stop.x,y:211},stop]:[counter,{x:624,y:306},{x:599,y:stop.y},stop];
-  status('Chủ quán mang '+drink.name+' tới ghế '+(seat.index+1)+'…');
+  let server=serviceWorker(drink);
+  server.setAttribute('transform','translate('+pickup.x+' '+pickup.y+')');
+  const stop={x:seat.x+(seat.x<400?-39:39),y:seat.y+(seat.back?-3:13)};
+  const route=seat.back?[pickup,{x:567,y:230},{x:stop.x,y:231},stop]:[pickup,{x:552,y:298},{x:516,y:stop.y},stop];
+  status('Nhân viên mang '+drink.name+' tới ghế '+(seat.index+1)+'…');
   if(!await walk(server,route,1180,session))return;
   if(seat.person===person&&person.state==='seated'){
     person.cup?.remove();
@@ -298,8 +326,9 @@ async function serve(){
     status(drink.name[0].toUpperCase()+drink.name.slice(1)+' của '+person.name+' đây, mời bạn!');ding();
   }
   server.remove();
-  server=character('#edba64',{host:true});layers.walking.append(server);
-  if(!await walk(server,[...route].reverse(),960,session))return;
+  server=serviceWorker();
+  const returnRoute=[stop,...route.slice(1,-1).reverse(),serverHome];
+  if(!await walk(server,returnRoute,960,session))return;
   host=server;running=false;serve();
 }
 function order(name,drink){
@@ -345,7 +374,7 @@ function reset(){
   epoch++;running=false;queue.length=0;orders.length=0;
   seats.forEach(s=>{s.person=null;});
   for(const name of ['backPeople','frontPeople','drinks','walking'])layers[name].replaceChildren();
-  host=hostIdle();get('events').replaceChildren();get('demo').disabled=false;
+  host=serverIdle();get('events').replaceChildren();get('demo').disabled=false;
   info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 }
 get('comment-form').addEventListener('submit',e=>{
