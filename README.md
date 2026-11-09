@@ -1,6 +1,6 @@
 # Quán Nước Vỉa Hè
 
-Bản mô phỏng một quán nước tương tác có bàn vuông bốn ghế. Khách vào bàn, gọi nước, cụng ly và nhường ghế qua ô bình luận giả lập. Khi bàn đầy, người đến trước được mời vào trước.
+Bản mô phỏng một quán nước tương tác có ba bàn vuông, mỗi bàn bốn ghế. Khách vào bàn, gọi nước, cụng ly và nhường ghế qua ô bình luận giả lập. Khi cả ba bàn đầy, người đến trước được mời vào trước.
 
 [Chơi thử trên Netlify](https://quannuocviahe.netlify.app/)
 
@@ -12,7 +12,7 @@ Bấm **Xem một lượt phục vụ** hoặc nhập tên khách và gửi từ
 | --- | --- |
 | `VÀO BÀN` | Xin ghế trống hoặc vào hàng chờ |
 | `ORDER TRÀ ĐÁ`, `ORDER CÀ PHÊ`, `ORDER NƯỚC MÍA` | Gọi một món từ quầy |
-| `CỤNG LY` | Cụng ly với khách đã có nước |
+| `CỤNG LY` | Cụng ly với khách cùng bàn đã có nước |
 | `LÊN HÁT` | Từ ghế lên sân khấu, biểu diễn rồi trở về trong khoảng 10 giây |
 | `RỜI BÀN` | Trả ghế hoặc rời hàng chờ |
 
