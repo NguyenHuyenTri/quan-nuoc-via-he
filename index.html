@@ -16,7 +16,7 @@
 </div>
 <div class="layout">
 <section class="scene" aria-labelledby="scene-title">
-<div class="scene-head"><strong id="scene-title">BÀN NGOÀI HIÊN</strong><span class="badge" id="seat-count">8 khách mẫu</span></div>
+<div class="scene-head"><strong id="scene-title">BÀN NGOÀI HIÊN</strong><span class="badge" id="seat-count">4 ghế trống · 8 khách mẫu</span></div>
 <svg id="quang-canh" viewBox="0 0 800 1422" role="img" aria-label="Sân khấu phòng trà ngoài trời phía trên và ba bàn bốn ghế và phố đi bộ trước quầy">
 <defs>
 <clipPath id="avatar-crop"><circle r="15"/></clipPath>
@@ -222,7 +222,8 @@ function status(message){
 function info(){
   const samples=seats.filter(s=>s.person?.sample).length;
   const free=seats.filter(s=>!s.person).length;
-  get('seat-count').textContent=samples?samples+' khách mẫu':free?free+' ghế trống':'Quán đã đầy';
+  const availability=free?free+' ghế trống':'Quán đã đầy';
+  get('seat-count').textContent=availability+(samples?' · '+samples+' khách mẫu':'');
   get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
 }
 const counterTips=['vào bàn','cụng ly','rời bàn'];
@@ -340,7 +341,9 @@ function walk(actor,route,ms,session,keepDuration=false){
 const pedestrianLayer=get('pedestrians');
 const visitors=[
   ['An','#f0a365','#413143'],['Linh','#84c8af','#4a3430'],['Minh','#87b7e8','#2a343b'],
-  ['Vy','#e99aaf','#4f312d'],['Nam','#d8bd72','#2e313a'],['Hà','#ac9bdb','#52392d']
+  ['Vy','#e99aaf','#4f312d'],['Nam','#d8bd72','#2e313a'],['Hà','#ac9bdb','#52392d'],
+  ['Phúc','#e8a976','#453729'],['Yến','#b1c69d','#3f3032'],
+  ['Tâm','#85bfd0','#34303c'],['Trang','#df9eb7','#554137']
 ];
 function sampleAvatar(background,hair){
   const portrait='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="'+background+'"/>'
@@ -360,14 +363,13 @@ const passers=new Map();
 let visitorIndex=0;
 function passBy({name,avatar,color=colors[0],sample=false},startX){
   const id=key(name);
-  if(seated(name)||onStage(id)||stageQueue.some(gift=>gift.id===id)||queue.some(guest=>guest.id===id))return;
+  if(seated(name,true)||onStage(id)||stageQueue.some(gift=>gift.id===id)||queue.some(guest=>guest.id===id))return;
   const current=passers.get(id);
   if(current){
     if(sample||!current.sample)return;
     current.actor.remove();
     passers.delete(id);
   }
-  if(!sample)removeMatchingSample(id);
   const right=visitorIndex++%2===0;
   const y=right?653:697;
   const x=startX??(sample?(right?-50:850):(right?125:675));
@@ -380,7 +382,6 @@ function passBy({name,avatar,color=colors[0],sample=false},startX){
     if(passers.get(id)!==passer)return;
     passers.delete(id);
     actor.remove();
-    if(!sample)seedSampleGuests();
   };
   if(reduce.matches){
     if(startX===undefined){
@@ -414,7 +415,9 @@ function samplePasser(startX){
 }
 samplePasser(570);
 samplePasser(315);
-setInterval(()=>{if(!reduce.matches)samplePasser();},2300);
+samplePasser(265);
+samplePasser(690);
+setInterval(()=>{if(!reduce.matches)samplePasser();},1150);
 window.addEventListener('quannuoc:viewer',event=>{
   const name=typeof event.detail?.name==='string'?event.detail.name.trim().slice(0,24):'';
   if(name)passBy({name,avatar:avatarUrl(event.detail.avatarUrl)});
@@ -465,7 +468,10 @@ for(const x of tableCenters){
   get('tables').append(node('use',{href:'#square-table',x:x-400,y:-tableLift}));
 }
 seats.forEach(chair);
-function seated(name){return seats.find(s=>s.person&&!s.person.sample&&s.person.id===key(name));}
+function seated(name,includeSamples=false){
+  const id=key(name);
+  return seats.find(s=>s.person?.id===id&&(includeSamples||!s.person.sample));
+}
 function seatActor(seat,person){
   const actor=character(person.color??colors[seat.index],{sitting:true,name:person.name,avatar:person.avatar,
     labelX:seat.x<seat.tableX?-12:12});
@@ -484,26 +490,12 @@ function seedSampleGuests(){
     if(seat.person)continue;
     const name=seat.tableX===tableCenters[0]?center[seat.index]:seat.index<2?pickName():'';
     if(!name||passers.has(key(name)))continue;
-    const person={id:key(name),name,sample:true,state:'seated',cup:null,total:0};
+    const person={id:key(name),name,sample:true,state:'seated',seatedAt:performance.now(),cup:null,total:0};
     person.actor=seatActor(seat,person);
     person.actor.setAttribute('data-sample-guest','');
     seat.person=person;
   }
   info();
-}
-function clearSampleSeat(seat){
-  seat.person.actor.remove();
-  seat.person.stageMarker?.remove();
-  seat.person.cup?.remove();
-  seat.person=null;
-}
-function removeMatchingSample(id){
-  const seat=seats.find(s=>s.person?.sample&&s.person.id===id);
-  if(!seat)return;
-  clearSampleSeat(seat);info();
-}
-function clearSampleGuests(){
-  seats.filter(seat=>seat.person?.sample).forEach(clearSampleSeat);
 }
 function takeSeat(guest,seat){
   const session=epoch;
@@ -532,15 +524,31 @@ function takeSeat(guest,seat){
   })();
 }
 function join(name,avatar){
-  if(seated(name)){status(name+' đã có ghế rồi. Ngồi chill nha!');return;}
+  const occupied=seated(name,true);
+  if(occupied){
+    const person=occupied.person;
+    if(person.sample&&person.state==='seated'){
+      person.sample=false;
+      person.seatedAt=performance.now();
+      person.actor.removeAttribute('data-sample-guest');
+      if(avatar&&avatar!==person.avatar){
+        person.avatar=avatar;
+        person.actor.remove();
+        person.actor=seatActor(occupied,person);
+        if(onStage(person.id))person.actor.setAttribute('visibility','hidden');
+      }
+      info();serve();
+    }
+    status(person.name+(person.state==='leaving'?' đang rời bàn.':' đã có ghế rồi. Ngồi chill nha!'));
+    return;
+  }
   if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
   if(onStage(key(name))){status(name+' biểu diễn xong rồi vào bàn nhé!');return;}
   const id=key(name);
   const viewer=passers.get(id);
   const guest={id,name:viewer?.name??name,avatar:viewer?.avatar||avatar,origin:roadSnapshot(id)};
-  clearSampleGuests();
   const free=seats.find(s=>!s.person);
-  if(free)return takeSeat(guest,free);
+  if(free&&!queue.length)return takeSeat(guest,free);
   queue.push(guest);info();
   status('Quán đầy rồi, '+name+' chờ ghế số '+queue.length+' trong hàng nhé.');
   advanceWaiting();
@@ -553,11 +561,12 @@ function advanceWaiting(){
     takeSeat(queue.shift(),free);
   }
   if(!queue.length||onStage(queue[0].id)||seats.some(s=>s.person?.state==='leaving'))return;
-  const oldest=seats.filter(s=>s.person?.state==='seated'&&!onStage(s.person.id)
-    &&!stageQueue.some(gift=>gift.id===s.person.id))
-    .sort((a,b)=>a.person.seatedAt-b.person.seatedAt)[0];
+  const eligible=seats.filter(s=>s.person?.state==='seated'&&!onStage(s.person.id)
+    &&!stageQueue.some(gift=>gift.id===s.person.id));
+  const oldest=eligible.sort((a,b)=>Number(Boolean(b.person.sample))-Number(Boolean(a.person.sample))
+    ||a.person.seatedAt-b.person.seatedAt)[0];
   if(!oldest)return;
-  const wait=minSeatTime-(performance.now()-oldest.person.seatedAt);
+  const wait=oldest.person.sample?0:minSeatTime-(performance.now()-oldest.person.seatedAt);
   if(wait>0){
     seatTimer=setTimeout(advanceWaiting,Math.ceil(wait));
     return;
@@ -565,7 +574,7 @@ function advanceWaiting(){
   leave(oldest.person.name,true);
 }
 async function leave(name,makeRoom=false){
-  const session=epoch, seat=seated(name);
+  const session=epoch, seat=seated(name,makeRoom);
   if(!seat){
     const i=queue.findIndex(p=>p.id===key(name));
     if(i>=0){queue.splice(i,1);info();status(name+' đã rời hàng chờ.');advanceWaiting();}
@@ -593,16 +602,13 @@ async function finishLeave({seat,person,makeRoom},sneaked){
   person.cup?.remove();person.actor.remove();
   wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
   const walker=character(person.color??colors[seat.index],{name,avatar:person.avatar});layers.walking.append(walker);
-  if(!sneaked)status(makeRoom?name+' đã ngồi lâu nhất, mời bạn nhường ghế cho khách mới.':name+' đứng dậy nhường chỗ.');
+  if(!sneaked)status(makeRoom?name+' nhường ghế cho khách mới.':name+' đứng dậy nhường chỗ.');
   if(!await walk(walker,guestRoute(seat).reverse(),sneaked?820:1330,session))return;
   walker.remove();seat.person=null;info();
   if(sneaked)tableDialogue(seat.tableX,'Nhân viên',oneOf(caughtLines));
   advanceStage();
   if(queue.length)advanceWaiting();
-  else{
-    seedSampleGuests();
-    if(!sneaked)status('Quán có chỗ trống. Mời khách mới!');
-  }
+  else if(!sneaked)status('Quán có chỗ trống. Mời khách mới!');
   serve();
 }
 const askLines=['Uống gì nè? Để quán chọn giúp nha!','Chờ xíu, quán chọn ly mát lòng mát dạ!','Hôm nay để quán chọn món bất ngờ nha!'];
@@ -999,7 +1005,7 @@ async function endShow(show){
   }));
   if(activeShow!==show)return;
   activeShow=null;
-  advanceStage();advanceWaiting();seedSampleGuests();serve();
+  advanceStage();advanceWaiting();serve();
 }
 function openShow(idle,rap=false){
   clearTimeout(idleTimer);idleTimer=null;
@@ -1015,8 +1021,11 @@ function armIdle(){
     const samples=seats.filter(seat=>seat.person?.sample&&seat.person.state==='seated');
     const fallback=samples.find(seat=>seat.person.name===rapperName);
     const choices=samples.filter(seat=>seat.person.id!==lastIdleSinger);
-    const seat=lastIdleSinger===null&&fallback?fallback:oneOf(choices);
-    const person=seat?.person??{id:key(rapperName),name:rapperName};
+    const seat=lastIdleSinger===null&&fallback?fallback:oneOf(choices.length?choices:samples);
+    const streetChoices=visitors.filter(([name])=>key(name)!==lastIdleSinger&&!seated(name,true)
+      &&!queue.some(guest=>guest.id===key(name)));
+    const [name,color,hair]=oneOf(streetChoices)??['Ca sĩ vỉa hè','#f0a365','#413143'];
+    const person=seat?.person??{id:key(name),name,color,avatar:sampleAvatar(color,hair)};
     lastIdleSinger=person.id;
     const show=openShow(true,person.name===rapperName);
     addPerformer(show,person,seat);
@@ -1032,8 +1041,7 @@ function receiveGift({name,avatarUrl:photo,eventId}={}){
   const id=key(name);
   if((onStage(id)&&!activeShow.idle)||stageQueue.some(gift=>gift.id===id))return;
   primeAudio();
-  const seat=seated(name),viewer=passers.get(id);
-  if(!seat)removeMatchingSample(id);
+  const seat=seated(name,true),viewer=passers.get(id);
   stageQueue.push({id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatarUrl(photo),origin:roadSnapshot(id)});
   status(name+' đã tặng quà và đăng ký lượt hát.');
   get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
@@ -1047,7 +1055,7 @@ function advanceStage(){
     ||(show.endsAt!==null&&show.endsAt-performance.now()<16000)))return;
   while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
     const gift=stageQueue[0];
-    const seat=seated(gift.name);
+    const seat=seated(gift.name,true);
     if(seat&&seat.person.state!=='seated')return;
     stageQueue.shift();
     addPerformer(activeShow??openShow(false),gift,seat);
