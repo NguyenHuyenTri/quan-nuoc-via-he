@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quán Nước Vỉa Hè · Bản chơi thử</title>
+<style>
+:root{color-scheme:dark;--ink:#faf2df;--mute:#b9c1b6;--paper:#172923;--panel:#1f352c;--line:#3f5345;--lime:#d0e97b;--amber:#ffd085}
+*{box-sizing:border-box}body{margin:0;background:#10211b;color:var(--ink);font:15px/1.5 system-ui,sans-serif}button,input{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
+main{max-width:1180px;margin:auto;padding:32px clamp(14px,4vw,40px) 38px}.top{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:22px}.eyebrow{font-size:.72rem;letter-spacing:.16em;font-weight:750;color:var(--lime)}h1,h2,p{margin:0}h1{font-family:Georgia,serif;font-size:clamp(2.1rem,5.7vw,4.2rem);line-height:1.04;letter-spacing:-.055em;font-weight:500;margin:5px 0 9px}h2{font-size:1.04rem}.subtitle{color:var(--mute)}.badge{font-size:.73rem;white-space:nowrap;padding:5px 10px;border:1px solid #68865c;border-radius:999px;color:var(--lime)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,330px);gap:16px;align-items:start}.scene,.controls{border:1px solid var(--line);border-radius:18px;background:var(--paper);overflow:hidden}.scene-head,.scene-foot{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:12px 15px}.scene-head strong{font-size:.84rem}.scene-foot{min-height:60px;border-top:1px solid var(--line);align-items:flex-start}.scene-foot small{color:var(--amber);white-space:nowrap}.scene-foot span{font-weight:600}
+svg#quang-canh{display:block;width:100%;height:auto;background:#244236}.controls{padding:16px;display:grid;gap:13px}.controls .hint{color:var(--mute);font-size:.83rem}.grid-buttons{display:flex;flex-wrap:wrap;gap:7px}button{padding:8px 10px;background:#29483a;color:var(--ink);border:1px solid #4a6854;border-radius:8px;font-weight:650;font-size:.82rem;min-height:38px}button:hover{background:#355a49}button.primary{background:var(--lime);color:#192a13;border-color:var(--lime)}button.primary:hover{background:#e0f49c}button:disabled{opacity:.5;cursor:default}.controls label{display:grid;gap:5px;font-size:.79rem;color:var(--mute)}input{min-width:0;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#11251c;color:var(--ink)}form{display:grid;gap:8px}.sendline{display:grid;grid-template-columns:1fr auto;gap:7px}.event-header{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:12px}.event-header button{min-height:32px;padding:4px 8px;background:transparent}.events{padding:0;margin:0;list-style:none;height:116px;overflow:auto;color:var(--mute);font-size:.79rem;scrollbar-color:#5f7664 transparent}.events li{padding:5px 0;border-bottom:1px solid #32473a}.events li:first-child{color:var(--ink)}.queue{min-height:1.2em;font-size:.79rem;color:var(--mute)}.legend{margin-top:10px;color:var(--mute);font-size:.82rem}
+@media(max-width:780px){.layout{grid-template-columns:1fr}.top{align-items:start}.events{height:87px}}@media(max-width:420px){.top{display:block}.badge{display:inline-block;margin-top:8px}.scene-foot{font-size:.83rem}.controls{padding:12px}button{min-height:42px}}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+<header class="top"><div><div class="eyebrow">LIVE TƯƠNG TÁC · BẢN CHƠI THỬ</div><h1>Quán Nước Vỉa Hè</h1><p class="subtitle">Ghé quán, kéo ghế, gọi một ly.</p></div><span class="badge">● QUÁN ĐANG MỞ</span></header>
+<div class="layout">
+<section class="scene" aria-labelledby="scene-title">
+<div class="scene-head"><strong id="scene-title">BÀN NGOÀI HIÊN</strong><span class="badge" id="seat-count">6 ghế trống</span></div>
+<svg id="quang-canh" viewBox="0 0 800 520" role="img" aria-label="Quán nước buổi tối có sáu ghế nhựa, một bàn gỗ và quầy pha chế">
+<defs>
+<linearGradient id="yard" x2="0" y2="1"><stop stop-color="#295346"/><stop offset="1" stop-color="#1b332c"/></linearGradient>
+<linearGradient id="roof" x2="1" y2="1"><stop stop-color="#c26b42"/><stop offset="1" stop-color="#9b4c35"/></linearGradient>
+<radialGradient id="lamp"><stop stop-color="#ffd988" stop-opacity=".34"/><stop offset="1" stop-color="#ffd988" stop-opacity="0"/></radialGradient>
+<pattern id="floor" width="90" height="45" patternUnits="userSpaceOnUse"><path d="M0 45 90 0M-90 45 0 0M90 45 180 0" stroke="#79927a" opacity=".17" fill="none"/></pattern>
+</defs>
+<rect width="800" height="520" fill="url(#yard)"/>
+<rect y="193" width="800" height="327" fill="url(#floor)"/>
+<path d="M0 192H800M0 198H800" stroke="#7b8b61" opacity=".4" stroke-width="2"/>
+<ellipse cx="408" cy="310" rx="320" ry="208" fill="url(#lamp)"/>
+<path d="M0 39 Q250 102 470 40 Q655 2 800 46" fill="none" stroke="#142720" stroke-width="3"/>
+<g fill="#ffdb8e" stroke="#f6b868" stroke-width="2">
+<circle cx="45" cy="48" r="4"/><circle cx="107" cy="59" r="4"/><circle cx="169" cy="65" r="4"/><circle cx="233" cy="68" r="4"/><circle cx="297" cy="65" r="4"/><circle cx="360" cy="58" r="4"/><circle cx="427" cy="47" r="4"/><circle cx="489" cy="36" r="4"/><circle cx="553" cy="27" r="4"/><circle cx="618" cy="25" r="4"/><circle cx="683" cy="29" r="4"/><circle cx="748" cy="37" r="4"/>
+</g>
+<g transform="translate(45 86)">
+<path d="M0 0H199L207 56H-8Z" fill="#47382d" stroke="#e0a865" stroke-width="3"/>
+<text x="99" y="24" text-anchor="middle" fill="#ffd98a" font-size="17" font-weight="800" letter-spacing="2">TRÀ ĐÁ · CÀ PHÊ</text>
+<text x="99" y="43" text-anchor="middle" fill="#e6d3a2" font-size="12" letter-spacing="3">MỜI VÀO QUÁN</text>
+</g>
+<g transform="translate(607 73)">
+<rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
+<path d="M-6 15h166l13 42H-19z" fill="url(#roof)" stroke="#eea26a" stroke-width="2"/>
+<path d="M20 16 13 55m40-39-4 39m37-39v39m32-39 4 39m29-39 8 39" stroke="#ffc584" opacity=".65" stroke-width="3"/>
+<rect x="-1" y="84" width="158" height="15" rx="4" fill="#cb955f"/>
+<rect x="9" y="99" width="136" height="40" rx="4" fill="#8f6247"/>
+<path d="M30 104v30m24-30v30m24-30v30m24-30v30m24-30v30" stroke="#5a4338" opacity=".55" stroke-width="2"/>
+<path d="M24 66h17l-2 18H26zM52 63h18l-2 21H54z" fill="#f0bc71" opacity=".8"/>
+<text x="79" y="124" text-anchor="middle" fill="#ffde9a" font-size="12" font-weight="750" letter-spacing="2">QUẦY NƯỚC</text>
+</g>
+<g transform="translate(73 204)">
+<ellipse cx="0" cy="42" rx="28" ry="8" fill="#13271f" opacity=".8"/>
+<path d="M-17 18h34l-6 25h-22z" fill="#b77752"/>
+<path d="M0 19Q-10-20-32-14Q-25 10 0 19M0 19Q8-19 32-13Q24 9 0 19M0 19Q-14 1-25 8Q-18 23 0 19" fill="#85a766"/>
+</g>
+<g id="back-seats"></g><g id="back-people"></g>
+<ellipse cx="400" cy="356" rx="163" ry="49" fill="#13271f" opacity=".55"/>
+<path d="M267 313 264 383M536 313l2 70M400 333v71" stroke="#654837" stroke-width="11" stroke-linecap="round"/>
+<ellipse cx="400" cy="323" rx="153" ry="59" fill="#86583e" stroke="#d6a66e" stroke-width="3"/>
+<ellipse cx="400" cy="312" rx="153" ry="57" fill="#bf8659" stroke="#f3bd7c" stroke-width="3"/>
+<path d="M266 293Q400 326 534 293M251 314Q400 349 549 314M275 339Q400 367 525 339" fill="none" stroke="#8d5c42" stroke-width="2" opacity=".6"/>
+<ellipse cx="400" cy="310" rx="22" ry="10" fill="#996a46" opacity=".55"/>
+<rect x="394" y="290" width="12" height="19" rx="4" fill="#e3d293"/><path d="M400 292q-9-9-3-15 7 5 3 15" fill="#a9bd68"/>
+<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="walking"></g>
+</svg>
+<div class="scene-foot"><small>CHỦ QUÁN</small><span id="announcement" role="status">Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!</span></div>
+</section>
+<aside class="controls" aria-label="Giả lập bình luận">
+<div><h2>Bình luận giả lập</h2><p class="hint">Đổi tên để thử với nhiều khách.</p></div>
+<div class="grid-buttons"><button type="button" id="demo" class="primary">▶ Xem một lượt phục vụ</button></div>
+<form id="comment-form">
+<label>Tên khách<input id="guest" maxlength="24" value="Trí" autocomplete="off" required></label>
+<label for="comment">Bình luận</label>
+<div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: VÀO BÀN" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
+</form>
+<div class="grid-buttons" aria-label="Lệnh nhanh">
+<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="ORDER TRÀ ĐÁ">Trà đá</button><button type="button" data-command="ORDER CÀ PHÊ">Cà phê</button><button type="button" data-command="ORDER NƯỚC MÍA">Nước mía</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button>
+</div>
+
+<div id="queue" class="queue"></div>
+<div class="event-header"><h2>Chuyện trong quán</h2><button type="button" id="reset">Dọn bàn</button></div>
+<ul id="events" class="events" aria-label="Hoạt động gần nhất"></ul>
+</aside>
+</div>
+<p class="legend">Trong bản thử, bình luận được nhập ngay bên cạnh quán.</p>
+</main>
+<script>
+(() => {
+const NS='http://www.w3.org/2000/svg';
+const get=id=>document.getElementById(id);
+const layers={back:get('back-seats'),front:get('front-seats'),backPeople:get('back-people'),frontPeople:get('front-people'),drinks:get('drinks'),walking:get('walking')};
+const points=[
+{x:286,y:248,back:true,drink:[305,279]},{x:400,y:232,back:true,drink:[400,269]},{x:514,y:248,back:true,drink:[495,279]},
+{x:537,y:387,back:false,drink:[502,329]},{x:400,y:421,back:false,drink:[400,354]},{x:263,y:387,back:false,drink:[298,329]}];
+const seats=points.map((p,i)=>({...p,index:i,person:null}));
+const colors=['#f1b55d','#7dbe9b','#ef9878','#9db1eb','#eaaac9','#d3ce76'];
+const drinks={
+'tra da':{name:'trà đá',color:'#e6b65d'},'ca phe':{name:'cà phê',color:'#916244'},'nuoc mia':{name:'nước mía',color:'#cfcd68'}};
+const entry={x:24,y:479}, counter={x:693,y:221};
+const queue=[],orders=[];
+let running=false,epoch=0,audio=null;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' ');
+const key=s=>s.trim().toLocaleLowerCase('vi');
+const sleep=ms=>new Promise(r=>setTimeout(r,reduce.matches?Math.min(ms,90):ms));
+function node(tag,attrs={},text){
+  const el=document.createElementNS(NS,tag);
+  for(const [name,value] of Object.entries(attrs))el.setAttribute(name,value);
+  if(text!==undefined)el.textContent=text;
+  return el;
+}
+function group(x,y){return node('g',{transform:'translate('+x+' '+y+')'});}
+function rect(g,x,y,w,h,r,fill,stroke){
+  g.append(node('rect',{x,y,width:w,height:h,rx:r,fill,...(stroke?{stroke,'stroke-width':2}:{})}));
+}
+function line(g,d,stroke,w){g.append(node('path',{d,fill:'none',stroke,'stroke-width':w,'stroke-linecap':'round','stroke-linejoin':'round'}));}
+function ellipse(g,x,y,rx,ry,fill){g.append(node('ellipse',{cx:x,cy:y,rx,ry,fill}));}
+function text(g,x,y,fill,size,value){
+  g.append(node('text',{x,y,fill,'font-size':size,'font-weight':750,'text-anchor':'middle'},value));
+}
+function status(message){
+  get('announcement').textContent=message;
+  const li=document.createElement('li');li.textContent=message;
+  const list=get('events');list.prepend(li);
+  if(list.children.length>16)list.lastElementChild.remove();
+}
+function info(){
+  const free=seats.filter(s=>!s.person).length;
+  get('seat-count').textContent=free?free+' ghế trống':'Bàn đã đầy';
+  get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
+  for(const s of seats) {
+    const name=s.person?.name;
+    s.chairTag.textContent=name?(name.length>15?name.slice(0,14)+'…':name):'Ghế '+(s.index+1);
+    s.chairTag.setAttribute('aria-label',name||'Ghế '+(s.index+1));
+    s.chairTag.setAttribute('fill',s.person?'#fff0c8':'#bccbb3');
+  }
+}
+function chair(s){
+  const seatRoot=group(s.x,s.y), g=group(0,0);
+  s.stool=g;seatRoot.append(g);
+  ellipse(g,0,13,31,11,'#152a22');
+  line(g,'M-20 2 -26 16 M20 2 26 16 M-10 5 -11 16 M10 5 11 16','#9b5242',4);
+  rect(g,-24,-14,48,23,5,'#bd6950','#e78d68');
+  line(g,'M-19 -10H19','#f2a276',2);
+  const tag=group(s.x,s.y+(s.back?-60:34));
+  rect(tag,-51,-15,102,22,8,'#192e26','#52715d');
+  s.chairTag=node('text',{x:0,y:0,'text-anchor':'middle','font-size':11,'font-weight':750,fill:'#bccbb3'});
+  tag.append(s.chairTag);
+  layers[s.back?'back':'front'].append(seatRoot,tag);
+}
+function cup(drink){
+  const g=group(0,0);
+  ellipse(g,0,6,9,4,'#876049');
+  g.append(node('path',{d:'M-8 -14H8L6 5Q0 9-6 5Z',fill:drink.color,stroke:'#fff0c8','stroke-width':1.5}));
+  ellipse(g,0,-14,8,3,'#f6e5af');
+  line(g,'M4 -16 9 -23','#f3d18b',1.6);
+  return g;
+}
+function character(color,{host=false,sitting=false,carry=null}={}){
+  const g=group(0,0);
+  ellipse(g,0,1,17,5,'#16291f');
+  const legs=node('g');
+  line(legs,sitting?'M-8-12 -16-7 -14 0M8-12 16-7 14 0':'M-7-14 -9 0M7-14 9 0','#344943',5);
+  if(!sitting)g.stepLegs=legs.firstElementChild;
+  g.append(legs);
+  rect(g,-14,-33,28,24,8,color);
+  if(host)rect(g,-8,-30,16,18,4,'#f7dc9c');
+  line(g,'M-11-28 -17-17M11-27 18-18','#eab285',4);
+  ellipse(g,0,-43,10,11,'#f1c29b');
+  g.append(node('path',{d:'M-10-45Q-8-57 3-55Q12-52 10-45L7-48-8-45Z',fill:'#403830'}));
+  if(host)line(g,'M-10-51Q0-59 10-51M-12-50H12','#e8bc6f',3);
+  ellipse(g,-3,-42,1,1,'#4b3c2f');ellipse(g,4,-42,1,1,'#4b3c2f');
+  if(carry){const c=cup(carry);c.setAttribute('transform','translate(20 -17) scale(.72)');g.append(c);}
+  return g;
+}
+function walk(actor,route,ms,session){
+  if(reduce.matches)ms=100;
+  return new Promise(resolve=>{
+    let begin;
+    function tick(now){
+      if(session!==epoch){actor.remove();resolve(false);return;}
+      begin??=now;
+      const progress=Math.min(1,(now-begin)/ms);
+      const section=Math.min(route.length-2,Math.floor(progress*(route.length-1)));
+      const f=progress*(route.length-1)-section,a=route[section],b=route[section+1];
+      const x=a.x+(b.x-a.x)*f,y=a.y+(b.y-a.y)*f;
+      const bounce=progress===1||reduce.matches?0:Math.abs(Math.sin((now-begin)/75))*4;
+      actor.setAttribute('transform','translate('+x.toFixed(1)+' '+(y-bounce).toFixed(1)+')');
+      if(actor.stepLegs){
+        const stride=progress<1&&!reduce.matches?Math.round(Math.sin((now-begin)/63)*6):0;
+        actor.stepLegs.setAttribute('d','M-7 -14 '+(-9+stride)+' 0M7 -14 '+(9-stride)+' 0');
+      }
+      if(progress<1)requestAnimationFrame(tick);else resolve(true);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+function wiggle(el,moves,ms){
+  if(reduce.matches||!el.animate)return;
+  el.animate(moves,{duration:ms,easing:'ease-in-out'});
+}
+function ding(){
+  if(!audio||audio.state!=='running')return;
+  [988,1318].forEach((freq,i)=>{
+    const at=audio.currentTime+i*.055;
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    osc.type='sine';osc.frequency.value=freq;
+    gain.gain.setValueAtTime(.0001,at);
+    gain.gain.exponentialRampToValueAtTime(.055,at+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,at+.22);
+    osc.connect(gain);gain.connect(audio.destination);osc.start(at);osc.stop(at+.25);
+  });
+}
+function primeAudio(){
+  if(!audio&&window.AudioContext)audio=new AudioContext();
+  if(audio?.state==='suspended')audio.resume().catch(()=>{});
+}
+const hostIdle=()=>{const g=character('#edba64',{host:true});g.setAttribute('transform','translate('+counter.x+' '+counter.y+')');layers.walking.append(g);return g;};
+let host=hostIdle();
+seats.forEach(chair);
+function seated(name){return seats.find(s=>s.person?.id===key(name));}
+function takeSeat(guest,seat){
+  const session=epoch;
+  const person={...guest,state:'entering',actor:character(colors[seat.index]),cup:null};
+  seat.person=person;info();
+  layers.walking.append(person.actor);
+  status('Mời '+guest.name+' vào ghế '+(seat.index+1)+'!');
+  return (async()=>{
+    if(!await walk(person.actor,[entry,{x:102,y:453},{x:seat.x-29,y:seat.y+48},seat],1450,session))return;
+    if(seat.person!==person||person.state!=='entering')return;
+    wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(9px)'},{transform:'translateY(0)'}],380);
+    person.actor.remove();
+    person.actor=character(colors[seat.index],{sitting:true});
+    person.actor.setAttribute('transform','translate('+seat.x+' '+seat.y+')');
+    layers[seat.back?'backPeople':'frontPeople'].append(person.actor);
+    wiggle(person.actor.firstElementChild,[{opacity:.35},{opacity:1}],210);
+    person.state='seated';
+    status(guest.name+' đã ngồi ghế '+(seat.index+1)+'. Mời gọi món!');
+    serve();
+  })();
+}
+function join(name){
+  if(seated(name)){status(name+' đã có ghế rồi. Mời gọi món!');return;}
+  if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
+  const guest={id:key(name),name};
+  const free=seats.find(s=>!s.person);
+  if(free)return takeSeat(guest,free);
+  queue.push(guest);info();status('Bàn đầy rồi, '+name+' chờ ghế số '+queue.length+' trong hàng nhé.');
+}
+async function leave(name){
+  const session=epoch, seat=seated(name);
+  if(!seat){
+    const i=queue.findIndex(p=>p.id===key(name));
+    if(i>=0){queue.splice(i,1);info();status(name+' đã rời hàng chờ.');}
+    else status(name+' chưa có ghế trong quán.');
+    return;
+  }
+  const person=seat.person;
+  if(person.state==='leaving')return;
+  if(person.state==='entering'){status(name+' đang tới ghế. Chờ ngồi xuống rồi hãy rời bàn nhé.');return;}
+  person.state='leaving';person.cup?.remove();person.actor.remove();
+  wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
+  const walker=character(colors[seat.index]);layers.walking.append(walker);
+  status(name+' đứng dậy nhường ghế '+(seat.index+1)+'.');
+  if(!await walk(walker,[seat,{x:seat.x-28,y:seat.y+48},{x:100,y:454},entry],1330,session))return;
+  walker.remove();seat.person=null;info();
+  const next=queue.shift();info();
+  if(next)takeSeat(next,seat);else status('Ghế '+(seat.index+1)+' đã trống. Mời khách mới!');
+}
+async function serve(){
+  if(running)return;
+  const job=orders[0];
+  if(!job)return;
+  if(job.seat.person===job.person&&job.person.state==='entering')return;
+  orders.shift();
+  if(job.seat.person!==job.person||job.person.state!=='seated'){serve();return;}
+  running=true;
+  const session=epoch,{seat,person,drink}=job;
+  host.remove();
+  let server=character('#edba64',{host:true,carry:drink});
+  layers.walking.append(server);
+  const stop={x:seat.x+36,y:seat.y+29};
+  const route=seat.back?[counter,{x:620,y:213},{x:stop.x,y:211},stop]:[counter,{x:624,y:306},{x:599,y:stop.y},stop];
+  status('Chủ quán mang '+drink.name+' tới ghế '+(seat.index+1)+'…');
+  if(!await walk(server,route,1180,session))return;
+  if(seat.person===person&&person.state==='seated'){
+    person.cup?.remove();
+    const c=cup(drink);c.setAttribute('transform','translate('+seat.drink.join(' ')+')');
+    layers.drinks.append(c);person.cup=c;
+    status(drink.name[0].toUpperCase()+drink.name.slice(1)+' của '+person.name+' đây, mời bạn!');ding();
+  }
+  server.remove();
+  server=character('#edba64',{host:true});layers.walking.append(server);
+  if(!await walk(server,[...route].reverse(),960,session))return;
+  host=server;running=false;serve();
+}
+function order(name,drink){
+  const seat=seated(name);
+  if(!seat||seat.person.state==='leaving'){status(name+' gõ VÀO BÀN trước khi gọi món nhé.');return;}
+  const person=seat.person;
+  const existing=orders.find(j=>j.person===person);
+  if(existing)existing.drink=drink;
+  else orders.push({seat,person,drink});
+  status('Ghế '+(seat.index+1)+' · '+name+' gọi '+drink.name+'.');
+  serve();
+}
+function cheers(name){
+  const seat=seated(name);
+  if(!seat?.person?.cup){status(name+' gọi một ly rồi mình cụng nhé!');return;}
+  const neighbors=seats.filter(s=>s!==seat&&s.person?.cup);
+  if(!neighbors.length){status('Chờ thêm một khách có ly rồi cụng nhé!');return;}
+  const other=neighbors.sort((a,b)=>Math.hypot(a.x-seat.x,a.y-seat.y)-Math.hypot(b.x-seat.x,b.y-seat.y))[0];
+  for(const [from,to] of [[seat,other],[other,seat]]){
+    const x=(to.drink[0]-from.drink[0])*.48,y=(to.drink[1]-from.drink[1])*.48;
+    const el=from.person.cup;
+    const a=el.getAttribute('transform');
+    const end='translate('+(from.drink[0]+x)+' '+(from.drink[1]+y)+') rotate(8)';
+    wiggle(el,[{transform:a.replace(/translate\((\d+) (\d+)\)/,'translate($1px,$2px)')},
+      {transform:end.replace(/translate\(([-.\d]+) ([-.\d]+)\)/,'translate($1px,$2px)')},
+      {transform:a.replace(/translate\((\d+) (\d+)\)/,'translate($1px,$2px)')}],520);
+  }
+  setTimeout(ding,reduce.matches?0:245);status(name+' cụng ly với '+other.person.name+'!');
+}
+function submit(name,value){
+  name=name.trim().slice(0,24);
+  if(!name){get('guest').focus();return;}
+  const cmd=normalize(value);
+  if(cmd==='vao ban')return join(name);
+  if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
+  if(cmd==='cung ly')return cheers(name);
+  const item=cmd.replace(/^order /,'');
+  if(Object.hasOwn(drinks,item))return order(name,drinks[item]);
+  if(seated(name))status(name+': '+value.trim().slice(0,80));
+  else status('Gõ VÀO BÀN để lấy ghế, rồi gọi món bằng bình luận.');
+}
+function reset(){
+  epoch++;running=false;queue.length=0;orders.length=0;
+  seats.forEach(s=>{s.person=null;});
+  for(const name of ['backPeople','frontPeople','drinks','walking'])layers[name].replaceChildren();
+  host=hostIdle();get('events').replaceChildren();get('demo').disabled=false;
+  info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
+}
+get('comment-form').addEventListener('submit',e=>{
+  e.preventDefault();primeAudio();submit(get('guest').value,get('comment').value);get('comment').value='';
+});
+document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',()=>{
+  primeAudio();submit(get('guest').value,btn.dataset.command);
+}));
+get('reset').addEventListener('click',reset);
+get('demo').addEventListener('click',async()=>{
+  reset();primeAudio();get('demo').disabled=true;
+  const session=epoch;
+  const actions=[
+    ['Trí','VÀO BÀN',380],['Mai','VÀO BÀN',560],['Trí','ORDER CÀ PHÊ',680],
+    ['Mai','ORDER TRÀ ĐÁ',4300],['Trí','CỤNG LY',780],['Mai','RỜI BÀN',1450]
+  ];
+  for(const [name,value,delay] of actions){
+    if(epoch!==session)return;
+    submit(name,value);await sleep(delay);
+  }
+  if(epoch===session)get('demo').disabled=false;
+});
+info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
+})();
+</script>
+</body>
+</html>
