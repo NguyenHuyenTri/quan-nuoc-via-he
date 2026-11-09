@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
 <title>Quán Nước Vỉa Hè · Bản chơi thử</title>
 <link rel="stylesheet" href="./styles.css">
 </head>
@@ -16,8 +17,9 @@
 <div class="layout">
 <section class="scene" aria-labelledby="scene-title">
 <div class="scene-head"><strong id="scene-title">BÀN NGOÀI HIÊN</strong><span class="badge" id="seat-count">12 ghế trống</span></div>
-<svg id="quang-canh" viewBox="0 0 800 1422" role="img" aria-label="Sân khấu phòng trà ngoài trời phía trên và ba bàn bốn ghế ngay phía dưới">
+<svg id="quang-canh" viewBox="0 0 800 1422" role="img" aria-label="Sân khấu phòng trà ngoài trời phía trên và ba bàn bốn ghế và phố đi bộ trước quầy">
 <defs>
+<clipPath id="avatar-crop"><circle r="15"/></clipPath>
 <linearGradient id="yard" x2="0" y2="1"><stop stop-color="#295346"/><stop offset="1" stop-color="#1b332c"/></linearGradient>
 <linearGradient id="roof" x2="1" y2="1"><stop stop-color="#c26b42"/><stop offset="1" stop-color="#9b4c35"/></linearGradient>
 <radialGradient id="lamp"><stop stop-color="#ffd988" stop-opacity=".34"/><stop offset="1" stop-color="#ffd988" stop-opacity="0"/></radialGradient>
@@ -96,9 +98,12 @@
 <rect width="800" height="732" fill="url(#floor)"/>
 <ellipse cx="408" cy="219" rx="320" ry="208" fill="url(#lamp)"/>
 <g aria-hidden="true" fill="none">
-  <path d="M24 513V326H530V624H800M530 326H800" stroke="#152d28" stroke-width="59"/>
-  <path d="M24 513V326H530V624H800M530 326H800" stroke="#5a6051" stroke-width="51" stroke-linejoin="round"/>
-  <path d="M24 513V326H530V624H800M530 326H800" stroke="#99907a" stroke-opacity=".48" stroke-width="2" stroke-dasharray="9 12"/>
+  <path d="M24 650V326H530V624M530 326H800" stroke="#152d28" stroke-width="59"/>
+  <path d="M24 650V326H530V624M530 326H800" stroke="#5a6051" stroke-width="51" stroke-linejoin="round"/>
+  <rect y="605" width="800" height="113" fill="#686858"/>
+  <path d="M0 605H800M0 718H800" stroke="#333e33" stroke-width="6"/>
+  <path d="M0 616H800M0 707H800" stroke="#b4a388" stroke-width="2"/>
+  <path d="M0 665H800" stroke="#827e69" stroke-width="2" stroke-dasharray="24 10"/>
 </g>
 <g transform="translate(588 425) scale(1.12 1.06)">
 <rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
@@ -122,16 +127,18 @@
 </g>
 </defs>
 <g id="tables"></g>
-<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="walking"></g>
+<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="walking"></g><g id="pedestrians" aria-hidden="true"></g>
 </g>
 </svg>
 
 </section>
 <aside class="controls" aria-label="Giả lập bình luận">
-<div><h2>Bình luận giả lập</h2><p class="hint">Đổi tên để thử với nhiều khách.</p></div>
+<div><h2>Bình luận giả lập</h2><p class="hint">Người đi bộ tự xuất hiện để mô phỏng khách ghé xem LIVE.</p></div>
 <div class="grid-buttons"><button type="button" id="demo" class="primary">▶ Xem một lượt phục vụ</button></div>
 <form id="comment-form">
 <label>Tên khách<input id="guest" maxlength="24" value="Trí" autocomplete="off" required></label>
+<label>Link ảnh đại diện (tuỳ chọn)<input id="guest-avatar" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></label>
+<button type="button" id="preview-viewer">Thử khách ghé LIVE</button>
 <label for="comment">Bình luận</label>
 <div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: VÀO BÀN" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
 </form>
@@ -168,7 +175,7 @@ const colors=['#f1b55d','#7dbe9b','#ef9878','#9db1eb'];
 const drinks={
 'tra da':{name:'trà đá',color:'#e6b65d'},'ca phe':{name:'cà phê',color:'#916244'},'nuoc mia':{name:'nước mía',color:'#cfcd68'}};
 const walkwayY=326, counterLaneX=530;
-const entry={x:24,y:513}, serverHome={x:548,y:610}, pickup={x:664,y:585};
+const entry={x:24,y:655}, serverHome={x:548,y:610}, pickup={x:664,y:585};
 function guestRoute(seat){
   return [entry,{x:24,y:walkwayY},{x:seat.aisleX,y:walkwayY},{x:seat.aisleX,y:seat.y},seat];
 }
@@ -219,7 +226,7 @@ function cup(drink){
   line(g,'M4 -16 9 -23','#f3d18b',1.6);
   return g;
 }
-function character(color,{host=false,sitting=false,carry=null,name='',labelX=0}={}){
+function character(color,{host=false,sitting=false,carry=null,name='',avatar='',labelX=0}={}){
   const actor=group(0,0);
   ellipse(actor,0,1,17,5,'#16291f');
   const g=node('g',{transform:'scale(1 1.5)'});
@@ -235,6 +242,14 @@ function character(color,{host=false,sitting=false,carry=null,name='',labelX=0}=
   g.append(node('path',{d:'M-10-45Q-8-57 3-55Q12-52 10-45L7-48-8-45Z',fill:'#403830'}));
   if(host)line(g,'M-10-51Q0-59 10-51M-12-50H12','#e8bc6f',3);
   ellipse(g,-3,-42,1,1,'#4b3c2f');ellipse(g,4,-42,1,1,'#4b3c2f');
+  if(avatar){
+    const head=node('g',{transform:'translate(0 -45) scale(1 .667)'});
+    const photo=node('image',{href:avatar,x:-15,y:-15,width:30,height:30,
+      'clip-path':'url(#avatar-crop)',preserveAspectRatio:'xMidYMid slice'});
+    head.append(photo,node('circle',{r:15,fill:'none',stroke:'#fff0c8','stroke-width':1.5}));
+    photo.addEventListener('error',()=>head.remove(),{once:true});
+    g.append(head);
+  }
   if(carry){const c=cup(carry);c.setAttribute('transform','translate(20 -17) scale(.72 .48)');g.append(c);}
   if(name){
     const letters=Array.from(name);
@@ -251,7 +266,7 @@ function walk(actor,route,ms,session,keepDuration=false){
   return new Promise(resolve=>{
     let begin;
     function tick(now){
-      if(session!==epoch){actor.remove();resolve(false);return;}
+      if(session===null?!actor.isConnected:session!==epoch){actor.remove();resolve(false);return;}
       begin??=now;
       const progress=Math.min(1,(now-begin)/ms);
       const section=Math.min(route.length-2,Math.floor(progress*(route.length-1)));
@@ -268,6 +283,56 @@ function walk(actor,route,ms,session,keepDuration=false){
     requestAnimationFrame(tick);
   });
 }
+const pedestrianLayer=get('pedestrians');
+const visitors=[
+  ['An','#f0a365','#413143'],['Linh','#84c8af','#4a3430'],['Minh','#87b7e8','#2a343b'],
+  ['Vy','#e99aaf','#4f312d'],['Nam','#d8bd72','#2e313a'],['Hà','#ac9bdb','#52392d']
+];
+function sampleAvatar(background,hair){
+  const portrait='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="'+background+'"/>'
+    +'<path d="M6 40c1-12 27-12 28 0" fill="'+hair+'"/><circle cx="20" cy="19" r="10" fill="#f6c6a4"/>'
+    +'<path d="M10 19c-2-15 21-16 20 0l-5-5-8 3z" fill="'+hair+'"/>'
+    +'<path d="M16 21h.1m7 0h.1" stroke="#372b2b" stroke-width="2" stroke-linecap="round"/></svg>';
+  return 'data:image/svg+xml,'+encodeURIComponent(portrait);
+}
+function avatarUrl(value){
+  if(typeof value!=='string')return '';
+  try{
+    const url=new URL(value);
+    return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';
+  }catch{return '';}
+}
+let visitorIndex=0;
+function passBy({name,avatar,color=colors[0]},startX){
+  const right=visitorIndex++%2===0;
+  const y=right?653:697;
+  const x=startX??(right?-50:850);
+  const actor=character(color,{name,avatar});
+  actor.setAttribute('transform','translate('+x+' '+y+')');
+  pedestrianLayer.append(actor);
+  if(reduce.matches){
+    if(startX===undefined){
+      actor.setAttribute('transform','translate(405 '+y+')');
+      setTimeout(()=>actor.remove(),5000);
+    }
+    return;
+  }
+  const destination=right?850:-50;
+  const duration=Math.abs(destination-x)*(right?10:11);
+  walk(actor,[{x,y},{x:destination,y}],duration,null,true).then(()=>actor.remove());
+}
+let sampleIndex=0;
+function samplePasser(startX){
+  const [name,color,hair]=visitors[sampleIndex++%visitors.length];
+  passBy({name,color,avatar:sampleAvatar(color,hair)},startX);
+}
+samplePasser(570);
+samplePasser(315);
+setInterval(()=>{if(!reduce.matches)samplePasser();},2300);
+window.addEventListener('quannuoc:viewer',event=>{
+  const name=typeof event.detail?.name==='string'?event.detail.name.trim().slice(0,24):'';
+  if(name)passBy({name,avatar:avatarUrl(event.detail.avatarUrl)});
+});
 function wiggle(el,moves,ms){
   if(reduce.matches||!el.animate)return;
   el.animate(moves,{duration:ms,easing:'ease-in-out'});
@@ -311,7 +376,7 @@ seats.forEach(chair);
 function seated(name){return seats.find(s=>s.person?.id===key(name));}
 function takeSeat(guest,seat){
   const session=epoch;
-  const person={...guest,state:'entering',actor:character(colors[seat.index],{name:guest.name}),cup:null};
+  const person={...guest,state:'entering',actor:character(colors[seat.index],{name:guest.name,avatar:guest.avatar}),cup:null};
   seat.person=person;info();
   layers.walking.append(person.actor);
   status('Mời '+guest.name+' vào bàn!');
@@ -320,7 +385,7 @@ function takeSeat(guest,seat){
     if(seat.person!==person||person.state!=='entering')return;
     wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(9px)'},{transform:'translateY(0)'}],380);
     person.actor.remove();
-    person.actor=character(colors[seat.index],{sitting:true,name:guest.name,labelX:seat.x<seat.tableX?-12:12});
+    person.actor=character(colors[seat.index],{sitting:true,name:guest.name,avatar:guest.avatar,labelX:seat.x<seat.tableX?-12:12});
     person.actor.setAttribute('transform','translate('+seat.x+' '+seat.y+')');
     layers[seat.back?'backPeople':'frontPeople'].append(person.actor);
     wiggle(person.actor.firstElementChild,[{opacity:.35},{opacity:1}],210);
@@ -329,10 +394,10 @@ function takeSeat(guest,seat){
     serve();
   })();
 }
-function join(name){
+function join(name,avatar){
   if(seated(name)){status(name+' đã có ghế rồi. Mời gọi món!');return;}
   if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
-  const guest={id:key(name),name};
+  const guest={id:key(name),name,avatar};
   const free=seats.find(s=>!s.person);
   if(free)return takeSeat(guest,free);
   queue.push(guest);info();status('Quán đầy rồi, '+name+' chờ ghế số '+queue.length+' trong hàng nhé.');
@@ -351,7 +416,7 @@ async function leave(name){
   if(person.state==='entering'){status(name+' đang tới ghế. Chờ ngồi xuống rồi hãy rời bàn nhé.');return;}
   person.state='leaving';person.cup?.remove();person.actor.remove();
   wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
-  const walker=character(colors[seat.index],{name});layers.walking.append(walker);
+  const walker=character(colors[seat.index],{name,avatar:person.avatar});layers.walking.append(walker);
   status(name+' đứng dậy nhường chỗ.');
   if(!await walk(walker,guestRoute(seat).reverse(),1330,session))return;
   walker.remove();seat.person=null;info();
@@ -484,7 +549,7 @@ async function sing(name){
   const person=seat.person, session=epoch;
   singer=person;
   person.actor.remove();
-  const performer=character(colors[seat.index],{name});
+  const performer=character(colors[seat.index],{name,avatar:person.avatar});
   const route=[seat,{x:seat.aisleX,y:seat.y},{x:seat.aisleX,y:58},{x:400,y:15},{x:400,y:-37},stageMic];
   layers.walking.append(performer);
   status(name+' đang lên sân khấu…');
@@ -513,11 +578,11 @@ async function sing(name){
   singer=null;
   status(name+' đã về lại bàn.');
 }
-function submit(name,value){
+function submit(name,value,avatar){
   name=name.trim().slice(0,24);
   if(!name){get('guest').focus();return;}
   const cmd=normalize(value);
-  if(cmd==='vao ban')return join(name);
+  if(cmd==='vao ban')return join(name,avatar);
   if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
   if(cmd==='cung ly')return cheers(name);
   if(cmd==='len hat'||cmd==='len hat mot bai')return sing(name);
@@ -535,11 +600,24 @@ function reset(){
   info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 }
 get('comment-form').addEventListener('submit',e=>{
-  e.preventDefault();primeAudio();submit(get('guest').value,get('comment').value);get('comment').value='';
+  e.preventDefault();primeAudio();submit(get('guest').value,get('comment').value,avatarUrl(get('guest-avatar').value));get('comment').value='';
 });
 document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',()=>{
-  primeAudio();submit(get('guest').value,btn.dataset.command);
+  primeAudio();submit(get('guest').value,btn.dataset.command,avatarUrl(get('guest-avatar').value));
 }));
+get('preview-viewer').addEventListener('click',()=>{
+  const name=get('guest').value.trim().slice(0,24);
+  const avatarField=get('guest-avatar');
+  const avatar=avatarUrl(avatarField.value);
+  if(!name){get('guest').focus();return;}
+  if(avatarField.value&&!avatar){
+    avatarField.setCustomValidity('Nhập liên kết ảnh bắt đầu bằng https://');
+    avatarField.reportValidity();
+    avatarField.setCustomValidity('');
+    return;
+  }
+  passBy({name,avatar});
+});
 get('reset').addEventListener('click',reset);
 async function waitForDemoDrinks(session){
   const deadline=Date.now()+20000;

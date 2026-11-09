@@ -25,4 +25,14 @@ Bấm **Xem một lượt phục vụ** hoặc nhập tên khách và gửi từ
 
 Tải cả hai tệp vào cùng thư mục rồi mở `index.html` bằng trình duyệt.
 
-Bản thử xử lý bình luận ngay trên trang. Các phiên mở độc lập và chưa kết nối với TikTok LIVE.
+Bản thử xử lý bình luận ngay trên trang và tự tạo khách mẫu đi hai chiều trên đường trước quầy. Để thử ảnh đại diện, điền tên và URL ảnh HTTPS rồi bấm **Thử khách ghé LIVE** hoặc **Vào bàn**.
+
+Bản thử chưa kết nối TikTok LIVE. Cầu nối sự kiện trong trình duyệt có thể gửi tên hiển thị và URL ảnh đại diện lấy từ nguồn LIVE:
+
+```js
+window.dispatchEvent(new CustomEvent('quannuoc:viewer', {
+  detail: {name: displayName, avatarUrl: profilePhotoUrl}
+}));
+```
+
+Sự kiện này chỉ hiển thị khách đi ngang. Bình luận giả lập vẫn được xử lý riêng trong từng phiên.
