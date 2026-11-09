@@ -6,7 +6,9 @@ Bản mô phỏng một quán nước tương tác có ba bàn vuông, mỗi bà
 
 ## Chơi thử
 
-Bấm **Xem một lượt phục vụ** hoặc nhập tên khách và gửi từng lệnh.
+Bấm **Xem một lượt phục vụ** hoặc nhập tên khách và gửi từng lệnh. Lệnh chấp nhận chữ thường hoặc chữ hoa. Nhân viên quầy nhắc lệnh trên khung chơi và ngay dưới ô bình luận.
+
+Khi quán vắng, bàn giữa có Trí, Đào, Mai và Cường. Hai bàn bên mỗi bàn có hai khách mẫu với tên chọn ngẫu nhiên. Nhóm khách mẫu nhường chỗ khi có khách vào bàn và trở lại khi quán vắng.
 
 | Bình luận | Hành động |
 | --- | --- |
