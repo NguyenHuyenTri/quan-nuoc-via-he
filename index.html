@@ -348,18 +348,38 @@ document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('c
   primeAudio();submit(get('guest').value,btn.dataset.command);
 }));
 get('reset').addEventListener('click',reset);
+async function waitForDemoDrinks(session){
+  const deadline=Date.now()+20000;
+  while(epoch===session && Date.now()<deadline){
+    if(seated('Trí')?.person?.cup && seated('Mai')?.person?.cup)return true;
+    await sleep(80);
+  }
+  return false;
+}
 get('demo').addEventListener('click',async()=>{
   reset();primeAudio();get('demo').disabled=true;
   const session=epoch;
-  const actions=[
-    ['Trí','VÀO BÀN',380],['Mai','VÀO BÀN',560],['Trí','ORDER CÀ PHÊ',680],
-    ['Mai','ORDER TRÀ ĐÁ',4300],['Trí','CỤNG LY',780],['Mai','RỜI BÀN',1450]
-  ];
-  for(const [name,value,delay] of actions){
+  try{
+    const tri=submit('Trí','VÀO BÀN');
+    await sleep(380);
     if(epoch!==session)return;
-    submit(name,value);await sleep(delay);
+    await Promise.all([tri,submit('Mai','VÀO BÀN')]);
+    if(epoch!==session)return;
+    submit('Trí','ORDER CÀ PHÊ');
+    submit('Mai','ORDER TRÀ ĐÁ');
+    if(!await waitForDemoDrinks(session)){
+      if(epoch===session)status('Lượt thử chưa phục vụ đủ hai ly. Bấm xem lại để thử lần nữa.');
+      return;
+    }
+    await sleep(500);
+    if(epoch!==session)return;
+    submit('Trí','CỤNG LY');
+    await sleep(900);
+    if(epoch!==session)return;
+    await submit('Mai','RỜI BÀN');
+  }finally{
+    if(epoch===session)get('demo').disabled=false;
   }
-  if(epoch===session)get('demo').disabled=false;
 });
 info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 })();
