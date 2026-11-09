@@ -184,8 +184,11 @@ const drinks={
 'tra da':{name:'trà đá',color:'#e6b65d',price:5000},'ca phe':{name:'cà phê',color:'#916244',price:15000},'nuoc mia':{name:'nước mía',color:'#cfcd68',price:10000}};
 const walkwayY=326, counterLaneX=530;
 const entry={x:24,y:655}, serverHome={x:548,y:610}, pickup={x:664,y:585};
-function guestRoute(seat){
-  return [entry,{x:24,y:walkwayY},{x:seat.aisleX,y:walkwayY},{x:seat.aisleX,y:seat.y},seat];
+function roadApproach(origin,aisle){
+  return [origin,{x:aisle,y:origin.y},{x:aisle,y:walkwayY}];
+}
+function guestRoute(seat,origin=entry){
+  return [...roadApproach(origin,seat.aisleX),{x:seat.aisleX,y:seat.y},seat];
 }
 const queue=[],orders=[],bills=[],stageQueue=[];
 const seenGifts=new Set();
@@ -196,7 +199,7 @@ const rapperName='Hái Thứ Hiêu';
 let activeShow=null,idleTimer=null,lastIdleSinger=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' ');
-const key=s=>s.trim().toLocaleLowerCase('vi');
+const key=s=>s.normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase('vi');
 const sleep=ms=>new Promise(r=>setTimeout(r,reduce.matches?Math.min(ms,90):ms));
 function node(tag,attrs={},text){
   const el=document.createElementNS(NS,tag);
@@ -304,11 +307,19 @@ function character(color,{host=false,sitting=false,carry=[],name='',avatar='',la
   }
   return actor;
 }
+const walkingRuns=new WeakMap();
+function positionActor(actor,{x,y}){
+  actor.walkPosition={x,y};
+  actor.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+')');
+}
 function walk(actor,route,ms,session,keepDuration=false){
+  const run={};
+  walkingRuns.set(actor,run);
   if(reduce.matches&&!keepDuration)ms=100;
   return new Promise(resolve=>{
     let begin;
     function tick(now){
+      if(walkingRuns.get(actor)!==run){resolve(false);return;}
       if(session===null?!actor.isConnected:session!==epoch){actor.remove();resolve(false);return;}
       begin??=now;
       const progress=Math.min(1,(now-begin)/ms);
@@ -316,7 +327,7 @@ function walk(actor,route,ms,session,keepDuration=false){
       const f=progress*(route.length-1)-section,a=route[section],b=route[section+1];
       const x=a.x+(b.x-a.x)*f,y=a.y+(b.y-a.y)*f;
       const bounce=progress===1||reduce.matches?0:Math.abs(Math.sin((now-begin)/75))*4;
-      actor.setAttribute('transform','translate('+x.toFixed(1)+' '+(y-bounce).toFixed(1)+')');
+      positionActor(actor,{x,y:y-bounce});
       if(actor.stepLegs){
         const stride=progress<1&&!reduce.matches?Math.round(Math.sin((now-begin)/63)*6):0;
         actor.stepLegs.setAttribute('d','M-7 -14 '+(-9+stride)+' 0M7 -14 '+(9-stride)+' 0');
@@ -345,29 +356,61 @@ function avatarUrl(value){
     return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';
   }catch{return '';}
 }
+const passers=new Map();
 let visitorIndex=0;
-function passBy({name,avatar,color=colors[0]},startX){
+function passBy({name,avatar,color=colors[0],sample=false},startX){
+  const id=key(name);
+  if(seated(name)||onStage(id)||stageQueue.some(gift=>gift.id===id)||queue.some(guest=>guest.id===id))return;
+  const current=passers.get(id);
+  if(current){
+    if(sample||!current.sample)return;
+    current.actor.remove();
+    passers.delete(id);
+  }
+  if(!sample)removeMatchingSample(id);
   const right=visitorIndex++%2===0;
   const y=right?653:697;
-  const x=startX??(right?-50:850);
+  const x=startX??(sample?(right?-50:850):(right?125:675));
   const actor=character(color,{name,avatar});
-  actor.setAttribute('transform','translate('+x+' '+y+')');
+  positionActor(actor,{x,y});
+  const passer={id,name,avatar,color,sample,actor};
+  passers.set(id,passer);
   pedestrianLayer.append(actor);
+  const finish=()=>{
+    if(passers.get(id)!==passer)return;
+    passers.delete(id);
+    actor.remove();
+    if(!sample)seedSampleGuests();
+  };
   if(reduce.matches){
     if(startX===undefined){
-      actor.setAttribute('transform','translate(405 '+y+')');
-      setTimeout(()=>actor.remove(),5000);
+      positionActor(actor,{x:405,y});
+      setTimeout(finish,5000);
     }
     return;
   }
   const destination=right?850:-50;
   const duration=Math.abs(destination-x)*(right?10:11);
-  walk(actor,[{x,y},{x:destination,y}],duration,null,true).then(()=>actor.remove());
+  walk(actor,[{x,y},{x:destination,y}],duration,null,true).then(finish);
+}
+function roadSnapshot(id){
+  const passer=passers.get(id);
+  if(!passer)return null;
+  const {x,y}=passer.actor.walkPosition;
+  return {x:Math.max(24,Math.min(776,x)),y};
+}
+function takePasser(id){
+  const passer=passers.get(id);
+  if(!passer)return null;
+  const origin=roadSnapshot(id);
+  passers.delete(id);
+  walkingRuns.delete(passer.actor);
+  return {...passer,origin};
 }
 let sampleIndex=0;
 function samplePasser(startX){
   const [name,color,hair]=visitors[sampleIndex++%visitors.length];
-  passBy({name,color,avatar:sampleAvatar(color,hair)},startX);
+  passBy({name,color,avatar:sampleAvatar(color,hair),sample:true},startX);
 }
 samplePasser(570);
 samplePasser(315);
@@ -424,21 +467,23 @@ for(const x of tableCenters){
 seats.forEach(chair);
 function seated(name){return seats.find(s=>s.person&&!s.person.sample&&s.person.id===key(name));}
 function seatActor(seat,person){
-  const actor=character(colors[seat.index],{sitting:true,name:person.name,avatar:person.avatar,
+  const actor=character(person.color??colors[seat.index],{sitting:true,name:person.name,avatar:person.avatar,
     labelX:seat.x<seat.tableX?-12:12});
   actor.setAttribute('transform','translate('+seat.x+' '+seat.y+')');
   (seat.back?layers.backPeople:layers.frontPeople).append(actor);
   return actor;
 }
-const sideGuestNames=['An','Bảo','Chi','Dũng','Hà','Hân','Khánh','Lan','Linh','Minh','Nam','Ngọc','Quân','Vy'];
+const sideGuestNames=['Bảo','Chi','Dũng','Hân','Khánh','Lan','Ngọc','Quân'];
 function seedSampleGuests(){
-  if(activeShow||stageQueue.length||queue.length||seats.some(s=>s.person))return;
-  const available=[...sideGuestNames];
+  if(activeShow||stageQueue.length||queue.length||seats.some(s=>s.person&&!s.person.sample))return;
+  const available=sideGuestNames.filter(name=>!passers.has(key(name))
+    &&!seats.some(seat=>seat.person?.id===key(name)));
   const pickName=()=>available.splice(Math.floor(Math.random()*available.length),1)[0];
   const center=['Trí','Đào','Mai',rapperName];
   for(const seat of seats){
+    if(seat.person)continue;
     const name=seat.tableX===tableCenters[0]?center[seat.index]:seat.index<2?pickName():'';
-    if(!name)continue;
+    if(!name||passers.has(key(name)))continue;
     const person={id:key(name),name,sample:true,state:'seated',cup:null,total:0};
     person.actor=seatActor(seat,person);
     person.actor.setAttribute('data-sample-guest','');
@@ -446,24 +491,35 @@ function seedSampleGuests(){
   }
   info();
 }
+function clearSampleSeat(seat){
+  seat.person.actor.remove();
+  seat.person.stageMarker?.remove();
+  seat.person.cup?.remove();
+  seat.person=null;
+}
+function removeMatchingSample(id){
+  const seat=seats.find(s=>s.person?.sample&&s.person.id===id);
+  if(!seat)return;
+  clearSampleSeat(seat);info();
+}
 function clearSampleGuests(){
-  for(const seat of seats){
-    if(!seat.person?.sample)continue;
-    seat.person.actor.remove();
-    seat.person.stageMarker?.remove();
-    seat.person.cup?.remove();
-    seat.person=null;
-  }
+  seats.filter(seat=>seat.person?.sample).forEach(clearSampleSeat);
 }
 function takeSeat(guest,seat){
   const session=epoch;
-  const person={...guest,state:'entering',actor:character(colors[seat.index],{name:guest.name,avatar:guest.avatar}),cup:null,total:0};
+  const passer=takePasser(guest.id);
+  const color=passer?.color??colors[seat.index];
+  const avatar=passer?.avatar||guest.avatar;
+  const person={...guest,color,avatar,state:'entering',
+    actor:passer?.actor??character(color,{name:guest.name,avatar}),cup:null,total:0};
+  const route=guestRoute(seat,passer?.origin??guest.origin??entry);
+  positionActor(person.actor,route[0]);
   tableToasts.delete(seat.tableX);
   seat.person=person;info();
   layers.walking.append(person.actor);
   status('Mời '+guest.name+' vào bàn!');
   return (async()=>{
-    if(!await walk(person.actor,guestRoute(seat),1450,session))return;
+    if(!await walk(person.actor,route,1450,session))return;
     if(seat.person!==person||person.state!=='entering')return;
     wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(9px)'},{transform:'translateY(0)'}],380);
     person.actor.remove();
@@ -479,7 +535,9 @@ function join(name,avatar){
   if(seated(name)){status(name+' đã có ghế rồi. Ngồi chill nha!');return;}
   if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
   if(onStage(key(name))){status(name+' biểu diễn xong rồi vào bàn nhé!');return;}
-  const guest={id:key(name),name,avatar};
+  const id=key(name);
+  const viewer=passers.get(id);
+  const guest={id,name:viewer?.name??name,avatar:viewer?.avatar||avatar,origin:roadSnapshot(id)};
   clearSampleGuests();
   const free=seats.find(s=>!s.person);
   if(free)return takeSeat(guest,free);
@@ -534,7 +592,7 @@ async function finishLeave({seat,person,makeRoom},sneaked){
   const session=epoch,{name}=person;
   person.cup?.remove();person.actor.remove();
   wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
-  const walker=character(colors[seat.index],{name,avatar:person.avatar});layers.walking.append(walker);
+  const walker=character(person.color??colors[seat.index],{name,avatar:person.avatar});layers.walking.append(walker);
   if(!sneaked)status(makeRoom?name+' đã ngồi lâu nhất, mời bạn nhường ghế cho khách mới.':name+' đứng dậy nhường chỗ.');
   if(!await walk(walker,guestRoute(seat).reverse(),sneaked?820:1330,session))return;
   walker.remove();seat.person=null;info();
@@ -873,19 +931,20 @@ function stageTick(show){
   const lead=ready.length>1&&show.lead?show.lead+' · ':'';
   get('stage-lineup').textContent=lead+ready.length+'/5 người · '+remaining+' giây';
 }
-function stageRoute(seat,spot){
+function stageRoute(seat,spot,origin=entry){
   const aisle=seat?.aisleX??309;
-  const start=seat?[seat,{x:aisle,y:seat.y}]:[entry,{x:24,y:walkwayY},{x:aisle,y:walkwayY}];
+  const start=seat?[seat,{x:aisle,y:seat.y}]:roadApproach(origin,aisle);
   return [...start,{x:aisle,y:58},{x:400,y:12},{x:400,y:-37},spot];
 }
 function addPerformer(show,gift,seat){
   const person=seat?.person??gift;
   const spot={x:stageSlots[show.members.size],y:-115};
-  const route=stageRoute(seat,spot);
-  const actor=character(seat?colors[seat.index]:colors[show.members.size%colors.length],
-    {name:person.name,avatar:gift.avatar||person.avatar});
+  const passer=seat?null:takePasser(gift.id);
+  const route=stageRoute(seat,spot,passer?.origin??gift.origin??entry);
+  const color=person.color??(seat?colors[seat.index]:colors[show.members.size%colors.length]);
+  const actor=passer?.actor??character(color,{name:person.name,avatar:gift.avatar||person.avatar});
   actor.setAttribute('data-performer','');
-  actor.setAttribute('transform','translate('+route[0].x+' '+route[0].y+')');
+  positionActor(actor,route[0]);
   const member={person,seat,spot,actor,ready:false,animation:null};
   show.members.set(person.id,member);
   if(seat){
@@ -973,7 +1032,9 @@ function receiveGift({name,avatarUrl:photo,eventId}={}){
   const id=key(name);
   if((onStage(id)&&!activeShow.idle)||stageQueue.some(gift=>gift.id===id))return;
   primeAudio();
-  stageQueue.push({id,name,avatar:avatarUrl(photo)});
+  const seat=seated(name),viewer=passers.get(id);
+  if(!seat)removeMatchingSample(id);
+  stageQueue.push({id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatarUrl(photo),origin:roadSnapshot(id)});
   status(name+' đã tặng quà và đăng ký lượt hát.');
   get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
   advanceStage();advanceWaiting();
