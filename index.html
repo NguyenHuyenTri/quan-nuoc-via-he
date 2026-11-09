@@ -92,6 +92,7 @@
 <g id="stage-caption" visibility="hidden" aria-hidden="true">
   <rect x="204" y="365" width="392" height="51" rx="14" fill="#14232c" fill-opacity=".92" stroke="#deaf75"/>
   <text id="stage-lyric" x="400" y="399" text-anchor="middle" fill="#fff1c8" font-size="24" font-weight="800"></text>
+  <text id="stage-lineup" x="400" y="618" text-anchor="middle" fill="#fff1c8" font-size="16" font-weight="800"></text>
 </g>
 <g transform="translate(0 690)">
 <rect width="800" height="732" fill="url(#yard)"/>
@@ -150,7 +151,7 @@
 </div>
 </form>
 <div class="grid-buttons" aria-label="Lệnh nhanh">
-<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử tặng quà để lên hát</button>
+<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" id="enable-audio">Bật âm thanh</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử tặng quà để lên hát</button>
 </div>
 
 <div id="queue" class="queue"></div>
@@ -191,7 +192,8 @@ const seenGifts=new Set();
 const minSeatTime=60000;
 let seatTimer=null;
 let running=false,epoch=0,audio=null;
-let singer=null;
+const rapperName='Hái Thứ Hiêu';
+let activeShow=null,idleTimer=null,lastIdleSinger=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' ');
 const key=s=>s.trim().toLocaleLowerCase('vi');
@@ -390,9 +392,15 @@ function ding(frequencies=[988,1318]){
     osc.connect(gain);gain.connect(audio.destination);osc.start(at);osc.stop(at+.25);
   });
 }
-function primeAudio(){
+async function primeAudio(){
   if(!audio&&window.AudioContext)audio=new AudioContext();
-  if(audio?.state==='suspended')audio.resume().catch(()=>{});
+  if(audio?.state==='suspended'){
+    try{await audio.resume();}catch{return;}
+  }
+  if(audio?.state!=='running')return;
+  get('enable-audio').textContent='Âm thanh đã bật';
+  get('enable-audio').disabled=true;
+  if(activeShow?.endsAt&&!activeShow.ending)playStageSound(activeShow);
 }
 const prep=character('#81c6b3',{host:true});
 prep.setAttribute('transform','translate(86 130)');
@@ -424,14 +432,14 @@ function seatActor(seat,person){
 }
 const sideGuestNames=['An','Bảo','Chi','Dũng','Hà','Hân','Khánh','Lan','Linh','Minh','Nam','Ngọc','Quân','Vy'];
 function seedSampleGuests(){
-  if(singer||stageQueue.length||queue.length||seats.some(s=>s.person))return;
+  if(activeShow||stageQueue.length||queue.length||seats.some(s=>s.person))return;
   const available=[...sideGuestNames];
   const pickName=()=>available.splice(Math.floor(Math.random()*available.length),1)[0];
-  const center=['Trí','Đào','Mai','Cường'];
+  const center=['Trí','Đào','Mai',rapperName];
   for(const seat of seats){
     const name=seat.tableX===tableCenters[0]?center[seat.index]:seat.index<2?pickName():'';
     if(!name)continue;
-    const person={name,sample:true,state:'seated',cup:null,total:0};
+    const person={id:key(name),name,sample:true,state:'seated',cup:null,total:0};
     person.actor=seatActor(seat,person);
     person.actor.setAttribute('data-sample-guest','');
     seat.person=person;
@@ -442,6 +450,7 @@ function clearSampleGuests(){
   for(const seat of seats){
     if(!seat.person?.sample)continue;
     seat.person.actor.remove();
+    seat.person.stageMarker?.remove();
     seat.person.cup?.remove();
     seat.person=null;
   }
@@ -469,7 +478,7 @@ function takeSeat(guest,seat){
 function join(name,avatar){
   if(seated(name)){status(name+' đã có ghế rồi. Ngồi chill nha!');return;}
   if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
-  if(singer?.id===key(name)){status(name+' biểu diễn xong rồi vào bàn nhé!');return;}
+  if(onStage(key(name))){status(name+' biểu diễn xong rồi vào bàn nhé!');return;}
   const guest={id:key(name),name,avatar};
   clearSampleGuests();
   const free=seats.find(s=>!s.person);
@@ -480,13 +489,13 @@ function join(name,avatar){
 }
 function advanceWaiting(){
   clearTimeout(seatTimer);seatTimer=null;
-  while(queue.length&&queue[0].id!==singer?.id){
+  while(queue.length&&!onStage(queue[0].id)){
     const free=seats.find(s=>!s.person);
     if(!free)break;
     takeSeat(queue.shift(),free);
   }
-  if(!queue.length||queue[0].id===singer?.id||seats.some(s=>s.person?.state==='leaving'))return;
-  const oldest=seats.filter(s=>s.person?.state==='seated'&&s.person!==singer
+  if(!queue.length||onStage(queue[0].id)||seats.some(s=>s.person?.state==='leaving'))return;
+  const oldest=seats.filter(s=>s.person?.state==='seated'&&!onStage(s.person.id)
     &&!stageQueue.some(gift=>gift.id===s.person.id))
     .sort((a,b)=>a.person.seatedAt-b.person.seatedAt)[0];
   if(!oldest)return;
@@ -507,7 +516,7 @@ async function leave(name,makeRoom=false){
   }
   const person=seat.person;
   if(person.state==='leaving')return;
-  if(singer===person){status(name+' đang trên sân khấu. Chờ tiết mục kết thúc nhé.');return;}
+  if(onStage(person.id)){status(name+' đang trên sân khấu. Chờ tiết mục kết thúc nhé.');return;}
   if(person.state==='entering'){status(name+' đang tới ghế. Chờ ngồi xuống rồi hãy rời bàn nhé.');return;}
   tableToasts.delete(seat.tableX);
   person.state='leaving';
@@ -737,7 +746,7 @@ function toastEffect(participants,tableX,quote){
     if(!effect.isConnected)return;
     effect.setAttribute('visibility','visible');
     ding([1568,2349,3136]);
-    if(quote&&!singer&&!window.speechSynthesis?.speaking)speakVietnamese(quote,1.08);
+    if(quote&&!activeShow&&!window.speechSynthesis?.speaking)speakVietnamese(quote,1.08);
   },reduce.matches?0:420);
   setTimeout(()=>effect.remove(),quote?2950:1050);
 }
@@ -761,83 +770,23 @@ function cheers(name){
   toastEffect([seat,other],seat.tableX);
   status(name+' cụng ly với '+other.person.name+'! '+ready.size+'/'+table.length+' khách cùng bàn đã hô.');
 }
-const stageMic={x:382,y:-115};
+const showDuration=60000;
+const stageSlots=[382,474,290,552,212];
 const stageVerses=[
-  {text:'Một, hai, ba, sao nè!',duration:3400},
-  {text:'Lên sân khấu, hát cùng nhau.',duration:4200},
-  {text:'Cả quán mình vui đêm nay!',duration:4500}
+  'Một, hai, ba, sao nè!', 'Lên sân khấu, hát cùng nhau.',
+  'Cả quán mình vui đêm nay!', 'Nâng ly nào, đêm nay còn dài.',
+  'Đèn vàng lên, mình hát thêm câu.'
 ];
-let stageSound=null, stageVoice=null;
-function setStage(active){
-  get('quang-canh').classList.toggle('stage-performing',active);
-  get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
-  get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
-}
-function speakVietnamese(text,rate){
-  const speech=window.speechSynthesis;
-  const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
-  if(!voice)return null;
-  const utterance=new SpeechSynthesisUtterance(text);
-  utterance.voice=voice;
-  utterance.lang='vi-VN';
-  utterance.rate=rate;
-  speech.speak(utterance);
-  return utterance;
-}
-function showStageVerse(text){
-  get('stage-lyric').textContent=text;
-  stageVoice=speakVietnamese(text,.95);
-}
-function stopStageSound(){
-  if(stageVoice){
-    window.speechSynthesis.cancel();
-    stageVoice=null;
-  }
-  if(!stageSound)return;
-  stageSound.disconnect();
-  stageSound=null;
-}
-function playStageSound(){
-  if(!audio||audio.state!=='running')return;
-  const bus=audio.createGain();
-  bus.gain.value=.55;
-  bus.connect(audio.destination);
-  stageSound=bus;
-  const notes=[60,64,67,69,67,64,62,65,69,72,69,65,64,67,71,74,72,67,64,60,
-    62,65,69,72,74,72,69,67,64,67,64,62,60,60];
-  const start=audio.currentTime;
-  notes.forEach((note,index)=>{
-    const when=start+index*.35;
-    const osc=audio.createOscillator(),gain=audio.createGain();
-    osc.type=index%4===0?'triangle':'sine';
-    osc.frequency.value=440*2**((note-69)/12);
-    gain.gain.setValueAtTime(.001,when);
-    gain.gain.exponentialRampToValueAtTime(.10,when+.035);
-    gain.gain.exponentialRampToValueAtTime(.001,when+.33);
-    osc.connect(gain);gain.connect(bus);
-    osc.start(when);osc.stop(when+.35);
-  });
-}
-function receiveGift({name,avatarUrl:photo,eventId}={}){
-  name=typeof name==='string'?name.trim().slice(0,24):'';
-  if(!name||typeof eventId==='string'&&seenGifts.has(eventId))return;
-  if(typeof eventId==='string'&&eventId){
-    seenGifts.add(eventId);
-    if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
-  }
-  primeAudio();
-  stageQueue.push({id:key(name),name,avatar:avatarUrl(photo)});
-  if(singer||stageQueue.length>1)status(name+' đã tặng quà và đang chờ lượt hát.');
-  advanceStage();advanceWaiting();
-}
-function advanceStage(){
-  if(singer||!stageQueue.length)return;
-  const gift=stageQueue[0];
-  const seat=seated(gift.name);
-  if(seat&&seat.person.state!=='seated')return;
-  stageQueue.shift();
-  sing(gift,seat);
-}
+const rapVerses=[
+  'Yo, Hái Thứ Hiêu bước ra đây!',
+  'Bàn bên trái, bàn bên phải, đưa tay!',
+  'Đá trong ly kêu leng keng, beat lên!',
+  'Hết giờ làm rồi, mình cứ chill êm.',
+  'Gió lùa qua phố, đèn vàng vừa lên.',
+  'Vỉa hè nhỏ xíu, tiếng cười vang tên!',
+  'Có ai quên ví thì nhớ quay lại!',
+  'Tay nâng ly lên, mình hẹn ngày mai!'
+];
 const audienceLines=[
   'Hay quá, quên luôn ly trà đá!',
   'Quán vỉa hè mà giọng sân vận động!',
@@ -846,48 +795,202 @@ const audienceLines=[
   'Ủa, quán mình mời ca sĩ hồi nào vậy?',
   'Hay vậy, ai dám tính tiền nữa!'
 ];
-function cheerStage(exclude,line){
-  const audience=seats.filter(({person})=>person?.state==='seated'&&person!==exclude&&key(person.name)!==exclude.id);
-  const fan=oneOf(audience);
-  tableDialogue(fan?.tableX??400,fan?.person.name??'Khán giả',line,true);
+let stageSound=null,stageVoice=null;
+function onStage(id){return activeShow?.members.has(id)??false;}
+function setStage(active){
+  get('quang-canh').classList.toggle('stage-performing',active);
+  get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
+  get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
-async function sing(gift,seat){
-  const {name}=gift;
-  const person=seat?.person??gift, session=epoch;
-  singer=person;
-  const performer=character(seat?colors[seat.index]:colors[0],{name,avatar:gift.avatar||person.avatar});
-  performer.setAttribute('data-performer','');
-  const start=seat?[]:[entry,{x:24,y:walkwayY},{x:309,y:walkwayY},{x:309,y:58}];
-  const route=[...start,{x:400,y:15},{x:400,y:-37},stageMic];
-  layers.walking.append(performer);
-  status(name+' đã tặng quà và đang lên sân khấu…');
-  get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
-  if(!await walk(performer,route,1450,session,true))return;
-  setStage(true);
-  status(name+' bắt đầu biểu diễn!');
-  playStageSound();
-  const animation=reduce.matches?null:performer.firstElementChild.nextElementSibling.animate?.(
-    [{translate:'0 0'},{translate:'-3px -2px'},{translate:'2px 0'},{translate:'0 0'}],{duration:850,iterations:Infinity});
-  const cheers=[...audienceLines];
-  for(const verse of stageVerses){
-    showStageVerse(verse.text);
-    const line=cheers.splice(Math.floor(Math.random()*cheers.length),1)[0];
-    cheerStage(person,line);
-    await new Promise(resolve=>setTimeout(resolve,verse.duration));
-    if(epoch!==session){
-      animation?.cancel();
-      return;
-    }
+function speakVietnamese(text,rate){
+  const speech=window.speechSynthesis;
+  const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
+  if(!voice||typeof SpeechSynthesisUtterance==='undefined')return null;
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.voice=voice;
+  utterance.lang='vi-VN';
+  utterance.rate=rate;
+  speech.speak(utterance);
+  return utterance;
+}
+function stopStageSound(){
+  if(stageVoice){
+    window.speechSynthesis.cancel();
+    stageVoice=null;
   }
-  animation?.cancel();
-  stopStageSound();
-  setStage(false);
-  status('Cảm ơn '+name+'! Tiết mục đã kết thúc.');
-  if(!await walk(performer,[...route].reverse(),1450,session,true))return;
-  performer.remove();
-  singer=null;
-  status(name+' đã kết thúc lượt hát.');
+  if(stageSound){
+    stageSound.oscillators.forEach(osc=>osc.stop());
+    stageSound.bus.disconnect();
+    stageSound=null;
+  }
+}
+function playStageSound(show){
+  if(stageSound||audio?.state!=='running')return;
+  const remaining=(show.endsAt-performance.now())/1000;
+  if(remaining<.5)return;
+  const {rap}=show;
+  const bus=audio.createGain();
+  bus.gain.value=.5;
+  bus.connect(audio.destination);
+  const oscillators=new Set();
+  stageSound={bus,oscillators};
+  const melody=[60,64,67,69,67,64,62,65,69,72,69,65,64,67,71,74,72,67,64,60];
+  const step=rap ? .28 : .38;
+  const start=audio.currentTime;
+  for(let index=0;index*step<remaining-step;index++){
+    const when=start+index*step;
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    const kick=rap&&index%4===0;
+    osc.type=kick?'sine':rap?'triangle':index%4===0?'triangle':'sine';
+    osc.frequency.value=kick?112:440*2**((melody[index%melody.length]-(rap?81:69))/12);
+    if(kick)osc.frequency.exponentialRampToValueAtTime(48,when+.16);
+    gain.gain.setValueAtTime(.001,when);
+    gain.gain.exponentialRampToValueAtTime(kick ? .19 : .075,when+.025);
+    gain.gain.exponentialRampToValueAtTime(.001,when+step-.02);
+    osc.connect(gain);gain.connect(bus);
+    oscillators.add(osc);
+    osc.onended=()=>oscillators.delete(osc);
+    osc.start(when);osc.stop(when+step);
+  }
+}
+function cheerStage(){
+  const audience=seats.filter(({person})=>person?.state==='seated'&&!onStage(person.id));
+  const fan=oneOf(audience);
+  tableDialogue(fan?.tableX??400,fan?.person.name??'Khán giả',oneOf(audienceLines),true);
+}
+function stageTick(show){
+  const ready=[...show.members.values()].filter(member=>member.ready);
+  const remaining=Math.max(0,Math.ceil((show.endsAt-performance.now())/1000));
+  if(ready.length&&remaining>0&&show.nextVerse<=performance.now()){
+    show.lead=ready[show.verseIndex%ready.length].person.name;
+    const verses=show.rap?rapVerses:stageVerses;
+    const lyric=verses[show.verseIndex++%verses.length];
+    get('stage-lyric').textContent=lyric;
+    if(audio?.state==='running')stageVoice=speakVietnamese(lyric,show.rap?1.18:.95)??stageVoice;
+    show.nextVerse=performance.now()+(show.rap?3900:4600);
+    cheerStage();
+  }
+  const lead=ready.length>1&&show.lead?show.lead+' · ':'';
+  get('stage-lineup').textContent=lead+ready.length+'/5 người · '+remaining+' giây';
+}
+function stageRoute(seat,spot){
+  const aisle=seat?.aisleX??309;
+  const start=seat?[seat,{x:aisle,y:seat.y}]:[entry,{x:24,y:walkwayY},{x:aisle,y:walkwayY}];
+  return [...start,{x:aisle,y:58},{x:400,y:12},{x:400,y:-37},spot];
+}
+function addPerformer(show,gift,seat){
+  const person=seat?.person??gift;
+  const spot={x:stageSlots[show.members.size],y:-115};
+  const route=stageRoute(seat,spot);
+  const actor=character(seat?colors[seat.index]:colors[show.members.size%colors.length],
+    {name:person.name,avatar:gift.avatar||person.avatar});
+  actor.setAttribute('data-performer','');
+  actor.setAttribute('transform','translate('+route[0].x+' '+route[0].y+')');
+  const member={person,seat,spot,actor,ready:false,animation:null};
+  show.members.set(person.id,member);
+  if(seat){
+    person.actor.setAttribute('visibility','hidden');
+    const marker=group(seat.x,seat.y);
+    marker.setAttribute('data-stage-seat',person.name);
+    marker.append(node('text',{x:0,y:-13,'text-anchor':'middle',fill:'#ffd391',
+      'font-size':14,'font-weight':800},'♫ Giữ chỗ'));
+    person.stageMarker=marker;
+    (seat.back?layers.backPeople:layers.frontPeople).append(marker);
+  }
+  layers.walking.append(actor);
+  member.arrival=walk(actor,route,1450,show.epoch,true).then(ok=>{
+    if(!ok||activeShow!==show||show.ending)return;
+    member.ready=true;
+    if(!reduce.matches){
+      member.animation=actor.firstElementChild.nextElementSibling.animate?.(
+        [{translate:'0 0'},{translate:'-3px -2px'},{translate:'2px 0'},{translate:'0 0'}],
+        {duration:850+show.members.size*90,iterations:Infinity});
+    }
+    if(show.endsAt===null){
+      show.endsAt=performance.now()+showDuration;
+      setStage(true);
+      playStageSound(show);
+      show.tick=setInterval(()=>stageTick(show),250);
+      show.timer=setTimeout(()=>endShow(show),showDuration);
+      status(show.idle?person.name+' mở màn '+(show.rap?'với một đoạn rap!':'trên sân khấu!'):'Tiết mục tặng quà bắt đầu!');
+      stageTick(show);
+    }
+  });
+}
+async function endShow(show){
+  if(activeShow!==show||show.ending)return;
+  show.ending=true;
+  clearInterval(show.tick);clearTimeout(show.timer);
+  stopStageSound();setStage(false);
+  get('audience-dialogue').replaceChildren();
+  status('Tiết mục kết thúc. Mời khách về bàn!');
+  await Promise.all([...show.members.values()].map(async member=>{
+    await member.arrival;
+    if(activeShow!==show)return;
+    const {person,seat,spot,actor}=member;
+    member.animation?.cancel();
+    const reserved=seat?.person===person?seat:null;
+    if(!await walk(actor,stageRoute(reserved,spot).reverse(),1450,show.epoch,true))return;
+    actor.remove();
+    if(seat?.person===person){
+      person.stageMarker?.remove();
+      delete person.stageMarker;
+      person.actor.removeAttribute('visibility');
+    }
+  }));
+  if(activeShow!==show)return;
+  activeShow=null;
   advanceStage();advanceWaiting();seedSampleGuests();serve();
+}
+function openShow(idle,rap=false){
+  clearTimeout(idleTimer);idleTimer=null;
+  const show={idle,rap,epoch,members:new Map(),endsAt:null,ending:false,verseIndex:0,nextVerse:0};
+  activeShow=show;
+  return show;
+}
+function armIdle(){
+  if(idleTimer!==null||activeShow||stageQueue.length)return;
+  idleTimer=setTimeout(()=>{
+    idleTimer=null;
+    if(activeShow||stageQueue.length)return;
+    const samples=seats.filter(seat=>seat.person?.sample&&seat.person.state==='seated');
+    const fallback=samples.find(seat=>seat.person.name===rapperName);
+    const choices=samples.filter(seat=>seat.person.id!==lastIdleSinger);
+    const seat=lastIdleSinger===null&&fallback?fallback:oneOf(choices);
+    const person=seat?.person??{id:key(rapperName),name:rapperName};
+    lastIdleSinger=person.id;
+    const show=openShow(true,person.name===rapperName);
+    addPerformer(show,person,seat);
+  },lastIdleSinger===null?20000:32000);
+}
+function receiveGift({name,avatarUrl:photo,eventId}={}){
+  name=typeof name==='string'?name.trim().slice(0,24):'';
+  if(!name||typeof eventId==='string'&&seenGifts.has(eventId))return;
+  if(typeof eventId==='string'&&eventId){
+    seenGifts.add(eventId);
+    if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
+  }
+  const id=key(name);
+  if((onStage(id)&&!activeShow.idle)||stageQueue.some(gift=>gift.id===id))return;
+  primeAudio();
+  stageQueue.push({id,name,avatar:avatarUrl(photo)});
+  status(name+' đã tặng quà và đăng ký lượt hát.');
+  get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
+  advanceStage();advanceWaiting();
+}
+function advanceStage(){
+  if(!stageQueue.length){armIdle();return;}
+  if(activeShow?.idle){endShow(activeShow);return;}
+  const show=activeShow;
+  if(show&&(show.ending||show.members.size>=stageSlots.length
+    ||(show.endsAt!==null&&show.endsAt-performance.now()<16000)))return;
+  while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
+    const gift=stageQueue[0];
+    const seat=seated(gift.name);
+    if(seat&&seat.person.state!=='seated')return;
+    stageQueue.shift();
+    addPerformer(activeShow??openShow(false),gift,seat);
+  }
 }
 function submit(name,value,avatar){
   name=name.trim().slice(0,24);
@@ -904,12 +1007,18 @@ function reset(showSamples=true){
   epoch++;running=false;queue.length=0;orders.length=0;bills.length=0;stageQueue.length=0;
   get('service-dialogue').replaceChildren();get('audience-dialogue').replaceChildren();
   clearTimeout(seatTimer);seatTimer=null;
-  singer=null;stopStageSound();setStage(false);
+  clearTimeout(idleTimer);idleTimer=null;lastIdleSinger=null;
+  if(activeShow){
+    clearInterval(activeShow.tick);clearTimeout(activeShow.timer);
+    activeShow.members.forEach(member=>member.animation?.cancel());
+  }
+  activeShow=null;stopStageSound();setStage(false);
   tableToasts.clear();get('toast-effects').replaceChildren();
   seats.forEach(s=>{s.person=null;});
   for(const name of ['backPeople','frontPeople','drinks','walking'])layers[name].replaceChildren();
   host=serverIdle();get('events').replaceChildren();get('demo').disabled=false;
   if(showSamples)seedSampleGuests();
+  armIdle();
   info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 }
 get('comment-form').addEventListener('submit',e=>{
@@ -918,6 +1027,7 @@ get('comment-form').addEventListener('submit',e=>{
 document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',()=>{
   primeAudio();submit(get('guest').value,btn.dataset.command,avatarUrl(get('guest-avatar').value));
 }));
+get('enable-audio').addEventListener('click',primeAudio);
 get('demo-gift').addEventListener('click',()=>{
   receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value});
 });
@@ -958,6 +1068,7 @@ get('demo').addEventListener('click',async()=>{
 });
 nextCounterTip();
 seedSampleGuests();
+armIdle();
 info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 })();
 </script>

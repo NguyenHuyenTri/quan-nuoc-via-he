@@ -8,7 +8,7 @@ Bản mô phỏng một quán nước tương tác có ba bàn vuông, mỗi bà
 
 Bấm **Xem một lượt phục vụ** hoặc nhập tên khách và gửi từng lệnh. Nhân viên quầy nhắc lệnh trên khung chơi và ngay dưới ô bình luận.
 
-Khi quán vắng, bàn giữa có Trí, Đào, Mai và Cường. Hai bàn bên mỗi bàn có hai khách mẫu với tên chọn ngẫu nhiên. Nhóm khách mẫu nhường chỗ khi có khách vào bàn và trở lại khi quán vắng.
+Khi quán vắng, bàn giữa có Trí, Đào, Mai và Hái Thứ Hiêu. Hai bàn bên mỗi bàn có hai khách mẫu với tên chọn ngẫu nhiên. Nhóm khách mẫu nhường chỗ khi có khách vào bàn và trở lại khi quán vắng.
 
 | Bình luận | Hành động |
 | --- | --- |
@@ -16,7 +16,9 @@ Khi quán vắng, bàn giữa có Trí, Đào, Mai và Cường. Hai bàn bên m
 | `CỤNG LY` | Cụng ly với khách cùng bàn đã có nước. Khi mọi khách cùng bàn đều hô, cả bàn cụng ly và hiện câu thoại ngẫu nhiên |
 | `RỜI BÀN` | Trả ghế hoặc rời hàng chờ |
 
-Lượt hát khoảng 15 giây dành cho khách tặng quà LIVE. Dùng nút **Thử tặng quà để lên hát** để mô phỏng sự kiện nhận quà. Khách tặng quà có thể lên sân khấu ngay cả khi chưa có bàn. Nếu đã có ghế, nhân vật ở bàn vẫn hiện trong suốt tiết mục và khán giả bên dưới hò reo.
+Mỗi tiết mục kéo dài một phút và có tối đa năm người trên sân khấu. Người tặng quà có thể tham gia khi còn chỗ và còn đủ thời gian. Các lượt tới muộn hoặc vượt quá sức chứa được xếp vào tiết mục kế tiếp. Ghế và ly nước được giữ trong lúc khách biểu diễn rồi khách trở về đúng chỗ. Dùng nút **Thử tặng quà để lên hát** để thử nhiều tên. Bấm **Bật âm thanh** để nghe nhạc, và trình duyệt có giọng tiếng Việt sẽ đọc lời.
+
+Khi vắng quà, sân khấu tự mời khách mẫu. Hái Thứ Hiêu mở màn với lời rap và beat tự tạo, sau đó các khách mẫu được chọn ngẫu nhiên. Khi có quà, khách mẫu sẽ nhường sân khấu cho người tặng.
 
 Nhân viên tự chọn ngẫu nhiên trà đá, cà phê hoặc nước mía cho khách mới, rồi gom các ly của từng bàn lên một khay. Nút **Xem một lượt phục vụ** làm tương tự cho tất cả khách đang ngồi và chưa có nước. Khách đã có nước vẫn giữ ly của mình. Khi rời bàn, khách có nước sẽ tính tiền hoặc đôi khi diễn một cảnh lén chuồn để tạo tình huống vui.
 
