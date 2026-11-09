@@ -370,3 +370,20 @@ svg#quang-canh {
   .stage-performing .speaker-pulse, .stage-performing #stage-footlights,
   .stage-performing .beam-center { opacity:.8; }
 }
+
+
+.toast-clink,.toast-quote {
+  text-anchor:middle;
+  font-weight:900;
+  paint-order:stroke;
+  stroke:#162a27;
+  stroke-width:3px;
+}
+.toast-clink {
+  font-size:22px;
+  fill:#ffd46e;
+}
+.toast-quote {
+  font-size:16px;
+  fill:#fff1c8;
+}

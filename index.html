@@ -125,7 +125,7 @@
 </g>
 </defs>
 <g id="tables"></g>
-<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="walking"></g><g id="pedestrians" aria-hidden="true"></g>
+<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="toast-effects" aria-hidden="true"></g><g id="walking"></g><g id="pedestrians" aria-hidden="true"></g>
 </g>
 </svg>
 
@@ -335,9 +335,9 @@ function wiggle(el,moves,ms){
   if(reduce.matches||!el.animate)return;
   el.animate(moves,{duration:ms,easing:'ease-in-out'});
 }
-function ding(){
+function ding(frequencies=[988,1318]){
   if(!audio||audio.state!=='running')return;
-  [988,1318].forEach((freq,i)=>{
+  frequencies.forEach((freq,i)=>{
     const at=audio.currentTime+i*.055;
     const osc=audio.createOscillator(),gain=audio.createGain();
     osc.type='sine';osc.frequency.value=freq;
@@ -375,6 +375,7 @@ function seated(name){return seats.find(s=>s.person?.id===key(name));}
 function takeSeat(guest,seat){
   const session=epoch;
   const person={...guest,state:'entering',actor:character(colors[seat.index],{name:guest.name,avatar:guest.avatar}),cup:null};
+  tableToasts.delete(seat.tableX);
   seat.person=person;info();
   layers.walking.append(person.actor);
   status('Mời '+guest.name+' vào bàn!');
@@ -412,6 +413,7 @@ async function leave(name){
   if(person.state==='leaving')return;
   if(singer===person){status(name+' đang trên sân khấu. Chờ tiết mục kết thúc nhé.');return;}
   if(person.state==='entering'){status(name+' đang tới ghế. Chờ ngồi xuống rồi hãy rời bàn nhé.');return;}
+  tableToasts.delete(seat.tableX);
   person.state='leaving';person.cup?.remove();person.actor.remove();
   wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
   const walker=character(colors[seat.index],{name,avatar:person.avatar});layers.walking.append(walker);
@@ -470,22 +472,106 @@ function order(name,drink){
   status(name+' gọi '+drink.name+'.');
   serve();
 }
+const tableToasts=new Map();
+const cupMotions=new WeakMap();
+const toastLines=[
+  'Zô nè!', 'Cụng đi chớ!', 'Một, hai, ba, zô!',
+  'Cụng nhẹ thôi, ly còn trả quán!', 'Trà đá mà khí thế ghê!',
+  'Zô cho tan đá coi!', 'Cụng cái keng cho bàn bên nghe!'
+];
+let lastToastLine=-1;
+function randomToastLine(){
+  const choices=lastToastLine<0?toastLines.length:toastLines.length-1;
+  const pick=Math.floor(Math.random()*choices);
+  lastToastLine=lastToastLine>=0&&pick>=lastToastLine?pick+1:pick;
+  return toastLines[lastToastLine];
+}
+function moveToastCup(seat,target,started){
+  const el=seat.person.cup;
+  const [x,y]=seat.drink;
+  const motion={};
+  cupMotions.set(el,motion);
+  function frame(now){
+    if(!el.isConnected||cupMotions.get(el)!==motion)return;
+    const ms=now-started;
+    if(ms>=950){
+      el.setAttribute('transform','translate('+x+' '+y+')');
+      cupMotions.delete(el);
+      return;
+    }
+    const lift=ms<420?Math.sin(Math.max(0,ms)/420*Math.PI/2):
+      Math.cos(Math.max(0,ms-540)/410*Math.PI/2);
+    const dx=(target.x-x)*lift, dy=(target.y-y)*lift;
+    const tilt=(target.x<x?-1:1)*14*lift;
+    el.setAttribute('transform','translate('+(x+dx)+' '+(y+dy)+') rotate('+tilt+') scale('+(1+.32*lift)+')');
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+function toastEffect(participants,tableX,quote){
+  const count=participants.length;
+  const x=participants.reduce((sum,seat)=>sum+seat.drink[0],0)/count;
+  const y=participants.reduce((sum,seat)=>sum+seat.drink[1],0)/count-24;
+  const effects=get('toast-effects');
+  const effect=group(0,0);
+  const impact=group(x,y-18);
+  const kind=quote?'group':'pair';
+  effect.setAttribute('data-toast-key',tableX+'-'+kind);
+  effect.setAttribute('visibility','hidden');
+  impact.setAttribute('class','toast-impact');
+  line(impact,'M0-30V-41M21-19l9-8M-21-19l-9-8M26 1h12M-26 1h-12','#ffdf90',3);
+  impact.append(node('text',{x:0,y:-9,class:'toast-clink'},'KENG!'));
+  effect.append(impact);
+  if(quote){
+    const bubble=group(tableX,24);
+    rect(bubble,-118,-24,236,40,12,'#142a27','#ffd391');
+    bubble.append(node('path',{d:'M-9 15 0 25 10 15',fill:'#142a27',stroke:'#ffd391','stroke-width':2}));
+    bubble.append(node('text',{x:0,y:2,class:'toast-quote',
+      ...(quote.length>27?{textLength:212,lengthAdjust:'spacingAndGlyphs'}:{})},quote));
+    effect.append(bubble);
+  }
+  if(quote)effects.querySelector('[data-toast-key="'+tableX+'-pair"]')?.remove();
+  effects.querySelector('[data-toast-key="'+tableX+'-'+kind+'"]')?.remove();
+  effects.append(effect);
+  const bounds=impact.getBoundingClientRect();
+  if(bounds.top<0||bounds.bottom>window.innerHeight){
+    impact.scrollIntoView({block:'center',behavior:reduce.matches?'instant':'smooth'});
+  }
+  const started=performance.now();
+  if(!reduce.matches){
+    participants.forEach(seat=>{
+      const side=seat.drink[0]<x?-1:1;
+      moveToastCup(seat,{x:x+side*8,y:y+(count>2?(seat.back?-5:5):0)},started);
+    });
+  }
+  setTimeout(()=>{
+    if(!effect.isConnected)return;
+    effect.setAttribute('visibility','visible');
+    ding([1568,2349,3136]);
+    if(quote&&!singer&&!window.speechSynthesis?.speaking)speakVietnamese(quote,1.08);
+  },reduce.matches?0:420);
+  setTimeout(()=>effect.remove(),quote?2950:1050);
+}
 function cheers(name){
   const seat=seated(name);
   if(!seat?.person?.cup){status(name+' gọi một ly rồi mình cụng nhé!');return;}
-  const neighbors=seats.filter(s=>s!==seat&&s.tableX===seat.tableX&&s.person?.cup);
+  if(seat.person===singer){status(name+' về bàn rồi mình cụng ly nhé!');return;}
+  const table=seats.filter(s=>s.tableX===seat.tableX&&s.person&&s.person.state!=='leaving');
+  const neighbors=table.filter(s=>s!==seat&&s.person.cup&&s.person!==singer);
   if(!neighbors.length){status('Chờ thêm một khách cùng bàn có ly rồi cụng nhé!');return;}
-  const other=neighbors.sort((a,b)=>Math.hypot(a.x-seat.x,a.y-seat.y)-Math.hypot(b.x-seat.x,b.y-seat.y))[0];
-  for(const [from,to] of [[seat,other],[other,seat]]){
-    const x=(to.drink[0]-from.drink[0])*.48,y=(to.drink[1]-from.drink[1])*.48;
-    const el=from.person.cup;
-    const a=el.getAttribute('transform');
-    const end='translate('+(from.drink[0]+x)+' '+(from.drink[1]+y)+') rotate(8)';
-    wiggle(el,[{transform:a.replace(/translate\((\d+) (\d+)\)/,'translate($1px,$2px)')},
-      {transform:end.replace(/translate\(([-.\d]+) ([-.\d]+)\)/,'translate($1px,$2px)')},
-      {transform:a.replace(/translate\((\d+) (\d+)\)/,'translate($1px,$2px)')}],520);
+  const ready=tableToasts.get(seat.tableX)??new Set();
+  ready.add(seat.person);
+  tableToasts.set(seat.tableX,ready);
+  if(table.every(s=>s.person.cup&&s.person!==singer&&ready.has(s.person))){
+    const quote=randomToastLine();
+    tableToasts.delete(seat.tableX);
+    toastEffect(table,seat.tableX,quote);
+    status('Cả bàn cùng cụng ly · '+quote);
+    return;
   }
-  setTimeout(ding,reduce.matches?0:245);status(name+' cụng ly với '+other.person.name+'!');
+  const other=neighbors.sort((a,b)=>Math.hypot(a.x-seat.x,a.y-seat.y)-Math.hypot(b.x-seat.x,b.y-seat.y))[0];
+  toastEffect([seat,other],seat.tableX);
+  status(name+' cụng ly với '+other.person.name+'! '+ready.size+'/'+table.length+' khách cùng bàn đã hô.');
 }
 const stageMic={x:382,y:-115};
 const stageVerses=[
@@ -499,16 +585,20 @@ function setStage(active){
   get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
   get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
-function showStageVerse(text){
-  get('stage-lyric').textContent=text;
+function speakVietnamese(text,rate){
   const speech=window.speechSynthesis;
   const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
-  if(!voice)return;
-  stageVoice=new SpeechSynthesisUtterance(text);
-  stageVoice.voice=voice;
-  stageVoice.lang='vi-VN';
-  stageVoice.rate=.95;
-  speech.speak(stageVoice);
+  if(!voice)return null;
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.voice=voice;
+  utterance.lang='vi-VN';
+  utterance.rate=rate;
+  speech.speak(utterance);
+  return utterance;
+}
+function showStageVerse(text){
+  get('stage-lyric').textContent=text;
+  stageVoice=speakVietnamese(text,.95);
 }
 function stopStageSound(){
   if(stageVoice){
@@ -592,6 +682,7 @@ function submit(name,value,avatar){
 function reset(){
   epoch++;running=false;queue.length=0;orders.length=0;
   singer=null;stopStageSound();setStage(false);
+  tableToasts.clear();get('toast-effects').replaceChildren();
   seats.forEach(s=>{s.person=null;});
   for(const name of ['backPeople','frontPeople','drinks','walking'])layers[name].replaceChildren();
   host=serverIdle();get('events').replaceChildren();get('demo').disabled=false;
@@ -643,7 +734,10 @@ get('demo').addEventListener('click',async()=>{
     await sleep(500);
     if(epoch!==session)return;
     submit('Trí','CỤNG LY');
-    await sleep(900);
+    await sleep(1050);
+    if(epoch!==session)return;
+    submit('Mai','CỤNG LY');
+    await sleep(2300);
     if(epoch!==session)return;
     await submit('Mai','RỜI BÀN');
   }finally{
