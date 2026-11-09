@@ -131,7 +131,7 @@
 </g>
 </defs>
 <g id="tables"></g>
-<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="toast-effects" aria-hidden="true"></g><g id="service-dialogue" aria-hidden="true"></g><g id="walking"></g><g id="pedestrians" aria-hidden="true"></g>
+<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="toast-effects" aria-hidden="true"></g><g id="service-dialogue" aria-hidden="true"></g><g id="audience-dialogue" aria-hidden="true"></g><g id="walking"></g><g id="pedestrians" aria-hidden="true"></g>
 </g>
 </svg>
 
@@ -150,7 +150,7 @@
 </div>
 </form>
 <div class="grid-buttons" aria-label="Lệnh nhanh">
-<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="ORDER TRÀ ĐÁ">Trà đá</button><button type="button" data-command="ORDER CÀ PHÊ">Cà phê</button><button type="button" data-command="ORDER NƯỚC MÍA">Nước mía</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử tặng quà để lên hát</button>
+<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử tặng quà để lên hát</button>
 </div>
 
 <div id="queue" class="queue"></div>
@@ -187,8 +187,6 @@ function guestRoute(seat){
   return [entry,{x:24,y:walkwayY},{x:seat.aisleX,y:walkwayY},{x:seat.aisleX,y:seat.y},seat];
 }
 const queue=[],orders=[],bills=[],stageQueue=[];
-const orderWindow=2800;
-let serviceTimer=null;
 const seenGifts=new Set();
 const minSeatTime=60000;
 let seatTimer=null;
@@ -222,7 +220,7 @@ function info(){
   get('seat-count').textContent=samples?samples+' khách mẫu':free?free+' ghế trống':'Quán đã đầy';
   get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
 }
-const counterTips=['vào bàn','trà đá','cà phê','nước mía','cụng ly','rời bàn'];
+const counterTips=['vào bàn','cụng ly','rời bàn'];
 let counterTip=0,counterTimer=null;
 function counterTalk(message){
   const line=get('counter-line');
@@ -463,13 +461,13 @@ function takeSeat(guest,seat){
     person.actor=seatActor(seat,person);
     wiggle(person.actor.firstElementChild,[{opacity:.35},{opacity:1}],210);
     person.state='seated';person.seatedAt=performance.now();
-    status(guest.name+' đã ngồi vào bàn. Mời gọi món!');
+    status(guest.name+' đã ngồi vào bàn. Quán sẽ mang nước ra nha!');
     serve();
     advanceStage();advanceWaiting();
   })();
 }
 function join(name,avatar){
-  if(seated(name)){status(name+' đã có ghế rồi. Mời gọi món!');return;}
+  if(seated(name)){status(name+' đã có ghế rồi. Ngồi chill nha!');return;}
   if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
   if(singer?.id===key(name)){status(name+' biểu diễn xong rồi vào bàn nhé!');return;}
   const guest={id:key(name),name,avatar};
@@ -540,20 +538,19 @@ async function finishLeave({seat,person,makeRoom},sneaked){
   }
   serve();
 }
-const askLines=['Bạn uống gì để mình pha nè?','Uống gì cho mát lòng mát dạ nè?','Trà đá, cà phê hay nước mía đây?'];
-const replyLines=['Có ngay, chờ mình lắc đá xíu!','Rồi nha, pha ngon mới dám bưng!','Chốt đơn, đá đang khởi động!'];
+const askLines=['Uống gì nè? Để quán chọn giúp nha!','Chờ xíu, quán chọn ly mát lòng mát dạ!','Hôm nay để quán chọn món bất ngờ nha!'];
 const sneakLines=['Mình ra nghe điện thoại xíu…','Ủa, hình như xe mình tự nổ máy!','Mình ra coi ngoài đường có gì vui…'];
 const caughtLines=['Ơ kìa, người đi rồi mà hóa đơn còn chill!',
   'Bạn ơi, tiền nước chưa biết tự đi về!',
   'Quán giữ hóa đơn, bạn giữ tốc độ nha!'];
 const oneOf=list=>list[Math.floor(Math.random()*list.length)];
-function tableDialogue(tableX,speaker,message){
-  const layer=get('service-dialogue');
+function tableDialogue(tableX,speaker,message,audience=false){
+  const layer=get(audience?'audience-dialogue':'service-dialogue');
   layer.querySelector('[data-dialogue-table="'+tableX+'"]')?.remove();
-  const bubble=group(tableX,60);
+  const bubble=group(tableX,audience?285:60);
   bubble.setAttribute('data-dialogue-table',tableX);
   rect(bubble,-124,-34,248,59,12,'#162e2a','#d2ad77');
-  bubble.append(node('path',{d:'M-8 24 1 33 12 24',fill:'#162e2a',stroke:'#d2ad77','stroke-width':2}));
+  bubble.append(node('path',{d:audience?'M-8-33 1-43 12-33':'M-8 24 1 33 12 24',fill:'#162e2a',stroke:'#d2ad77','stroke-width':2}));
   const label=node('text',{x:0,y:-12,fill:'#ffd391','font-size':13,'font-weight':800,'text-anchor':'middle'},speaker);
   const line=node('text',{x:0,y:9,fill:'#fff2cf','font-size':15,'font-weight':750,'text-anchor':'middle'},message);
   bubble.append(label,line);
@@ -564,57 +561,41 @@ function tableDialogue(tableX,speaker,message){
       text.setAttribute('lengthAdjust','spacingAndGlyphs');
     }
   }
-  status(speaker+' · '+message);
-  setTimeout(()=>bubble.remove(),4200);
+  if(!audience)status(speaker+' · '+message);
+  setTimeout(()=>bubble.remove(),audience?3200:4200);
 }
 function present(seat,person){
-  return seat.person===person&&person.state==='seated'&&person!==singer;
+  return seat.person===person&&person.state==='seated';
+}
+function needsDrink(seat){
+  const person=seat.person;
+  return person?.state==='seated'&&!person.cup&&!person.serving&&!orders.some(job=>job.person===person);
 }
 function waitingForMenu(seat){
-  const person=seat.person;
-  return person&&!person.sample&&present(seat,person)&&!person.cup&&!person.asked
-    &&!orders.some(job=>job.person===person);
+  return needsDrink(seat)&&!seat.person.sample;
 }
 function tableServiceRoute(tableX,from){
   const x=tableX===660?tableX-78:tableX+78;
   return [from,{x:from.x,y:624},{x:counterLaneX,y:624},
     {x:counterLaneX,y:walkwayY},{x,y:walkwayY},{x,y:245}];
 }
-function queueDrink(seat,drink){
-  const person=seat.person;
-  const existing=orders.find(job=>job.person===person);
-  if(existing)existing.drink=drink;
-  else orders.push({seat,person,drink,queuedAt:performance.now()});
-  person.asked=true;
+const drinkMenu=Object.values(drinks);
+function queueRandomDrink(seat){
+  orders.push({seat,person:seat.person,drink:oneOf(drinkMenu)});
 }
 async function serve(){
   if(running)return;
-  clearTimeout(serviceTimer);serviceTimer=null;
   for(let index=orders.length-1;index>=0;index--){
     const {seat,person}=orders[index];
-    if(seat.person!==person||person.state==='leaving')orders.splice(index,1);
+    if(!present(seat,person))orders.splice(index,1);
   }
-  const pending=orders.filter(job=>present(job.seat,job.person));
-  const first=pending[0];
   const bill=bills.shift();
   const askSeat=seats.find(waitingForMenu);
-  let batch=[];
-  if(!bill&&first){
-    const tableX=first.seat.tableX;
-    const group=pending.filter(job=>job.seat.tableX===tableX);
-    const tableStillOrdering=seats.some(seat=>seat.tableX===tableX&&seat.person?.state==='seated'
-      &&!seat.person.sample&&!seat.person.cup&&seat.person!==singer&&!group.some(job=>job.seat===seat));
-    const delay=orderWindow-(performance.now()-first.queuedAt);
-    if(!tableStillOrdering||delay<=0){
-      batch=group;
-      batch.forEach(job=>{
-        orders.splice(orders.indexOf(job),1);
-        job.person.serving=true;
-      });
-    }else if(!askSeat){
-      serviceTimer=setTimeout(serve,Math.ceil(delay));
-      return;
-    }
+  const first=orders[0];
+  const batch=!bill&&first?orders.filter(job=>job.seat.tableX===first.seat.tableX):[];
+  for(const job of batch){
+    orders.splice(orders.indexOf(job),1);
+    job.person.serving=true;
   }
   if(!bill&&!batch.length&&!askSeat)return;
   running=true;
@@ -650,7 +631,7 @@ async function serve(){
     finishLeave(bill,false);
   }else if(batch.length){
     batch.forEach(job=>{job.person.serving=false;});
-    const delivered=batch.filter(({seat,person})=>seat.person===person&&person.state==='seated');
+    const delivered=batch.filter(({seat,person})=>present(seat,person));
     for(const {seat,person,drink} of delivered){
       person.cup?.remove();
       const glass=cup(drink);
@@ -669,32 +650,16 @@ async function serve(){
     host=serviceWorker();
     host.setAttribute('transform','translate('+route.at(-1).x+' '+route.at(-1).y+')');
   }else{
-    const guests=seats.filter(seat=>seat.tableX===tableX&&waitingForMenu(seat));
-    if(guests.length){
-      guests.forEach(seat=>{seat.person.asked=true;});
+    if(seats.some(seat=>seat.tableX===tableX&&waitingForMenu(seat))){
       tableDialogue(tableX,'Nhân viên',oneOf(askLines));
       await sleep(1400);
       if(session!==epoch)return;
+      seats.filter(seat=>seat.tableX===tableX&&waitingForMenu(seat)).forEach(queueRandomDrink);
     }
   }
   const returnRoute=[route.at(-1),...route.slice(2,-1).reverse(),serverHome];
   if(!await walk(host,returnRoute,980,session))return;
   running=false;serve();
-}
-function order(name,drink){
-  const seat=seated(name);
-  if(!seat||seat.person.state==='leaving'){status(name+' gõ VÀO BÀN trước khi gọi món nhé.');return;}
-  const person=seat.person;
-  queueDrink(seat,drink);
-  tableDialogue(seat.tableX,name,'Cho mình một ly '+drink.name+' nha!');
-  const session=epoch;
-  setTimeout(()=>{
-    if(epoch===session&&seat.person===person&&person.state!=='leaving'
-      &&orders.some(job=>job.person===person&&job.drink===drink)){
-      tableDialogue(seat.tableX,'Nhân viên',oneOf(replyLines));
-    }
-  },700);
-  serve();
 }
 const tableToasts=new Map();
 const cupMotions=new WeakMap();
@@ -778,15 +743,14 @@ function toastEffect(participants,tableX,quote){
 }
 function cheers(name){
   const seat=seated(name);
-  if(!seat?.person?.cup){status(name+' gọi một ly rồi mình cụng nhé!');return;}
-  if(seat.person===singer){status(name+' về bàn rồi mình cụng ly nhé!');return;}
+  if(!seat?.person?.cup){status(name+' chờ nhân viên mang nước rồi mình cụng nhé!');return;}
   const table=seats.filter(s=>s.tableX===seat.tableX&&s.person&&s.person.state!=='leaving');
-  const neighbors=table.filter(s=>s!==seat&&s.person.cup&&s.person!==singer);
+  const neighbors=table.filter(s=>s!==seat&&s.person.cup);
   if(!neighbors.length){status('Chờ thêm một khách cùng bàn có ly rồi cụng nhé!');return;}
   const ready=tableToasts.get(seat.tableX)??new Set();
   ready.add(seat.person);
   tableToasts.set(seat.tableX,ready);
-  if(table.every(s=>s.person.cup&&s.person!==singer&&ready.has(s.person))){
+  if(table.every(s=>s.person.cup&&ready.has(s.person))){
     const quote=randomToastLine();
     tableToasts.delete(seat.tableX);
     toastEffect(table,seat.tableX,quote);
@@ -862,7 +826,6 @@ function receiveGift({name,avatarUrl:photo,eventId}={}){
     if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
   }
   primeAudio();
-  clearSampleGuests();info();
   stageQueue.push({id:key(name),name,avatar:avatarUrl(photo)});
   if(singer||stageQueue.length>1)status(name+' đã tặng quà và đang chờ lượt hát.');
   advanceStage();advanceWaiting();
@@ -875,15 +838,26 @@ function advanceStage(){
   stageQueue.shift();
   sing(gift,seat);
 }
+const audienceLines=[
+  'Hay quá, quên luôn ly trà đá!',
+  'Quán vỉa hè mà giọng sân vận động!',
+  'Hát nữa đi, bàn em còn đá!',
+  'Vỗ tay đi, hàng xóm chưa ngủ!',
+  'Ủa, quán mình mời ca sĩ hồi nào vậy?',
+  'Hay vậy, ai dám tính tiền nữa!'
+];
+function cheerStage(exclude,line){
+  const audience=seats.filter(({person})=>person?.state==='seated'&&person!==exclude&&key(person.name)!==exclude.id);
+  const fan=oneOf(audience);
+  tableDialogue(fan?.tableX??400,fan?.person.name??'Khán giả',line,true);
+}
 async function sing(gift,seat){
   const {name}=gift;
   const person=seat?.person??gift, session=epoch;
   singer=person;
-  person.actor?.remove();
   const performer=character(seat?colors[seat.index]:colors[0],{name,avatar:gift.avatar||person.avatar});
-  const start=seat
-    ? [seat,{x:seat.aisleX,y:seat.y},{x:seat.aisleX,y:58}]
-    : [entry,{x:24,y:walkwayY},{x:309,y:walkwayY},{x:309,y:58}];
+  performer.setAttribute('data-performer','');
+  const start=seat?[]:[entry,{x:24,y:walkwayY},{x:309,y:walkwayY},{x:309,y:58}];
   const route=[...start,{x:400,y:15},{x:400,y:-37},stageMic];
   layers.walking.append(performer);
   status(name+' đã tặng quà và đang lên sân khấu…');
@@ -892,10 +866,13 @@ async function sing(gift,seat){
   setStage(true);
   status(name+' bắt đầu biểu diễn!');
   playStageSound();
-  const animation=reduce.matches?null:performer.firstElementChild.nextElementSibling.animate(
+  const animation=reduce.matches?null:performer.firstElementChild.nextElementSibling.animate?.(
     [{translate:'0 0'},{translate:'-3px -2px'},{translate:'2px 0'},{translate:'0 0'}],{duration:850,iterations:Infinity});
+  const cheers=[...audienceLines];
   for(const verse of stageVerses){
     showStageVerse(verse.text);
+    const line=cheers.splice(Math.floor(Math.random()*cheers.length),1)[0];
+    cheerStage(person,line);
     await new Promise(resolve=>setTimeout(resolve,verse.duration));
     if(epoch!==session){
       animation?.cancel();
@@ -908,9 +885,8 @@ async function sing(gift,seat){
   status('Cảm ơn '+name+'! Tiết mục đã kết thúc.');
   if(!await walk(performer,[...route].reverse(),1450,session,true))return;
   performer.remove();
-  if(seat)(seat.back?layers.backPeople:layers.frontPeople).append(person.actor);
   singer=null;
-  status(name+(seat?' đã về lại bàn.':' đã rời sân khấu.'));
+  status(name+' đã kết thúc lượt hát.');
   advanceStage();advanceWaiting();seedSampleGuests();serve();
 }
 function submit(name,value,avatar){
@@ -921,14 +897,12 @@ function submit(name,value,avatar){
   if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
   if(cmd==='cung ly')return cheers(name);
   if(cmd==='len hat'||cmd==='len hat mot bai'){status('Lượt hát dành cho khách tặng quà LIVE.');return;}
-  const item=cmd.replace(/^order /,'');
-  if(Object.hasOwn(drinks,item))return order(name,drinks[item]);
   if(seated(name))status(name+': '+value.trim().slice(0,80));
-  else status('Gõ VÀO BÀN để lấy ghế, rồi gọi món bằng bình luận.');
+  else status('Gõ VÀO BÀN để lấy ghế, quán sẽ tự mang nước ra.');
 }
 function reset(showSamples=true){
   epoch++;running=false;queue.length=0;orders.length=0;bills.length=0;stageQueue.length=0;
-  clearTimeout(serviceTimer);serviceTimer=null;get('service-dialogue').replaceChildren();
+  get('service-dialogue').replaceChildren();get('audience-dialogue').replaceChildren();
   clearTimeout(seatTimer);seatTimer=null;
   singer=null;stopStageSound();setStage(false);
   tableToasts.clear();get('toast-effects').replaceChildren();
@@ -967,17 +941,14 @@ get('reset').addEventListener('click',()=>reset());
 get('demo').addEventListener('click',async()=>{
   primeAudio();
   const session=epoch;
-  const targets=seats.filter(seat=>seat.person?.state==='seated'&&!seat.person.cup&&seat.person!==singer)
+  const targets=seats.filter(seat=>seat.person?.state==='seated'&&!seat.person.cup)
     .map(seat=>({seat,person:seat.person}));
   if(!targets.length){
     status('Ai đang ngồi cũng có nước rồi hoặc bàn đang trống.');
     return;
   }
-  const menu=Object.values(drinks);
   get('demo').disabled=true;
-  targets.forEach(({seat,person},index)=>{
-    if(!person.serving&&!orders.some(job=>job.person===person))queueDrink(seat,menu[index%menu.length]);
-  });
+  targets.filter(({seat})=>needsDrink(seat)).forEach(({seat})=>queueRandomDrink(seat));
   serve();
   const deadline=Date.now()+35000;
   while(epoch===session&&Date.now()<deadline&&targets.some(({seat,person})=>present(seat,person)&&!person.cup)){

@@ -1,6 +1,6 @@
 # Quán Nước Vỉa Hè
 
-Bản mô phỏng một quán nước tương tác có ba bàn vuông, mỗi bàn bốn ghế. Khách vào bàn, gọi nước, cụng ly và nhường ghế qua ô bình luận giả lập. Khách có thể ngồi bao lâu tuỳ thích khi quán còn chỗ. Khi đủ 12 ghế và có khách chờ, quán mời khách đã ngồi lâu nhất nhường ghế sau tối thiểu 60 giây. Người chờ được mời theo thứ tự.
+Bản mô phỏng một quán nước tương tác có ba bàn vuông, mỗi bàn bốn ghế. Khách vào bàn, nhận nước ngẫu nhiên, cụng ly và nhường ghế qua ô bình luận giả lập. Khách có thể ngồi bao lâu tuỳ thích khi quán còn chỗ. Khi đủ 12 ghế và có khách chờ, quán mời khách đã ngồi lâu nhất nhường ghế sau tối thiểu 60 giây. Người chờ được mời theo thứ tự.
 
 [Chơi thử trên Netlify](https://quannuocviahe.netlify.app/)
 
@@ -13,13 +13,12 @@ Khi quán vắng, bàn giữa có Trí, Đào, Mai và Cường. Hai bàn bên m
 | Bình luận | Hành động |
 | --- | --- |
 | `VÀO BÀN` | Xin ghế trống hoặc vào hàng chờ |
-| `ORDER TRÀ ĐÁ`, `ORDER CÀ PHÊ`, `ORDER NƯỚC MÍA` | Gọi một món từ quầy |
 | `CỤNG LY` | Cụng ly với khách cùng bàn đã có nước. Khi mọi khách cùng bàn đều hô, cả bàn cụng ly và hiện câu thoại ngẫu nhiên |
 | `RỜI BÀN` | Trả ghế hoặc rời hàng chờ |
 
-Lượt hát khoảng 15 giây dành cho khách tặng quà LIVE. Dùng nút **Thử tặng quà để lên hát** để mô phỏng sự kiện nhận quà. Khách tặng quà có thể lên sân khấu ngay cả khi chưa có bàn.
+Lượt hát khoảng 15 giây dành cho khách tặng quà LIVE. Dùng nút **Thử tặng quà để lên hát** để mô phỏng sự kiện nhận quà. Khách tặng quà có thể lên sân khấu ngay cả khi chưa có bàn. Nếu đã có ghế, nhân vật ở bàn vẫn hiện trong suốt tiết mục và khán giả bên dưới hò reo.
 
-Nút **Xem một lượt phục vụ** gọi nước mẫu cho tất cả khách đang ngồi và chưa có nước. Nhân viên ghé hỏi món và gom các ly đã gọi của từng bàn lên một khay. Khách đã có nước vẫn giữ ly của mình. Khi rời bàn, khách có nước sẽ tính tiền hoặc đôi khi diễn một cảnh lén chuồn để tạo tình huống vui.
+Nhân viên tự chọn ngẫu nhiên trà đá, cà phê hoặc nước mía cho khách mới, rồi gom các ly của từng bàn lên một khay. Nút **Xem một lượt phục vụ** làm tương tự cho tất cả khách đang ngồi và chưa có nước. Khách đã có nước vẫn giữ ly của mình. Khi rời bàn, khách có nước sẽ tính tiền hoặc đôi khi diễn một cảnh lén chuồn để tạo tình huống vui.
 
 ## Cấu trúc
 
