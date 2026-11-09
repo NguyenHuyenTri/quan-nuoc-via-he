@@ -311,13 +311,62 @@ svg#quang-canh {
   border-color: var(--amber);
   color: var(--amber);
 }
-#stage-beams.performing {
-  animation: stage-lights .9s ease-in-out infinite alternate;
+.speaker-pulse {
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:speaker-idle 1.8s ease-out infinite;
 }
-@keyframes stage-lights {
-  from { opacity: .38; }
-  to { opacity: .9; }
+.stage-performing .speaker-pulse {
+  stroke-width:4;
+  animation:speaker-live .48s ease-out infinite;
+}
+.stage-performing #stage-beams {
+  opacity:.86;
+}
+.stage-beam {
+  transform-box:fill-box;
+  transform-origin:50% 0;
+}
+.beam-center {
+  opacity:0;
+}
+.stage-performing .stage-beam {
+  animation:stage-sweep 2s ease-in-out infinite alternate;
+}
+.stage-performing .beam-right {
+  animation-direction:alternate-reverse;
+}
+.stage-performing .beam-center {
+  animation-delay:-.7s;
+}
+#stage-footlights {
+  opacity:.28;
+}
+.stage-performing #stage-footlights {
+  animation:stage-footlights 1.1s ease-in-out infinite alternate;
+}
+@keyframes speaker-idle {
+  from { opacity:.44; transform:scale(.86); }
+  to { opacity:.10; transform:scale(1.05); }
+}
+@keyframes speaker-live {
+  from { opacity:.95; transform:scale(.82); }
+  to { opacity:.2; transform:scale(1.38); }
+}
+@keyframes stage-sweep {
+  from { opacity:.32; transform:rotate(-10deg); }
+  to { opacity:.9; transform:rotate(10deg); }
+}
+@keyframes stage-footlights {
+  from { opacity:.52; fill:#ffd18a; }
+  to { opacity:1; fill:#b7eaff; }
 }
 @media(prefers-reduced-motion:reduce) {
-  #stage-beams.performing { animation: none; opacity: .72; }
+  .speaker-pulse, .stage-performing .speaker-pulse,
+  .stage-performing .stage-beam, .stage-performing #stage-footlights {
+    animation:none;
+  }
+  .speaker-pulse { opacity:.25; }
+  .stage-performing .speaker-pulse, .stage-performing #stage-footlights,
+  .stage-performing .beam-center { opacity:.8; }
 }

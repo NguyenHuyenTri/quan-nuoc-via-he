@@ -59,23 +59,48 @@
 <rect x="255" y="273" width="290" height="65" rx="13" fill="#252938" stroke="#e8a96e" stroke-width="3"/>
 <text x="400" y="300" text-anchor="middle" fill="#ffe0ad" font-size="22" font-weight="800" letter-spacing="3">SÂN KHẤU NGOÀI TRỜI</text>
 <text x="400" y="322" text-anchor="middle" fill="#dbaf88" font-size="14" letter-spacing="4">ĐÊM PHÒNG TRÀ</text>
-<g id="stage-beams" opacity=".28"><path d="M240 348 292 348 484 553H210Z" fill="#ffe4a5"/><path d="M509 348H560L592 553H315Z" fill="#e8b2f3"/></g>
+<g id="stage-beams" opacity=".28">
+  <path class="stage-beam beam-left" d="M251 348H281L484 553H210Z" fill="#ffe4a5"/>
+  <path class="stage-beam beam-right" d="M520 348H550L592 553H315Z" fill="#e8b2f3"/>
+  <path class="stage-beam beam-center" d="M395 345H405L518 558H282Z" fill="#8ddff5"/>
+</g>
+
 <circle cx="266" cy="347" r="10" fill="#ffda8a"/><circle cx="535" cy="347" r="10" fill="#efc4f6"/>
 <path d="M155 545H645L688 602H112Z" fill="url(#stage-wood)" stroke="#e0a874" stroke-width="4" stroke-linejoin="round"/>
 <path d="M112 602H688V628H112Z" fill="#573e34" stroke="#a97855" stroke-width="3"/>
-<path d="M313 629h174l30 41H283zM284 670h232v17H284z" fill="#80573f" stroke="#bc8c61" stroke-width="2"/>
+<path d="M361 649h78l16 41H345z" fill="#41483e"/>
+<path d="M354 629h92l13 18H341zM341 647h118v9H341z" fill="#80573f" stroke="#bc8c61" stroke-width="2"/>
 <path d="M147 566H653M129 584H671" stroke="#e5b177" opacity=".44" stroke-width="2"/>
+<g id="stage-footlights" fill="#ffd18a" aria-hidden="true">
+  <circle cx="184" cy="592" r="4"/><circle cx="224" cy="592" r="4"/><circle cx="264" cy="592" r="4"/>
+  <circle cx="304" cy="592" r="4"/><circle cx="344" cy="592" r="4"/><circle cx="384" cy="592" r="4"/>
+  <circle cx="424" cy="592" r="4"/><circle cx="464" cy="592" r="4"/><circle cx="504" cy="592" r="4"/>
+  <circle cx="544" cy="592" r="4"/><circle cx="584" cy="592" r="4"/><circle cx="624" cy="592" r="4"/>
+</g>
 <use href="#speaker-stack" transform="translate(43 267)"/>
 <use href="#speaker-stack" transform="translate(652 267)"/>
+<g id="speaker-pulses" fill="none" stroke="#efb675" stroke-width="2.5" aria-hidden="true">
+  <circle class="speaker-pulse" cx="95" cy="552" r="29"/>
+  <circle class="speaker-pulse" cx="704" cy="552" r="29"/>
+</g>
 <path d="M232 568l30-25 40 10-12 30h-58ZM510 583l-12-30 40-10 30 25v15Z" fill="#222a33" stroke="#78818a" stroke-width="3"/>
 <path d="M402 535v54m-15 0h30" fill="none" stroke="#dfd1c6" stroke-width="4" stroke-linecap="round"/>
 <path d="M402 535l-12-7" stroke="#eee0cf" stroke-width="8" stroke-linecap="round"/>
 <g id="stage-notes" visibility="hidden" fill="#ffd393" font-size="35" font-weight="800" aria-hidden="true"><text x="340" y="450">♪</text><text x="452" y="431">♫</text><text x="490" y="474">♪</text></g>
+<g id="stage-caption" visibility="hidden" aria-hidden="true">
+  <rect x="204" y="365" width="392" height="51" rx="14" fill="#14232c" fill-opacity=".92" stroke="#deaf75"/>
+  <text id="stage-lyric" x="400" y="399" text-anchor="middle" fill="#fff1c8" font-size="24" font-weight="800"></text>
+</g>
 <g transform="translate(0 690)">
 <rect width="800" height="732" fill="url(#yard)"/>
 <rect width="800" height="732" fill="url(#floor)"/>
 <ellipse cx="408" cy="219" rx="320" ry="208" fill="url(#lamp)"/>
-<g transform="translate(607 445)">
+<g aria-hidden="true" fill="none">
+  <path d="M24 513V326H530V624H800M530 326H800" stroke="#152d28" stroke-width="59"/>
+  <path d="M24 513V326H530V624H800M530 326H800" stroke="#5a6051" stroke-width="51" stroke-linejoin="round"/>
+  <path d="M24 513V326H530V624H800M530 326H800" stroke="#99907a" stroke-opacity=".48" stroke-width="2" stroke-dasharray="9 12"/>
+</g>
+<g transform="translate(588 425) scale(1.12 1.06)">
 <rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
 <g id="prep-station" aria-label="Nhân viên pha chế"></g>
 <g transform="translate(0 -10)">
@@ -86,7 +111,6 @@
 <rect x="9" y="99" width="136" height="40" rx="4" fill="#8f6247"/>
 <path d="M30 104v30m24-30v30m24-30v30m24-30v30m24-30v30" stroke="#5a4338" opacity=".55" stroke-width="2"/>
 <path d="M24 66h17l-2 18H26zM52 63h18l-2 21H54z" fill="#f0bc71" opacity=".8"/>
-<text x="79" y="124" text-anchor="middle" fill="#ffde9a" font-size="12" font-weight="750" letter-spacing="2">QUẦY NƯỚC</text>
 </g>
 <g id="back-seats"></g><g id="back-people"></g>
 <defs><g id="square-table" transform="translate(400 312) scale(.4) translate(-400 -312)">
@@ -134,7 +158,7 @@ const points=[
   {x:370,y:375,back:false,drink:[388,323]}
 ];
 const tableCenters=[400,140,660];
-const tableLift=98;
+const tableLift=142;
 const seats=tableCenters.flatMap(tableX=>points.map((point,index)=>({
   x:point.x+tableX-400,y:point.y-tableLift,back:point.back,
   drink:[point.drink[0]+tableX-400,point.drink[1]-tableLift],
@@ -143,9 +167,10 @@ const seats=tableCenters.flatMap(tableX=>points.map((point,index)=>({
 const colors=['#f1b55d','#7dbe9b','#ef9878','#9db1eb'];
 const drinks={
 'tra da':{name:'trà đá',color:'#e6b65d'},'ca phe':{name:'cà phê',color:'#916244'},'nuoc mia':{name:'nước mía',color:'#cfcd68'}};
-const entry={x:24,y:513}, serverHome={x:584,y:600}, pickup={x:666,y:597};
+const walkwayY=326, counterLaneX=530;
+const entry={x:24,y:513}, serverHome={x:548,y:610}, pickup={x:664,y:585};
 function guestRoute(seat){
-  return [entry,{x:24,y:340},{x:seat.aisleX,y:340},{x:seat.aisleX,y:seat.y},seat];
+  return [entry,{x:24,y:walkwayY},{x:seat.aisleX,y:walkwayY},{x:seat.aisleX,y:seat.y},seat];
 }
 const queue=[],orders=[];
 let running=false,epoch=0,audio=null;
@@ -355,7 +380,9 @@ async function serve(){
   let server=serviceWorker(drink);
   server.setAttribute('transform','translate('+pickup.x+' '+pickup.y+')');
   const stop={x:seat.x+(seat.x<seat.tableX?-38:38),y:seat.y+(seat.back?-3:13)};
-  const route=[pickup,{x:584,y:583},{x:584,y:340},{x:seat.aisleX,y:340},{x:seat.aisleX,y:stop.y},stop];
+  const counterExit={x:counterLaneX,y:624};
+  const route=[pickup,{x:pickup.x,y:counterExit.y},counterExit,
+    {x:counterLaneX,y:walkwayY},{x:seat.aisleX,y:walkwayY},{x:seat.aisleX,y:stop.y},stop];
   status('Nhân viên mang '+drink.name+' tới bàn…');
   if(!await walk(server,route,1180,session))return;
   if(seat.person===person&&person.state==='seated'){
@@ -366,7 +393,7 @@ async function serve(){
   }
   server.remove();
   server=serviceWorker();
-  const returnRoute=[stop,...route.slice(1,-1).reverse(),serverHome];
+  const returnRoute=[stop,...route.slice(2,-1).reverse(),serverHome];
   if(!await walk(server,returnRoute,960,session))return;
   host=server;running=false;serve();
 }
@@ -398,12 +425,33 @@ function cheers(name){
   setTimeout(ding,reduce.matches?0:245);status(name+' cụng ly với '+other.person.name+'!');
 }
 const stageMic={x:382,y:-115};
-let stageSound=null;
+const stageVerses=[
+  {text:'Một, hai, ba, sao nè!',duration:3400},
+  {text:'Lên sân khấu, hát cùng nhau.',duration:4200},
+  {text:'Cả quán mình vui đêm nay!',duration:4500}
+];
+let stageSound=null, stageVoice=null;
 function setStage(active){
-  get('stage-beams').classList.toggle('performing',active);
+  get('quang-canh').classList.toggle('stage-performing',active);
+  get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
   get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
+function showStageVerse(text){
+  get('stage-lyric').textContent=text;
+  const speech=window.speechSynthesis;
+  const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
+  if(!voice)return;
+  stageVoice=new SpeechSynthesisUtterance(text);
+  stageVoice.voice=voice;
+  stageVoice.lang='vi-VN';
+  stageVoice.rate=.95;
+  speech.speak(stageVoice);
+}
 function stopStageSound(){
+  if(stageVoice){
+    window.speechSynthesis.cancel();
+    stageVoice=null;
+  }
   if(!stageSound)return;
   stageSound.disconnect();
   stageSound=null;
@@ -414,7 +462,8 @@ function playStageSound(){
   bus.gain.value=.55;
   bus.connect(audio.destination);
   stageSound=bus;
-  const notes=[60,64,67,69,67,64,62,65,69,72,69,65,64,67,71,74,72,67,64,60];
+  const notes=[60,64,67,69,67,64,62,65,69,72,69,65,64,67,71,74,72,67,64,60,
+    62,65,69,72,74,72,69,67,64,67,64,62,60,60];
   const start=audio.currentTime;
   notes.forEach((note,index)=>{
     const when=start+index*.35;
@@ -446,9 +495,15 @@ async function sing(name){
   playStageSound();
   const animation=reduce.matches?null:performer.firstElementChild.nextElementSibling.animate(
     [{translate:'0 0'},{translate:'-3px -2px'},{translate:'2px 0'},{translate:'0 0'}],{duration:850,iterations:Infinity});
-  await new Promise(resolve=>setTimeout(resolve,7100));
+  for(const verse of stageVerses){
+    showStageVerse(verse.text);
+    await new Promise(resolve=>setTimeout(resolve,verse.duration));
+    if(epoch!==session){
+      animation?.cancel();
+      return;
+    }
+  }
   animation?.cancel();
-  if(epoch!==session)return;
   stopStageSound();
   setStage(false);
   status('Cảm ơn '+name+'! Khách đang về ghế.');
