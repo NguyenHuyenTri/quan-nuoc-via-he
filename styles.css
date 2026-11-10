@@ -470,3 +470,43 @@ body.show-mode {
   z-index:2;
   background:#142922e6;
 }
+
+
+.quiz-panel {
+  display:grid;
+  gap:7px;
+  padding:12px;
+  border:1px solid #826f4f;
+  border-radius:10px;
+  background:#142922;
+}
+.quiz-panel [hidden] {
+  display:none;
+}
+.quiz-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+#quiz-question,#quiz-result {
+  font-weight:750;
+}
+#quiz-result {
+  color:var(--lime);
+}
+.quiz-svg-choice rect {
+  fill:#29483a;
+  stroke:#53735a;
+  stroke-width:2;
+}
+.quiz-svg-choice text {
+  fill:#faf2df;
+  font-size:22px;
+  font-weight:750;
+  text-anchor:middle;
+}
+.quiz-svg-choice[data-correct] rect {
+  fill:#3f5b24;
+  stroke:#d0e97b;
+}

@@ -26,6 +26,8 @@ Nhân viên tự chọn ngẫu nhiên trà đá, cà phê hoặc nước mía ch
 
 **Chạy thử một buổi LIVE** cho hai khách đi từ đường vào cùng bàn, nhận nước, cụng ly rồi thử tặng quà và cổ vũ. Cần hai ghế trống cùng bàn. **Khung phát 9:16** ẩn bảng điều khiển trong tab đang mở. Bấm **Thoát khung phát** hoặc phím Esc để quay lại.
 
+**Đố vui vỉa hè** cho khách đang ngồi lẫn khách đi ngang 15 giây để trả lời A, B hoặc C. Mỗi tên gửi một đáp án mỗi câu. Khi hết giờ, bảng trên cảnh quán mở đáp án, xướng tên người đúng nhanh nhất và cộng một điểm cho mỗi người trả lời đúng. Câu đố luân phiên qua bộ câu hỏi trước khi lặp lại. Bảng điểm áp dụng cho phiên đang mở và được xóa khi dọn bàn.
+
 ## Cấu trúc
 
 - `index.html` chứa giao diện, cảnh SVG và xử lý tương tác.

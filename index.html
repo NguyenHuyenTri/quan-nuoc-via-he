@@ -139,6 +139,25 @@
 <g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="toast-effects" aria-hidden="true"></g><g id="service-dialogue" aria-hidden="true"></g><g id="audience-dialogue" aria-hidden="true"></g><g id="walking"></g><g id="pedestrians" aria-hidden="true"></g>
 </g>
 <g id="stage-reactions" aria-hidden="true"></g>
+<g id="quiz-card" visibility="hidden" aria-hidden="true">
+  <rect x="70" y="24" width="660" height="193" rx="20" fill="#102822" fill-opacity=".97" stroke="#e6b96f" stroke-width="2"/>
+  <text x="102" y="58" fill="#ffd085" font-size="20" font-weight="850" letter-spacing="2">ĐỐ VUI VỈA HÈ</text>
+  <text id="quiz-svg-timer" x="698" y="58" text-anchor="end" fill="#d0e97b" font-size="19" font-weight="800"></text>
+  <text id="quiz-svg-question" x="400" y="99" text-anchor="middle" fill="#faf2df" font-size="27" font-weight="800"></text>
+  <g class="quiz-svg-choice" data-quiz-svg="A">
+    <rect x="97" y="119" width="194" height="47" rx="9"/>
+    <text x="194" y="149"></text>
+  </g>
+  <g class="quiz-svg-choice" data-quiz-svg="B">
+    <rect x="303" y="119" width="194" height="47" rx="9"/>
+    <text x="400" y="149"></text>
+  </g>
+  <g class="quiz-svg-choice" data-quiz-svg="C">
+    <rect x="509" y="119" width="194" height="47" rx="9"/>
+    <text x="606" y="149"></text>
+  </g>
+  <text id="quiz-svg-note" x="400" y="196" text-anchor="middle" fill="#ffd085" font-size="20" font-weight="750"></text>
+</g>
 </svg>
 
 </section>
@@ -168,6 +187,19 @@
   <button type="button" data-command="XIN BÀI RAP">Rap</button>
   <button type="button" data-command="XIN BÀI VUI">Vui</button>
 </fieldset>
+<section class="quiz-panel" aria-labelledby="quiz-title">
+  <div class="quiz-header"><h2 id="quiz-title">Đố vui vỉa hè</h2><button type="button" id="quiz-start">Mở câu đố</button></div>
+  <p class="hint" id="quiz-instructions">Chọn tên khách rồi trả lời A, B hoặc C. Khách đang đi ngang cũng chơi được.</p>
+  <p id="quiz-question" hidden></p>
+  <p id="quiz-timer" class="hint" hidden></p>
+  <div id="quiz-choices" class="grid-buttons" hidden>
+    <button type="button" data-command="A" data-quiz-option="A">A</button>
+    <button type="button" data-command="B" data-quiz-option="B">B</button>
+    <button type="button" data-command="C" data-quiz-option="C">C</button>
+  </div>
+  <p id="quiz-result" hidden></p>
+  <p id="quiz-leaders" class="hint" hidden></p>
+</section>
 <div id="queue" class="queue"></div>
 <div class="event-header"><h2>Chuyện trong quán</h2><button type="button" id="reset">Dọn bàn</button></div>
 <ul id="events" class="events" aria-label="Hoạt động gần nhất"></ul>
@@ -1161,10 +1193,140 @@ function advanceStage(){
     addPerformer(activeShow??openShow(false),gift,seat);
   }
 }
+const riddles=[
+  {question:'Thứ gì có cổ mà chẳng có đầu?',options:['Cái ly','Cái chai','Cái thìa'],answer:'B'},
+  {question:'Thứ gì càng lau càng ướt?',options:['Cái bàn','Cái gương','Khăn lau'],answer:'C'},
+  {question:'Thứ gì có răng mà chẳng biết cắn?',options:['Cái lược','Cái chén','Cái nón'],answer:'A'},
+  {question:'Thứ gì chỉ tăng mà chẳng giảm theo năm tháng?',options:['Chiều cao','Tuổi','Số đôi giày'],answer:'B'},
+  {question:'Thứ gì đi xa mà luôn ở góc phong bì?',options:['Con tem','Tờ thư','Con dấu'],answer:'A'},
+  {question:'Thứ gì có nhiều phím mà chẳng mở được cửa?',options:['Ổ khóa','Chuông cửa','Đàn piano'],answer:'C'},
+  {question:'Thứ gì có kim mà chẳng dùng để may?',options:['Cái kéo','Đồng hồ','Cuộn chỉ'],answer:'B'},
+  {question:'Thứ gì có cánh mà quay tại chỗ để làm mát?',options:['Quạt máy','Chim sẻ','Chiếc ô'],answer:'A'}
+];
+const quizLetters=['A','B','C'];
+const quizScores=new Map();
+const quizButtons=[...document.querySelectorAll('[data-quiz-option]')];
+const quizChoices=[...document.querySelectorAll('[data-quiz-svg]')];
+let quiz=null,quizDeck=[],lastRiddle=null;
+function fitQuizText(element,value,width){
+  element.textContent=value;
+  element.removeAttribute('textLength');
+  if(element.getComputedTextLength()>width){
+    element.setAttribute('textLength',width);
+    element.setAttribute('lengthAdjust','spacingAndGlyphs');
+  }
+}
+function nextRiddle(){
+  if(!quizDeck.length)quizDeck=[...riddles];
+  const candidates=quizDeck.length>1?quizDeck.filter(item=>item!==lastRiddle):quizDeck;
+  const riddle=oneOf(candidates);
+  quizDeck.splice(quizDeck.indexOf(riddle),1);
+  lastRiddle=riddle;
+  return riddle;
+}
+function refreshQuizClock(round){
+  const seconds=Math.max(0,Math.ceil((round.endsAt-performance.now())/1000));
+  const votes=round.votes.size+' lượt trả lời';
+  get('quiz-svg-timer').textContent=seconds+' giây';
+  get('quiz-timer').textContent=seconds+' giây · '+votes;
+  get('quiz-svg-note').textContent='Gõ A, B hoặc C · '+votes;
+}
+function startQuiz(){
+  if(quiz?.open)return;
+  if(quiz)clearTimeout(quiz.hide);
+  const round={riddle:nextRiddle(),votes:new Map(),open:true,endsAt:performance.now()+15000};
+  quiz=round;
+  const {riddle}=round;
+  get('quiz-start').disabled=true;
+  get('quiz-start').textContent='Đang nhận đáp án';
+  get('quiz-question').textContent=riddle.question;
+  get('quiz-result').hidden=true;
+  get('quiz-question').hidden=false;
+  get('quiz-timer').hidden=false;
+  get('quiz-choices').hidden=false;
+  get('quiz-card').setAttribute('visibility','visible');
+  fitQuizText(get('quiz-svg-question'),riddle.question,594);
+  quizButtons.forEach((button,index)=>{
+    button.textContent=quizLetters[index]+' · '+riddle.options[index];
+    button.disabled=false;
+  });
+  quizChoices.forEach((choice,index)=>{
+    choice.removeAttribute('data-correct');
+    fitQuizText(choice.querySelector('text'),quizLetters[index]+' · '+riddle.options[index],174);
+  });
+  refreshQuizClock(round);
+  round.tick=setInterval(()=>refreshQuizClock(round),250);
+  round.close=setTimeout(()=>finishQuiz(round),15000);
+  status('Đố vui vỉa hè · '+riddle.question+' Gõ A, B hoặc C!');
+}
+function answerQuiz(name,letter){
+  const round=quiz;
+  if(!round?.open){
+    status('Quán chưa mở câu đố. Chờ lượt kế nha!');
+    return;
+  }
+  if(performance.now()>=round.endsAt){
+    finishQuiz(round);
+    return;
+  }
+  const id=key(name);
+  if(round.votes.has(id)){
+    status(name+' đã gửi đáp án cho câu này rồi.');
+    return;
+  }
+  round.votes.set(id,{id,name,letter});
+  refreshQuizClock(round);
+  status('Đã nhận đáp án của '+name+'!');
+}
+function finishQuiz(round){
+  if(quiz!==round||!round.open)return;
+  round.open=false;
+  clearInterval(round.tick);clearTimeout(round.close);
+  const {answer,options}=round.riddle;
+  const correct=[...round.votes.values()].filter(vote=>vote.letter===answer);
+  for(const vote of correct){
+    const score=quizScores.get(vote.id)??{name:vote.name,points:0};
+    score.points++;
+    quizScores.set(vote.id,score);
+  }
+  const leaders=[...quizScores.values()].sort((a,b)=>b.points-a.points).slice(0,3);
+  const leaderboard=get('quiz-leaders');
+  leaderboard.textContent=leaders.length?'Dẫn đầu · '+leaders.map(item=>item.name+' ('+item.points+')').join(' · '):'';
+  leaderboard.hidden=!leaders.length;
+  const solution=answer+' · '+options[quizLetters.indexOf(answer)];
+  const result=correct.length?correct[0].name+' nhanh nhất · '+correct.length+' người đúng':'Chưa có ai trả lời đúng';
+  get('quiz-result').textContent='Đáp án '+solution+'. '+result+'.';
+  get('quiz-result').hidden=false;
+  get('quiz-timer').hidden=true;
+  get('quiz-start').disabled=false;
+  get('quiz-start').textContent='Câu tiếp theo';
+  quizButtons.forEach(button=>{button.disabled=true;});
+  quizChoices[quizLetters.indexOf(answer)].setAttribute('data-correct','');
+  get('quiz-svg-timer').textContent='ĐÁP ÁN '+answer;
+  fitQuizText(get('quiz-svg-note'),result,594);
+  if(correct.length&&!activeShow)ding();
+  status('Đố vui · '+get('quiz-result').textContent);
+  round.hide=setTimeout(()=>{
+    if(quiz===round)get('quiz-card').setAttribute('visibility','hidden');
+  },9000);
+}
+function resetQuiz(){
+  if(quiz){
+    clearInterval(quiz.tick);clearTimeout(quiz.close);clearTimeout(quiz.hide);
+  }
+  quiz=null;quizDeck=[];lastRiddle=null;quizScores.clear();
+  get('quiz-card').setAttribute('visibility','hidden');
+  get('quiz-start').disabled=false;
+  get('quiz-start').textContent='Mở câu đố';
+  for(const id of ['quiz-question','quiz-timer','quiz-choices','quiz-result','quiz-leaders'])get(id).hidden=true;
+}
+get('quiz-start').addEventListener('click',()=>{primeAudio();startQuiz();});
 function submit(name,value,avatar){
   name=name.trim().slice(0,24);
   if(!name){get('guest').focus();return;}
   const cmd=normalize(value);
+  const answer=cmd.match(/^(?:dap an )?([abc])$/);
+  if(answer)return answerQuiz(name,answer[1].toUpperCase());
   if(cmd==='vao ban')return join(name,avatar);
   if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
   if(cmd==='cung ly')return cheers(name);
@@ -1176,6 +1338,7 @@ function submit(name,value,avatar){
   else status('Gõ VÀO BÀN để lấy ghế, quán sẽ tự mang nước ra.');
 }
 function reset(showSamples=true){
+  resetQuiz();
   epoch++;running=false;queue.length=0;orders.length=0;bills.length=0;stageQueue.length=0;trackQueue.length=0;
   reactionTimes.clear();get('stage-reactions').replaceChildren();
   get('service-dialogue').replaceChildren();get('audience-dialogue').replaceChildren();
