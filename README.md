@@ -15,12 +15,16 @@ Khi mở hoặc dọn quán, bàn giữa có Trí, Đào, Mai và Hái Thứ Hi�
 | `VÀO BÀN` | Xin ghế trống hoặc vào hàng chờ |
 | `CỤNG LY` | Cụng ly với khách cùng bàn đã có nước. Khi mọi khách cùng bàn đều hô, cả bàn cụng ly và hiện câu thoại ngẫu nhiên |
 | `RỜI BÀN` | Trả ghế hoặc rời hàng chờ |
+| `VỖ TAY`, `THẢ TIM` | Cổ vũ trong lúc sân khấu đang diễn |
+| `XIN BÀI CHILL`, `XIN BÀI RAP`, `XIN BÀI VUI` | Xin một kiểu nhạc tự tạo cho tiết mục kế tiếp |
 
 Mỗi tiết mục kéo dài một phút và có tối đa năm người trên sân khấu. Người tặng quà có thể tham gia khi còn chỗ và còn đủ thời gian. Các lượt tới muộn hoặc vượt quá sức chứa được xếp vào tiết mục kế tiếp. Ghế và ly nước được giữ trong lúc khách biểu diễn rồi khách trở về đúng chỗ. Dùng nút **Thử tặng quà để lên hát** để thử nhiều tên. Bấm **Bật âm thanh** để nghe nhạc, và trình duyệt có giọng tiếng Việt sẽ đọc lời.
 
 Khi vắng quà, sân khấu tự mời khách mẫu. Hái Thứ Hiêu mở màn với lời rap và beat tự tạo, sau đó quán luân phiên mời khách mẫu tại bàn và một người đang đi ngang trước quầy. Người đi ngang rẽ từ vị trí hiện tại lên sân khấu. Khi có quà, khách mẫu sẽ nhường sân khấu cho người tặng.
 
 Nhân viên tự chọn ngẫu nhiên trà đá, cà phê hoặc nước mía cho khách mới, rồi gom các ly của từng bàn lên một khay. Nút **Xem một lượt phục vụ** làm tương tự cho tất cả khách đang ngồi và chưa có nước. Khách đã có nước vẫn giữ ly của mình. Khi rời bàn, khách có nước sẽ tính tiền hoặc đôi khi diễn một cảnh lén chuồn để tạo tình huống vui.
+
+**Chạy thử một buổi LIVE** cho hai khách đi từ đường vào cùng bàn, nhận nước, cụng ly rồi thử tặng quà và cổ vũ. Cần hai ghế trống cùng bàn. **Khung phát 9:16** ẩn bảng điều khiển trong tab đang mở. Bấm **Thoát khung phát** hoặc phím Esc để quay lại.
 
 ## Cấu trúc
 
