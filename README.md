@@ -22,7 +22,7 @@ Mỗi tiết mục kéo dài một phút và có tối đa năm người trên s
 
 Khi vắng quà, sân khấu tự mời khách mẫu. Hái Thứ Hiêu mở màn với lời rap và beat tự tạo, sau đó quán luân phiên mời khách mẫu tại bàn và một người đang đi ngang trước quầy. Người đi ngang rẽ từ vị trí hiện tại lên sân khấu. Khi có quà, khách mẫu sẽ nhường sân khấu cho người tặng.
 
-Nhân viên tự chọn ngẫu nhiên trà đá, cà phê hoặc nước mía cho khách mới, rồi gom các ly của từng bàn lên một khay. Nút **Xem một lượt phục vụ** làm tương tự cho tất cả khách đang ngồi và chưa có nước. Khách đã có nước vẫn giữ ly của mình. Khi rời bàn, khách có nước sẽ tính tiền hoặc đôi khi diễn một cảnh lén chuồn để tạo tình huống vui.
+Nhân viên tự đến hỏi nước khi khách ngồi, kể cả khách mẫu lúc mở quán. Quán chọn ngẫu nhiên trà đá, cà phê hoặc nước mía rồi gom các ly của từng bàn lên một khay. Nút **Xem một lượt phục vụ** dùng cùng luồng phục vụ tự động. Khách đã có nước vẫn giữ ly của mình. Khi rời bàn, khách có nước sẽ tính tiền hoặc đôi khi diễn một cảnh lén chuồn để tạo tình huống vui.
 
 **Chạy thử một buổi LIVE** cho hai khách đi từ đường vào cùng bàn, nhận nước, cụng ly rồi thử tặng quà và cổ vũ. Cần hai ghế trống cùng bàn. **Khung phát 9:16** ẩn bảng điều khiển trong tab đang mở. Bấm **Thoát khung phát** hoặc phím Esc để quay lại.
 

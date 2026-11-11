@@ -544,6 +544,7 @@ function seedSampleGuests(){
     seat.person=person;
   }
   info();
+  serve();
 }
 function takeSeat(guest,seat){
   const session=epoch;
@@ -692,9 +693,6 @@ function needsDrink(seat){
   const person=seat.person;
   return person?.state==='seated'&&!person.cup&&!person.serving&&!orders.some(job=>job.person===person);
 }
-function waitingForMenu(seat){
-  return needsDrink(seat)&&!seat.person.sample;
-}
 function tableServiceRoute(tableX,from){
   const x=tableX===660?tableX-78:tableX+78;
   return [from,{x:from.x,y:624},{x:counterLaneX,y:624},
@@ -711,7 +709,7 @@ async function serve(){
     if(!present(seat,person))orders.splice(index,1);
   }
   const bill=bills.shift();
-  const askSeat=seats.find(waitingForMenu);
+  const askSeat=seats.find(seat=>!seat.person?.sample&&needsDrink(seat))??seats.find(needsDrink);
   const first=orders[0];
   const batch=!bill&&first?orders.filter(job=>job.seat.tableX===first.seat.tableX):[];
   for(const job of batch){
@@ -771,11 +769,11 @@ async function serve(){
     host=serviceWorker();
     host.setAttribute('transform','translate('+route.at(-1).x+' '+route.at(-1).y+')');
   }else{
-    if(seats.some(seat=>seat.tableX===tableX&&waitingForMenu(seat))){
+    if(seats.some(seat=>seat.tableX===tableX&&needsDrink(seat))){
       tableDialogue(tableX,'Nhân viên',oneOf(askLines));
       await sleep(1400);
       if(session!==epoch)return;
-      seats.filter(seat=>seat.tableX===tableX&&waitingForMenu(seat)).forEach(queueRandomDrink);
+      seats.filter(seat=>seat.tableX===tableX&&needsDrink(seat)).forEach(queueRandomDrink);
     }
   }
   const returnRoute=[route.at(-1),...route.slice(2,-1).reverse(),serverHome];
@@ -1404,7 +1402,6 @@ get('demo').addEventListener('click',async()=>{
     return;
   }
   get('demo').disabled=true;
-  targets.filter(({seat})=>needsDrink(seat)).forEach(({seat})=>queueRandomDrink(seat));
   serve();
   const deadline=Date.now()+35000;
   while(epoch===session&&Date.now()<deadline&&targets.some(({seat,person})=>present(seat,person)&&!person.cup)){
