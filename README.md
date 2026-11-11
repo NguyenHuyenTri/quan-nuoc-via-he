@@ -16,7 +16,7 @@ Khi mở hoặc dọn quán, bàn giữa có Trí, Đào, Mai và Hái Thứ Hi�
 | `CỤNG LY` | Cụng ly với khách cùng bàn đã có nước. Khi mọi khách cùng bàn đều hô, cả bàn cụng ly và hiện câu thoại ngẫu nhiên |
 | `RỜI BÀN` | Trả ghế hoặc rời hàng chờ |
 | `VỖ TAY`, `THẢ TIM` | Cổ vũ trong lúc sân khấu đang diễn |
-| `XIN BÀI CHILL`, `XIN BÀI RAP`, `XIN BÀI VUI` | Xin một kiểu nhạc tự tạo cho tiết mục kế tiếp |
+| `XIN BÀI CHILL`, `XIN BÀI RAP`, `XIN BÀI VUI` | Xin nhạc tự tạo cho lượt kế. Chill diễn hát, Rap nhún theo nhịp, Vui biểu diễn nhảy |
 
 Mỗi tiết mục kéo dài một phút và có tối đa năm người trên sân khấu. Người tặng quà có thể tham gia khi còn chỗ và còn đủ thời gian. Các lượt tới muộn hoặc vượt quá sức chứa được xếp vào tiết mục kế tiếp. Ghế và ly nước được giữ trong lúc khách biểu diễn rồi khách trở về đúng chỗ. Dùng nút **Thử tặng quà để lên hát** để thử nhiều tên. Bấm **Bật âm thanh** để nghe nhạc, và trình duyệt có giọng tiếng Việt sẽ đọc lời.
 
@@ -37,13 +37,13 @@ Nhân viên tự đến hỏi nước khi khách ngồi, kể cả khách mẫu 
 
 Tải cả hai tệp vào cùng thư mục rồi mở `index.html` bằng trình duyệt.
 
-Bản thử xử lý bình luận ngay trên trang và tự tạo khách mẫu đi hai chiều trên đường trước quầy. Để thử ảnh đại diện, điền tên và URL ảnh HTTPS rồi bấm **Thử khách ghé LIVE**. Dùng cùng tên để gửi **Vào bàn** hoặc thử tặng quà. Nhân vật đang đi trước quầy sẽ rẽ từ vị trí hiện tại. Khách đã có bàn sẽ đi từ ghế của mình lên sân khấu. Bản giả lập nhận diện một người theo tên, bỏ qua chữ hoa, chữ thường và khoảng trắng thừa. Khi nối TikTok LIVE, nên dùng ID tài khoản để phân biệt những người khác nhau có cùng tên hiển thị.
+Bản thử xử lý bình luận ngay trên trang và tự tạo khách mẫu đi hai chiều trên đường trước quầy. Để thử ảnh đại diện, điền tên và URL ảnh HTTPS rồi bấm **Thử khách ghé LIVE**. Dùng cùng tên để gửi **Vào bàn** hoặc thử tặng quà. Bạn có thể chọn kiểu nhân vật **Nam**, **Nữ** hoặc **Mặc định**. Tạo hình đi theo khách từ đường đến bàn và lên sân khấu. Nhân vật đang đi trước quầy sẽ rẽ từ vị trí hiện tại. Khách đã có bàn sẽ đi từ ghế của mình lên sân khấu. Bản giả lập nhận diện một người theo tên, bỏ qua chữ hoa, chữ thường và khoảng trắng thừa. Khi nối TikTok LIVE, nên dùng ID tài khoản để phân biệt những người khác nhau có cùng tên hiển thị.
 
 Bản thử chưa kết nối TikTok LIVE. Cầu nối sự kiện trong trình duyệt có thể gửi tên hiển thị và URL ảnh đại diện lấy từ nguồn LIVE:
 
 ```js
 window.dispatchEvent(new CustomEvent('quannuoc:viewer', {
-  detail: {name: displayName, avatarUrl: profilePhotoUrl}
+  detail: {name: displayName, avatarUrl: profilePhotoUrl, gender: profileGender}
 }));
 ```
 
@@ -51,8 +51,10 @@ Khi nguồn LIVE xác nhận một lượt tặng quà, cầu nối có thể g�
 
 ```js
 window.dispatchEvent(new CustomEvent('quannuoc:gift', {
-  detail: {name: displayName, avatarUrl: profilePhotoUrl, eventId: giftEventId}
+  detail: {name: displayName, avatarUrl: profilePhotoUrl, gender: profileGender, eventId: giftEventId}
 }));
 ```
+
+Trường `gender` là tùy chọn và nhận `male`, `female`, `nam` hoặc `nữ`. Quán dùng tạo hình mặc định khi thiếu dữ liệu.
 
 Các sự kiện chỉ chạy trong phiên trình duyệt đang mở. Bình luận giả lập vẫn được xử lý riêng.

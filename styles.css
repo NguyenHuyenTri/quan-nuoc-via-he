@@ -510,3 +510,95 @@ body.show-mode {
   fill:#3f5b24;
   stroke:#d0e97b;
 }
+
+
+#guest-gender {
+  width:100%;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#11251c;
+  color:var(--ink);
+  font:inherit;
+}
+#guest-gender:focus-visible {
+  outline:3px solid var(--lime);
+  outline-offset:3px;
+}
+.actor-stage-limbs,.actor-microphone {
+  display:none;
+}
+[data-stage-motion] .actor-regular-limbs {
+  display:none;
+}
+[data-stage-motion] .actor-stage-limbs,
+[data-stage-lead][data-stage-motion="sing"] .actor-microphone,
+[data-stage-lead][data-stage-motion="rap"] .actor-microphone {
+  display:inline;
+}
+[data-stage-motion] > text {
+  transform:translateY(-24px);
+}
+[data-stage-motion] .actor-body {
+  transform-origin:0 0;
+  animation:perform-sing .96s ease-in-out infinite var(--move-delay,0s);
+}
+[data-stage-motion="rap"] .actor-body {
+  animation-name:perform-rap;
+  animation-duration:.56s;
+}
+[data-stage-motion="dance"] .actor-body {
+  animation-name:perform-dance;
+  animation-duration:1.04s;
+}
+[data-stage-motion] .actor-arm-left path {
+  animation:arm-sweep .96s ease-in-out infinite var(--move-delay,0s);
+}
+[data-stage-motion="rap"] .actor-arm-left path {
+  animation-duration:.56s;
+}
+[data-stage-motion="dance"] .actor-arm-left path,
+[data-stage-motion="dance"] .actor-arm-right path {
+  animation:arm-sweep .52s ease-in-out infinite alternate var(--move-delay,0s);
+}
+[data-stage-motion="dance"] .actor-arm-right path {
+  animation-name:opposite-arm-sweep;
+}
+[data-stage-motion="dance"] .actor-foot-left path,
+[data-stage-motion="dance"] .actor-foot-right path {
+  animation:dance-step .52s ease-in-out infinite alternate var(--move-delay,0s);
+}
+[data-stage-motion="dance"] .actor-foot-right path {
+  animation-direction:alternate-reverse;
+}
+@keyframes perform-sing {
+  0%,100% { transform:translate(0,0) rotate(-4deg); }
+  50% { transform:translate(4px,-3px) rotate(6deg); }
+}
+@keyframes perform-rap {
+  0%,100% { transform:translate(-3px,0) rotate(-7deg); }
+  50% { transform:translate(4px,-7px) rotate(6deg); }
+}
+@keyframes perform-dance {
+  0%,100% { transform:translate(-13px,0) rotate(-10deg); }
+  25% { transform:translate(0,-17px) rotate(6deg); }
+  50% { transform:translate(13px,0) rotate(10deg); }
+  75% { transform:translate(0,-17px) rotate(-6deg); }
+}
+@keyframes arm-sweep {
+  0%,100% { transform:rotate(14deg); }
+  50% { transform:rotate(68deg); }
+}
+@keyframes opposite-arm-sweep {
+  0%,100% { transform:rotate(-14deg); }
+  50% { transform:rotate(-62deg); }
+}
+@keyframes dance-step {
+  from { transform:rotate(-15deg); }
+  to { transform:rotate(20deg); }
+}
+@media(prefers-reduced-motion:reduce) {
+  [data-stage-motion] .actor-body,[data-stage-motion] .actor-stage-limbs path {
+    animation:none;
+  }
+}

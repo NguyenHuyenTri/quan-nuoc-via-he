@@ -170,6 +170,13 @@
 <form id="comment-form">
 <label>Tên khách<input id="guest" maxlength="24" value="Trí" autocomplete="off" required></label>
 <label>Link ảnh đại diện (tuỳ chọn)<input id="guest-avatar" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></label>
+<label>Kiểu nhân vật
+<select id="guest-gender">
+  <option value="">Mặc định</option>
+  <option value="male">Nam</option>
+  <option value="female">Nữ</option>
+</select>
+</label>
 <button type="button" id="preview-viewer">Thử khách ghé LIVE</button>
 <label for="comment">Bình luận</label>
 <div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: vào bàn" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
@@ -185,7 +192,7 @@
   <legend>Xin bài cho lượt kế</legend>
   <button type="button" data-command="XIN BÀI CHILL">Chill</button>
   <button type="button" data-command="XIN BÀI RAP">Rap</button>
-  <button type="button" data-command="XIN BÀI VUI">Vui</button>
+  <button type="button" data-command="XIN BÀI VUI">Vui · Nhảy</button>
 </fieldset>
 <section class="quiz-panel" aria-labelledby="quiz-title">
   <div class="quiz-header"><h2 id="quiz-title">Đố vui vỉa hè</h2><button type="button" id="quiz-start">Mở câu đố</button></div>
@@ -309,18 +316,35 @@ function cup(drink){
   line(g,'M4 -16 9 -23','#f3d18b',1.6);
   return g;
 }
-function character(color,{host=false,sitting=false,carry=[],name='',avatar='',labelX=0}={}){
+function normalizeGender(value){
+  if(typeof value!=='string')return '';
+  const gender=normalize(value);
+  if(gender==='male'||gender==='nam')return 'male';
+  if(gender==='female'||gender==='nu')return 'female';
+  return '';
+}
+function character(color,{host=false,sitting=false,carry=[],name='',avatar='',gender='',labelX=0}={}){
   const actor=group(0,0);
   ellipse(actor,0,1,17,5,'#16291f');
-  const g=node('g',{transform:'scale(1 1.5)'});
-  actor.append(g);
-  const legs=node('g');
+  actor.setAttribute('data-character-style',gender||'neutral');
+  const stance=node('g',{transform:'scale(1 1.5)'});
+  const g=node('g',{class:'actor-body'});
+  stance.append(g);actor.append(stance);
+  const legs=node('g',{class:'actor-regular-limbs'});
   line(legs,sitting?'M-8-12 -16-7 -14 0M8-12 16-7 14 0':'M-7-14 -9 0M7-14 9 0','#344943',5);
   if(!sitting)actor.stepLegs=legs.firstElementChild;
   g.append(legs);
   rect(g,-14,-33,28,24,8,color);
   if(host)rect(g,-8,-30,16,18,4,'#f7dc9c');
-  line(g,'M-11-28 -17-17M11-27 18-18','#eab285',4);
+  const arms=node('g',{class:'actor-regular-limbs'});
+  line(arms,'M-11-28 -17-17M11-27 18-18','#eab285',4);
+  g.append(arms);
+  if(gender==='female'){
+    g.append(node('path',{d:'M9 -51Q18 -49 16 -36L12 -32Q11 -41 7 -44Z',fill:'#403830'}));
+    g.append(node('path',{d:'M-11 -21H11L17 -8H-17Z',fill:color,stroke:'#f6cf9b','stroke-width':1}));
+  }else if(gender==='male'){
+    line(g,'M-8 -32 -2 -25 0 -30 3 -25 8 -32','#ffe3ad',1.8);
+  }
   ellipse(g,0,-43,10,11,'#f1c29b');
   g.append(node('path',{d:'M-10-45Q-8-57 3-55Q12-52 10-45L7-48-8-45Z',fill:'#403830'}));
   if(host)line(g,'M-10-51Q0-59 10-51M-12-50H12','#e8bc6f',3);
@@ -332,6 +356,25 @@ function character(color,{host=false,sitting=false,carry=[],name='',avatar='',la
     head.append(photo,node('circle',{r:15,fill:'none',stroke:'#fff0c8','stroke-width':1.5}));
     photo.addEventListener('error',()=>head.remove(),{once:true});
     g.append(head);
+  }
+  if(!host&&!sitting){
+    const moves=node('g',{class:'actor-stage-limbs'});
+    const leftArm=group(-12,-28),rightArm=group(12,-28);
+    leftArm.setAttribute('class','actor-arm-left');
+    rightArm.setAttribute('class','actor-arm-right');
+    line(leftArm,'M0 0 -7 3 -13 -4','#eab285',4.5);
+    line(rightArm,'M0 0 7 -2 4 -10','#eab285',4.5);
+    moves.append(leftArm,rightArm);
+    const leftFoot=group(-7,-13),rightFoot=group(7,-13);
+    leftFoot.setAttribute('class','actor-foot-left');
+    rightFoot.setAttribute('class','actor-foot-right');
+    line(leftFoot,'M0 0 -3 9 -9 12','#344943',5);
+    line(rightFoot,'M0 0 3 9 9 12','#344943',5);
+    moves.append(leftFoot,rightFoot);
+    const microphone=node('g',{class:'actor-microphone'});
+    line(microphone,'M16 -37 9 -43','#344943',3);
+    ellipse(microphone,8,-44,3.5,3,'#fff0c8');
+    g.append(moves,microphone);
   }
   if(carry.length){
     const tray=group(10,-18);
@@ -409,7 +452,7 @@ function avatarUrl(value){
 }
 const passers=new Map();
 let visitorIndex=0;
-function passBy({name,avatar,color=colors[0],sample=false},startX){
+function passBy({name,avatar,gender='',color=colors[0],sample=false},startX){
   const id=key(name);
   if(seated(name,true)||onStage(id)||stageQueue.some(gift=>gift.id===id)||queue.some(guest=>guest.id===id))return;
   const current=passers.get(id);
@@ -421,9 +464,9 @@ function passBy({name,avatar,color=colors[0],sample=false},startX){
   const right=visitorIndex++%2===0;
   const y=right?653:697;
   const x=startX??(sample?(right?-50:850):(right?125:675));
-  const actor=character(color,{name,avatar});
+  const actor=character(color,{name,avatar,gender});
   positionActor(actor,{x,y});
-  const passer={id,name,avatar,color,sample,actor};
+  const passer={id,name,avatar,gender,color,sample,actor};
   passers.set(id,passer);
   pedestrianLayer.append(actor);
   const finish=()=>{
@@ -458,8 +501,9 @@ function takePasser(id){
 }
 let sampleIndex=0;
 function samplePasser(startX){
-  const [name,color,hair]=visitors[sampleIndex++%visitors.length];
-  passBy({name,color,avatar:sampleAvatar(color,hair),sample:true},startX);
+  const index=sampleIndex++%visitors.length;
+  const [name,color,hair]=visitors[index];
+  passBy({name,color,avatar:sampleAvatar(color,hair),gender:index%2?'female':'male',sample:true},startX);
 }
 samplePasser(570);
 samplePasser(315);
@@ -468,7 +512,7 @@ samplePasser(690);
 setInterval(()=>{if(!reduce.matches)samplePasser();},1150);
 window.addEventListener('quannuoc:viewer',event=>{
   const name=typeof event.detail?.name==='string'?event.detail.name.trim().slice(0,24):'';
-  if(name)passBy({name,avatar:avatarUrl(event.detail.avatarUrl)});
+  if(name)passBy({name,avatar:avatarUrl(event.detail.avatarUrl),gender:normalizeGender(event.detail.gender)});
 });
 function wiggle(el,moves,ms){
   if(reduce.matches||!el.animate)return;
@@ -521,7 +565,7 @@ function seated(name,includeSamples=false){
   return seats.find(s=>s.person?.id===id&&(includeSamples||!s.person.sample));
 }
 function seatActor(seat,person){
-  const actor=character(person.color??colors[seat.index],{sitting:true,name:person.name,avatar:person.avatar,
+  const actor=character(person.color??colors[seat.index],{sitting:true,name:person.name,avatar:person.avatar,gender:person.gender,
     labelX:seat.x<seat.tableX?-12:12});
   actor.setAttribute('transform','translate('+seat.x+' '+seat.y+')');
   (seat.back?layers.backPeople:layers.frontPeople).append(actor);
@@ -538,7 +582,8 @@ function seedSampleGuests(){
     if(seat.person)continue;
     const name=seat.tableX===tableCenters[0]?center[seat.index]:seat.index<2?pickName():'';
     if(!name||passers.has(key(name)))continue;
-    const person={id:key(name),name,sample:true,state:'seated',seatedAt:performance.now(),cup:null,total:0};
+    const gender=seat.index===1||seat.index===2?'female':'male';
+    const person={id:key(name),name,gender,sample:true,state:'seated',seatedAt:performance.now(),cup:null,total:0};
     person.actor=seatActor(seat,person);
     person.actor.setAttribute('data-sample-guest','');
     seat.person=person;
@@ -551,8 +596,10 @@ function takeSeat(guest,seat){
   const passer=takePasser(guest.id);
   const color=passer?.color??colors[seat.index];
   const avatar=passer?.avatar||guest.avatar;
-  const person={...guest,color,avatar,state:'entering',
-    actor:passer?.actor??character(color,{name:guest.name,avatar}),cup:null,total:0};
+  const gender=guest.gender||passer?.gender||'';
+  const actor=passer&&passer.gender===gender?passer.actor:character(color,{name:guest.name,avatar,gender});
+  if(passer&&actor!==passer.actor)passer.actor.remove();
+  const person={...guest,color,avatar,gender,state:'entering',actor,cup:null,total:0};
   const route=guestRoute(seat,passer?.origin??guest.origin??entry);
   positionActor(person.actor,route[0]);
   tableToasts.delete(seat.tableX);
@@ -572,7 +619,7 @@ function takeSeat(guest,seat){
     advanceStage();advanceWaiting();
   })();
 }
-function join(name,avatar){
+function join(name,avatar,gender){
   const occupied=seated(name,true);
   if(occupied){
     const person=occupied.person;
@@ -580,8 +627,9 @@ function join(name,avatar){
       person.sample=false;
       person.seatedAt=performance.now();
       person.actor.removeAttribute('data-sample-guest');
-      if(avatar&&avatar!==person.avatar){
-        person.avatar=avatar;
+      if((avatar&&avatar!==person.avatar)||(gender&&gender!==person.gender)){
+        person.avatar=avatar||person.avatar;
+        person.gender=gender||person.gender;
         person.actor.remove();
         person.actor=seatActor(occupied,person);
         if(onStage(person.id))person.actor.setAttribute('visibility','hidden');
@@ -595,7 +643,7 @@ function join(name,avatar){
   if(onStage(key(name))){status(name+' biểu diễn xong rồi vào bàn nhé!');return;}
   const id=key(name);
   const viewer=passers.get(id);
-  const guest={id,name:viewer?.name??name,avatar:viewer?.avatar||avatar,origin:roadSnapshot(id)};
+  const guest={id,name:viewer?.name??name,avatar:viewer?.avatar||avatar,gender:gender||viewer?.gender,origin:roadSnapshot(id)};
   const free=seats.find(s=>!s.person);
   if(free&&!queue.length)return takeSeat(guest,free);
   queue.push(guest);info();
@@ -650,7 +698,7 @@ async function finishLeave({seat,person,makeRoom},sneaked){
   const session=epoch,{name}=person;
   person.cup?.remove();person.actor.remove();
   wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
-  const walker=character(person.color??colors[seat.index],{name,avatar:person.avatar});layers.walking.append(walker);
+  const walker=character(person.color??colors[seat.index],{name,avatar:person.avatar,gender:person.gender});layers.walking.append(walker);
   if(!sneaked)status(makeRoom?name+' nhường ghế cho khách mới.':name+' đứng dậy nhường chỗ.');
   if(!await walk(walker,guestRoute(seat).reverse(),sneaked?820:1330,session))return;
   walker.remove();seat.person=null;info();
@@ -898,11 +946,11 @@ const rapVerses=[
   'Tay nâng ly lên, mình hẹn ngày mai!'
 ];
 const stageTracks={
-  chill:{title:'Đêm chill vỉa hè',verses:stageVerses,step:.38,
+  chill:{title:'Đêm chill vỉa hè',motion:'sing',verses:stageVerses,step:.38,
     melody:[60,64,67,69,67,64,62,65,69,72,69,65,64,67,71,74,72,67,64,60]},
-  rap:{title:'Rap bên ly đá',verses:rapVerses,step:.28,
+  rap:{title:'Rap bên ly đá',motion:'rap',verses:rapVerses,step:.28,
     melody:[48,55,48,58,50,53,55,53,48,55,48,58,50,55,53,55]},
-  vui:{title:'Cả quán chung vui',step:.26,
+  vui:{title:'Cả quán chung vui',motion:'dance',step:.26,
     melody:[60,64,67,72,67,64,62,67,71,74,71,67,65,69,72,77],
     verses:['Bàn bên trái, bàn bên phải, vỗ tay!',
       'Ly đá kêu leng keng, cả quán cùng vui!',
@@ -1034,7 +1082,9 @@ function stageTick(show){
   const ready=[...show.members.values()].filter(member=>member.ready);
   const remaining=Math.max(0,Math.ceil((show.endsAt-performance.now())/1000));
   if(ready.length&&remaining>0&&show.nextVerse<=performance.now()){
-    show.lead=ready[show.verseIndex%ready.length].person.name;
+    const lead=ready[show.verseIndex%ready.length];
+    show.lead=lead.person.name;
+    ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
     const {verses}=show.track;
     const lyric=verses[show.verseIndex++%verses.length];
     get('stage-lyric').textContent=lyric;
@@ -1058,11 +1108,14 @@ function addPerformer(show,gift,seat){
   const origin=passer?.origin??gift.origin??entry;
   const route=stageRoute(seat,spot,origin);
   const color=person.color??(seat?colors[seat.index]:colors[show.members.size%colors.length]);
-  const actor=passer?.actor??character(color,{name:person.name,avatar:gift.avatar||person.avatar});
+  const gender=gift.gender||person.gender||passer?.gender||'';
+  const actor=passer&&passer.gender===gender?passer.actor:character(color,
+    {name:person.name,avatar:gift.avatar||person.avatar,gender});
+  if(passer&&actor!==passer.actor)passer.actor.remove();
   actor.setAttribute('data-performer','');
   actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
   positionActor(actor,route[0]);
-  const member={person,seat,spot,actor,origin,ready:false,animation:null};
+  const member={person,seat,spot,actor,origin,ready:false};
   show.members.set(person.id,member);
   if(seat){
     person.actor.setAttribute('visibility','hidden');
@@ -1077,11 +1130,8 @@ function addPerformer(show,gift,seat){
   member.arrival=walk(actor,route,1450,show.epoch,true).then(ok=>{
     if(!ok||activeShow!==show||show.ending)return;
     member.ready=true;
-    if(!reduce.matches){
-      member.animation=actor.firstElementChild.nextElementSibling.animate?.(
-        [{translate:'0 0'},{translate:'-3px -2px'},{translate:'2px 0'},{translate:'0 0'}],
-        {duration:850+show.members.size*90,iterations:Infinity});
-    }
+    actor.setAttribute('data-stage-motion',show.track.motion);
+    actor.style.setProperty('--move-delay',(-.14*[...show.members.values()].indexOf(member))+'s');
     if(show.endsAt===null){
       show.endsAt=performance.now()+showDuration;
       get('stage-track').textContent=show.track.title.toLocaleUpperCase('vi');
@@ -1110,7 +1160,8 @@ async function endShow(show){
     await member.arrival;
     if(activeShow!==show)return;
     const {person,seat,spot,actor,origin}=member;
-    member.animation?.cancel();
+    actor.removeAttribute('data-stage-motion');
+    actor.removeAttribute('data-stage-lead');
     const reserved=seat?.person===person?seat:null;
     if(!await walk(actor,stageRoute(reserved,spot,origin).reverse(),1450,show.epoch,true))return;
     actor.remove();
@@ -1158,7 +1209,7 @@ function armIdle(){
     addPerformer(show,person,seat);
   },lastIdleSinger===null?20000:32000);
 }
-function receiveGift({name,avatarUrl:photo,eventId}={}){
+function receiveGift({name,avatarUrl:photo,gender,eventId}={}){
   name=typeof name==='string'?name.trim().slice(0,24):'';
   if(!name||typeof eventId==='string'&&seenGifts.has(eventId))return;
   if(typeof eventId==='string'&&eventId){
@@ -1169,7 +1220,7 @@ function receiveGift({name,avatarUrl:photo,eventId}={}){
   if((onStage(id)&&!activeShow.idle)||stageQueue.some(gift=>gift.id===id))return;
   primeAudio();
   const seat=seated(name,true),viewer=passers.get(id);
-  stageQueue.push({id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatarUrl(photo),origin:roadSnapshot(id)});
+  stageQueue.push({id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,origin:roadSnapshot(id)});
   updateShowQueue();
   status(name+' đã tặng quà và đăng ký lượt hát.');
   if(!document.body.classList.contains('show-mode')){
@@ -1319,17 +1370,18 @@ function resetQuiz(){
   for(const id of ['quiz-question','quiz-timer','quiz-choices','quiz-result','quiz-leaders'])get(id).hidden=true;
 }
 get('quiz-start').addEventListener('click',()=>{primeAudio();startQuiz();});
-function submit(name,value,avatar){
+function submit(name,value,avatar,gender){
   name=name.trim().slice(0,24);
   if(!name){get('guest').focus();return;}
   const cmd=normalize(value);
   const answer=cmd.match(/^(?:dap an )?([abc])$/);
   if(answer)return answerQuiz(name,answer[1].toUpperCase());
-  if(cmd==='vao ban')return join(name,avatar);
+  if(cmd==='vao ban')return join(name,avatar,gender);
   if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
   if(cmd==='cung ly')return cheers(name);
   if(cmd==='vo tay')return reactToShow(name,'applause');
   if(cmd==='tha tim')return reactToShow(name,'heart');
+  if(cmd==='xin bai nhay')return requestTrack(name,'vui');
   if(cmd==='xin bai'||cmd.startsWith('xin bai '))return requestTrack(name,cmd.slice(8));
   if(cmd==='len hat'||cmd==='len hat mot bai'){status('Lượt hát dành cho khách tặng quà LIVE.');return;}
   if(seated(name))status(name+': '+value.trim().slice(0,80));
@@ -1344,7 +1396,6 @@ function reset(showSamples=true){
   clearTimeout(idleTimer);idleTimer=null;lastIdleSinger=null;lastIdleFromRoad=false;
   if(activeShow){
     clearInterval(activeShow.tick);clearTimeout(activeShow.timer);
-    activeShow.members.forEach(member=>member.animation?.cancel());
   }
   activeShow=null;stopStageSound();setStage(false);
   tableToasts.clear();get('toast-effects').replaceChildren();
@@ -1356,10 +1407,10 @@ function reset(showSamples=true){
   info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 }
 get('comment-form').addEventListener('submit',e=>{
-  e.preventDefault();primeAudio();submit(get('guest').value,get('comment').value,avatarUrl(get('guest-avatar').value));get('comment').value='';
+  e.preventDefault();primeAudio();submit(get('guest').value,get('comment').value,avatarUrl(get('guest-avatar').value),get('guest-gender').value);get('comment').value='';
 });
 document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',()=>{
-  primeAudio();submit(get('guest').value,btn.dataset.command,avatarUrl(get('guest-avatar').value));
+  primeAudio();submit(get('guest').value,btn.dataset.command,avatarUrl(get('guest-avatar').value),get('guest-gender').value);
 }));
 function setShowMode(enabled){
   document.body.classList.toggle('show-mode',enabled);
@@ -1373,7 +1424,7 @@ document.addEventListener('keydown',event=>{
 });
 get('enable-audio').addEventListener('click',primeAudio);
 get('demo-gift').addEventListener('click',()=>{
-  receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value});
+  receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value});
 });
 window.addEventListener('quannuoc:gift',event=>{
   if(event.detail&&typeof event.detail==='object')receiveGift(event.detail);
@@ -1389,7 +1440,7 @@ get('preview-viewer').addEventListener('click',()=>{
     avatarField.setCustomValidity('');
     return;
   }
-  passBy({name,avatar});
+  passBy({name,avatar,gender:get('guest-gender').value});
 });
 get('reset').addEventListener('click',()=>reset());
 get('demo').addEventListener('click',async()=>{
@@ -1426,10 +1477,10 @@ get('live-demo').addEventListener('click',async()=>{
   }
   primeAudio();
   const session=epoch;
-  const guests=['Khách thử 1','Khách thử 2'].map(base=>{
+  const guests=['Khách thử 1','Khách thử 2'].map((base,index)=>{
     let name=base,suffix=1;
     while(seated(name,true)||passers.has(key(name))||onStage(key(name)))name=base+'-'+(++suffix);
-    return {id:key(name),name};
+    return {id:key(name),name,gender:index===0?'male':'female'};
   });
   get('live-demo').disabled=true;
   try{
