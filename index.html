@@ -193,6 +193,7 @@
   <button type="button" data-command="XIN BÀI CHILL">Chill</button>
   <button type="button" data-command="XIN BÀI RAP">Rap</button>
   <button type="button" data-command="XIN BÀI VUI">Vui · Nhảy</button>
+  <button type="button" id="demo-dance">Thử nhảy ngay</button>
 </fieldset>
 <section class="quiz-panel" aria-labelledby="quiz-title">
   <div class="quiz-header"><h2 id="quiz-title">Đố vui vỉa hè</h2><button type="button" id="quiz-start">Mở câu đố</button></div>
@@ -1176,10 +1177,10 @@ async function endShow(show){
   updateShowQueue();
   advanceStage();advanceWaiting();serve();
 }
-function openShow(idle,rap=false){
+function openShow(idle,rap=false,previewTrack){
   clearTimeout(idleTimer);idleTimer=null;
-  const request=trackQueue.shift();
-  const kind=request?.track??(rap?'rap':'chill');
+  const request=previewTrack?undefined:trackQueue.shift();
+  const kind=previewTrack??request?.track??(rap?'rap':'chill');
   const show={idle,rap:kind==='rap',track:stageTracks[kind],request,epoch,members:new Map(),
     endsAt:null,ending:false,verseIndex:0,nextVerse:0,applause:0,hearts:0};
   reactionTimes.clear();
@@ -1209,7 +1210,7 @@ function armIdle(){
     addPerformer(show,person,seat);
   },lastIdleSinger===null?20000:32000);
 }
-function receiveGift({name,avatarUrl:photo,gender,eventId}={}){
+function receiveGift({name,avatarUrl:photo,gender,eventId}={},previewTrack){
   name=typeof name==='string'?name.trim().slice(0,24):'';
   if(!name||typeof eventId==='string'&&seenGifts.has(eventId))return;
   if(typeof eventId==='string'&&eventId){
@@ -1220,7 +1221,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId}={}){
   if((onStage(id)&&!activeShow.idle)||stageQueue.some(gift=>gift.id===id))return;
   primeAudio();
   const seat=seated(name,true),viewer=passers.get(id);
-  stageQueue.push({id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,origin:roadSnapshot(id)});
+  stageQueue.push({id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,origin:roadSnapshot(id),previewTrack});
   updateShowQueue();
   status(name+' đã tặng quà và đăng ký lượt hát.');
   if(!document.body.classList.contains('show-mode')){
@@ -1239,7 +1240,7 @@ function advanceStage(){
     const seat=seated(gift.name,true);
     if(seat&&seat.person.state!=='seated')return;
     stageQueue.shift();updateShowQueue();
-    addPerformer(activeShow??openShow(false),gift,seat);
+    addPerformer(activeShow??openShow(false,false,gift.previewTrack),gift,seat);
   }
 }
 const riddles=[
@@ -1425,6 +1426,15 @@ document.addEventListener('keydown',event=>{
 get('enable-audio').addEventListener('click',primeAudio);
 get('demo-gift').addEventListener('click',()=>{
   receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value});
+});
+get('demo-dance').addEventListener('click',()=>{
+  if((activeShow&&!activeShow.idle)||stageQueue.length){
+    status('Chờ tiết mục hiện tại và các lượt đăng ký kết thúc để thử nhảy.');
+    return;
+  }
+  const guest=get('guest');
+  if(!guest.value.trim()){guest.focus();return;}
+  receiveGift({name:guest.value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value},'vui');
 });
 window.addEventListener('quannuoc:gift',event=>{
   if(event.detail&&typeof event.detail==='object')receiveGift(event.detail);
