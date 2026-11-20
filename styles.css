@@ -1,3 +1,4 @@
+
 :root {
   color-scheme:dark;
   --ink:#faf2df;
@@ -472,46 +473,6 @@ body.show-mode {
 }
 
 
-.quiz-panel {
-  display:grid;
-  gap:7px;
-  padding:12px;
-  border:1px solid #826f4f;
-  border-radius:10px;
-  background:#142922;
-}
-.quiz-panel [hidden] {
-  display:none;
-}
-.quiz-header {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-#quiz-question,#quiz-result {
-  font-weight:750;
-}
-#quiz-result {
-  color:var(--lime);
-}
-.quiz-svg-choice rect {
-  fill:#29483a;
-  stroke:#53735a;
-  stroke-width:2;
-}
-.quiz-svg-choice text {
-  fill:#faf2df;
-  font-size:22px;
-  font-weight:750;
-  text-anchor:middle;
-}
-.quiz-svg-choice[data-correct] rect {
-  fill:#3f5b24;
-  stroke:#d0e97b;
-}
-
-
 #guest-gender {
   width:100%;
   padding:8px 10px;
@@ -602,3 +563,22 @@ body.show-mode {
     animation:none;
   }
 }
+
+.gift-menu{border:1px solid #59745a;border-radius:16px;padding:1rem;background:#152e26}.gift-menu h2{margin:0 0 .6rem}.gift-menu label{display:grid;gap:.35rem}.gift-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.45rem;margin:.7rem 0}.gift-menu .grid-buttons{margin-top:.7rem}#demo-gift{display:none}.seat-star{filter:drop-shadow(0 0 4px gold)}#live-board text{font-weight:750;fill:#fff2cc}
+#nl-badge-frame { display: none !important; }
+[data-stage-motion="dance"] .actor-body,[data-stage-motion="dance"] .actor-stage-limbs path{animation:none !important}
+
+@keyframes cone-beat{0%,100%{transform:scale(1.14)}50%{transform:scale(1)}}
+.stage-performing .speaker-cone{transform-box:fill-box;transform-origin:center;animation:cone-beat .5s ease-out infinite;stroke:#ffd287}
+@media(prefers-reduced-motion:reduce){.stage-performing .speaker-cone{animation:none}}
+[data-vip] .actor-body {filter:drop-shadow(0 0 5px #ffd77b);}
+
+
+#live-demo,#demo,#preview-viewer,#demo-dance {display:none;}
+
+
+.controls > div:first-child, #comment-form, .controls [aria-label="Lệnh nhanh"] {display:none;}
+
+
+[data-vip] [data-guest-label] {filter:drop-shadow(0 0 2px var(--vip-color,#ffe36d));}
+[data-vip] .actor-body {filter:drop-shadow(0 0 3px var(--vip-color,#ffe36d));}
