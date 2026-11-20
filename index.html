@@ -7,6 +7,7 @@
 <title>Quán Nước Vỉa Hè · Bản chơi thử</title>
 <link rel="stylesheet" href="./styles.css">
 <style>#nl-badge-frame { display: none !important; }</style>
+<style>[data-stage-motion="dance"] .actor-body,[data-stage-motion="dance"] .actor-stage-limbs path{animation:none !important}</style>
 </head>
 <body>
 <main>
@@ -194,7 +195,7 @@
   <button type="button" data-command="XIN BÀI CHILL">Chill</button>
   <button type="button" data-command="XIN BÀI RAP">Rap</button>
   <button type="button" data-command="XIN BÀI VUI">Vui · Nhảy</button>
-  <button type="button" id="demo-dance">Thử nhảy ngay</button>
+  <button type="button" id="demo-dance">Thử nhảy 15 giây</button>
 </fieldset>
 <section class="quiz-panel" aria-labelledby="quiz-title">
   <div class="quiz-header"><h2 id="quiz-title">Đố vui vỉa hè</h2><button type="button" id="quiz-start">Mở câu đố</button></div>
@@ -1052,6 +1053,7 @@ function playStageSound(show){
   const remaining=(show.endsAt-performance.now())/1000;
   if(remaining<.5)return;
   const {rap,track}=show;
+  if(track.motion==='dance'){playDanceBeat(show);return;}
   const bus=audio.createGain();
   bus.gain.value=.5;
   bus.connect(audio.destination);
@@ -1075,6 +1077,76 @@ function playStageSound(show){
     osc.start(when);osc.stop(when+step);
   }
 }
+
+function playDanceBeat(show){
+  const bus=audio.createGain();
+  bus.gain.value=.45;bus.connect(audio.destination);
+  const oscillators=new Set();
+  stageSound={bus,oscillators};
+  const seconds=(show.endsAt-performance.now())/1000;
+  const noise=audio.createBuffer(1,audio.sampleRate*.12,audio.sampleRate);
+  const samples=noise.getChannelData(0);
+  for(let i=0;i<samples.length;i++)samples[i]=(Math.random()*2-1)*(1-i/samples.length);
+  const start=audio.currentTime;
+  show.audioStart=start;
+  show.startedAt=performance.now();
+  function tone(when,freq,length,volume,type='sine',drop){
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    osc.type=type;osc.frequency.setValueAtTime(freq,when);
+    if(drop)osc.frequency.exponentialRampToValueAtTime(drop,when+length);
+    gain.gain.setValueAtTime(.001,when);
+    gain.gain.exponentialRampToValueAtTime(volume,when+.005);
+    gain.gain.exponentialRampToValueAtTime(.001,when+length);
+    osc.connect(gain);gain.connect(bus);oscillators.add(osc);
+    osc.onended=()=>oscillators.delete(osc);
+    osc.start(when);osc.stop(when+length+.01);
+  }
+  function hit(when,volume,high){
+    const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();
+    src.buffer=noise;filter.type='highpass';filter.frequency.value=high;
+    gain.gain.setValueAtTime(volume,when);gain.gain.exponentialRampToValueAtTime(.001,when+.1);
+    src.connect(filter);filter.connect(gain);gain.connect(bus);oscillators.add(src);
+    src.onended=()=>oscillators.delete(src);src.start(when);src.stop(when+.12);
+  }
+  const bass=[48,48,55,53,48,51,55,58];
+  for(let n=0;n*.25<seconds-.15;n++){
+    const when=start+n*.25,beat=Math.floor(n/2);
+    if(n%2===0){
+      tone(when,145,.15,.5,'sine',43);
+      tone(when,440*2**((bass[beat%bass.length]-69)/12),.2,.13,'triangle');
+      if(beat%2===1)hit(when,.22,1300);
+    }
+    hit(when,.07,7000);
+    if(n%4===1||n%4===3)tone(when,440*2**(([72,76,79,74][Math.floor(n/4)%4]-69)/12),.13,.07,'triangle');
+  }
+}
+function animateDance(show){
+  function draw(){
+    if(activeShow!==show||show.ending)return;
+    const elapsed=show.audioStart!==undefined&&audio?.state==='running'
+      ?audio.currentTime-show.audioStart:(performance.now()-show.startedAt)/1000;
+    const beat=elapsed/.5;
+    const phase=Math.floor(elapsed/5)%3;
+    const pulse=Math.sin(beat*Math.PI*2);
+    for(const [index,member] of [...show.members.values()].entries()){
+      if(!member.ready)continue;
+      const actor=member.actor,body=actor.querySelector('.actor-body');
+      const side=Math.sin(beat*Math.PI+index*.25);
+      const hop=phase===2?Math.max(0,pulse)*12:Math.max(0,pulse)*3;
+      body.style.transform='translate('+side*(phase===2?10:7)+'px,'+(-hop)+'px) rotate('+side*5+'deg)';
+      const angles=phase===0?[side*44,-side*44,side*27,-side*27]
+        :phase===1?[30+pulse*60,-30-pulse*60,side*18,-side*18]
+        :[75+side*35,-75-side*35,side*44,-side*44];
+      ['.actor-arm-left','.actor-arm-right','.actor-foot-left','.actor-foot-right'].forEach((selector,i)=>{
+        const path=actor.querySelector(selector+' path');
+        if(path)path.style.transform='rotate('+angles[i]+'deg)';
+      });
+    }
+    show.danceFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
 function cheerStage(){
   const audience=seats.filter(({person})=>person?.state==='seated'&&!onStage(person.id));
   const fan=oneOf(audience);
@@ -1088,9 +1160,10 @@ function stageTick(show){
     show.lead=lead.person.name;
     ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
     const {verses}=show.track;
-    const lyric=verses[show.verseIndex++%verses.length];
+    const lyric=show.track.motion==='dance'?['BƯỚC TRÁI · BƯỚC PHẢI','ĐƯA TAY · ĐỔI BÊN','CAO TRÀO · CÙNG NHẢY!'][Math.min(2,Math.floor((performance.now()-show.startedAt)/5000))]:verses[show.verseIndex%verses.length];
+    show.verseIndex++;
     get('stage-lyric').textContent=lyric;
-    if(audio?.state==='running')stageVoice=speakVietnamese(lyric,show.rap?1.18:.95)??stageVoice;
+    if(show.track.motion!=='dance'&&audio?.state==='running')stageVoice=speakVietnamese(lyric,show.rap?1.18:.95)??stageVoice;
     show.nextVerse=performance.now()+(show.rap?3900:4600);
     cheerStage();
   }
@@ -1135,12 +1208,15 @@ function addPerformer(show,gift,seat){
     actor.setAttribute('data-stage-motion',show.track.motion);
     actor.style.setProperty('--move-delay',(-.14*[...show.members.values()].indexOf(member))+'s');
     if(show.endsAt===null){
-      show.endsAt=performance.now()+showDuration;
+      show.startedAt=performance.now();
+      show.duration=show.preview?15000:showDuration;
+      show.endsAt=show.startedAt+show.duration;
+      if(show.track.motion==='dance')animateDance(show);
       get('stage-track').textContent=show.track.title.toLocaleUpperCase('vi');
       setStage(true);
       playStageSound(show);
       show.tick=setInterval(()=>stageTick(show),250);
-      show.timer=setTimeout(()=>endShow(show),showDuration);
+      show.timer=setTimeout(()=>endShow(show),show.duration);
       status(show.idle?person.name+' mở màn '+(show.rap?'với một đoạn rap!':'trên sân khấu!'):'Tiết mục tặng quà bắt đầu!');
       stageTick(show);
     }
@@ -1149,6 +1225,7 @@ function addPerformer(show,gift,seat){
 async function endShow(show){
   if(activeShow!==show||show.ending)return;
   show.ending=true;
+  cancelAnimationFrame(show.danceFrame);
   if(show.request&&show.endsAt===null&&!trackQueue.some(item=>item.id===show.request.id)){
     trackQueue.unshift(show.request);
   }
@@ -1162,6 +1239,7 @@ async function endShow(show){
     await member.arrival;
     if(activeShow!==show)return;
     const {person,seat,spot,actor,origin}=member;
+    actor.querySelectorAll('.actor-body,.actor-stage-limbs path').forEach(part=>part.style.removeProperty('transform'));
     actor.removeAttribute('data-stage-motion');
     actor.removeAttribute('data-stage-lead');
     const reserved=seat?.person===person?seat:null;
@@ -1182,7 +1260,7 @@ function openShow(idle,rap=false,previewTrack){
   clearTimeout(idleTimer);idleTimer=null;
   const request=previewTrack?undefined:trackQueue.shift();
   const kind=previewTrack??request?.track??(rap?'rap':'chill');
-  const show={idle,rap:kind==='rap',track:stageTracks[kind],request,epoch,members:new Map(),
+  const show={idle,preview:Boolean(previewTrack),rap:kind==='rap',track:stageTracks[kind],request,epoch,members:new Map(),
     endsAt:null,ending:false,verseIndex:0,nextVerse:0,applause:0,hearts:0};
   reactionTimes.clear();
   activeShow=show;updateShowQueue();
@@ -1397,6 +1475,7 @@ function reset(showSamples=true){
   clearTimeout(seatTimer);seatTimer=null;
   clearTimeout(idleTimer);idleTimer=null;lastIdleSinger=null;lastIdleFromRoad=false;
   if(activeShow){
+    cancelAnimationFrame(activeShow.danceFrame);
     clearInterval(activeShow.tick);clearTimeout(activeShow.timer);
   }
   activeShow=null;stopStageSound();setStage(false);
