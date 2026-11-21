@@ -1327,7 +1327,14 @@ const audienceLines=[
   'Ủa, quán mình mời ca sĩ hồi nào vậy?',
   'Hay vậy, ai dám tính tiền nữa!'
 ];
-let stageSound=null,stageVoice=null;
+let stageSound=null,stageVoice=null,currentSpeech=null;
+const speechMusicRatio=.45;
+function stageVolume(volume){
+  return volume*(currentSpeech?speechMusicRatio:1);
+}
+function updateStageVolume(){
+  if(stageSound)stageSound.bus.gain.setTargetAtTime(stageVolume(stageSound.volume),audio.currentTime,.04);
+}
 function onStage(id){return activeShow?.members.has(id)??false;}
 function setStage(active){
   get('quang-canh').classList.toggle('stage-performing',active);
@@ -1346,12 +1353,30 @@ function speakVietnamese(text,rate){
   utterance.voice=voice;
   utterance.lang='vi-VN';
   utterance.rate=rate;
-  speech.speak(utterance);
+  if(currentSpeech||speech.speaking||speech.pending)return undefined;
+  currentSpeech=utterance;
+  const finish=()=>{
+    if(currentSpeech!==utterance)return;
+    currentSpeech=null;
+    updateStageVolume();
+  };
+  utterance.onend=finish;
+  utterance.onerror=finish;
+  updateStageVolume();
+  try{
+    speech.speak(utterance);
+  }catch{
+    finish();
+    return null;
+  }
   return utterance;
 }
 function stopStageSound(){
   if(stageVoice){
-    window.speechSynthesis.cancel();
+    if(currentSpeech===stageVoice){
+      currentSpeech=null;
+      window.speechSynthesis.cancel();
+    }
     stageVoice=null;
   }
   if(stageSound){
@@ -1386,10 +1411,11 @@ function playStageSound(show){
   const {rap,track}=show;
   if(track.motion==='dance'){playDanceBeat(show);return;}
   const bus=audio.createGain();
-  bus.gain.value=.5;
+  const volume=.5;
+  bus.gain.value=stageVolume(volume);
   bus.connect(audio.destination);
   const oscillators=new Set();
-  stageSound={bus,oscillators};
+  stageSound={bus,oscillators,volume};
   const {melody,step}=track;
   scheduleMusic(show,step,step,(index,when)=>{
     const osc=audio.createOscillator(),gain=audio.createGain();
@@ -1409,9 +1435,11 @@ function playStageSound(show){
 
 function playDanceBeat(show){
   const bus=audio.createGain();
-  bus.gain.value=show.vip?.55:.38;bus.connect(audio.destination);
+  const volume=show.vip?.55:.38;
+  bus.gain.value=stageVolume(volume);
+  bus.connect(audio.destination);
   const oscillators=new Set();
-  stageSound={bus,oscillators};
+  stageSound={bus,oscillators,volume};
 
   const noise=audio.createBuffer(1,audio.sampleRate*.12,audio.sampleRate);
   const samples=noise.getChannelData(0);
@@ -1908,7 +1936,7 @@ get('live-demo').addEventListener('click',async()=>{
 document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();receiveGift({name:get('gift-name').value,giftTier:b.dataset.level,choice:get('gift-choice').value});});
 get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
 get('test-hour').onclick=hourEvent;
-get('voice-toggle').onclick=()=>{primeAudio();voiceOn=!voiceOn;get('voice-toggle').setAttribute('aria-pressed',String(voiceOn));get('voice-toggle').textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';if(voiceOn){const v=speakVietnamese('Quán mở cửa rồi!',1);if(!v)tell('Máy chưa có giọng tiếng Việt. Lời chào hiển thị trên bảng.',false);}};
+get('voice-toggle').onclick=()=>{primeAudio();voiceOn=!voiceOn;get('voice-toggle').setAttribute('aria-pressed',String(voiceOn));get('voice-toggle').textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';if(voiceOn){const v=speakVietnamese('Quán mở cửa rồi!',1);if(v===null)tell('Máy chưa có giọng tiếng Việt. Lời chào hiển thị trên bảng.',false);}};
 window.addEventListener('quannuoc:comment',event=>{
   const detail=event.detail;
   if(typeof detail?.name!=='string'||!detail.name.trim()||typeof detail.comment!=='string')return;
