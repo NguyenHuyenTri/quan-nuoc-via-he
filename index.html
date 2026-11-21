@@ -255,19 +255,25 @@ function connectLiveTest(){
   function connect(){
     if(!enabled||socket)return;
     let connection;
-    try{connection=new WebSocket('ws://localhost:21213/');}
+    const lan=document.querySelector('meta[name="cafe-lan-comments"]');
+    try{connection=lan?new EventSource('./comments'):new WebSocket('ws://localhost:21213/');}
     catch{enabled=false;button.textContent='Kết nối TikFinity';note.textContent='Trình duyệt chưa cho mở kết nối TikFinity trên máy này.';return;}
     socket=connection;
     note.textContent='Đang tìm TikFinity Desktop trên máy này…';
     connection.onopen=()=>{if(socket===connection){delay=2000;note.textContent='Đã nối TikFinity · đang chờ bình luận từ LIVE.';}};
-    connection.onclose=()=>{
+    const disconnected=()=>{
       if(socket!==connection||!enabled)return;
       socket=null;
+      connection.close();
       showLiveNotice('TikFinity mất kết nối · Đang thử lại');
       note.textContent='Mất kết nối với TikFinity Desktop · thử lại sau '+delay/1000+' giây.';
       timer=setTimeout(connect,delay);
       delay=Math.min(15000,delay*2);
     };
+    if(lan){
+      connection.onerror=disconnected;
+      connection.addEventListener('offline',disconnected);
+    }else connection.onclose=disconnected;
     connection.onmessage=({data:raw})=>{
       if(socket!==connection||!enabled)return;
       let packet;
