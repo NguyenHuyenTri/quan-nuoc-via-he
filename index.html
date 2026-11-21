@@ -100,7 +100,6 @@
 <g id="stage-caption" visibility="hidden" aria-hidden="true">
   <rect x="139" y="98" width="522" height="46" rx="13" fill="#14232c" fill-opacity=".94" stroke="#deaf75"/>
   <text id="stage-track" x="160" y="128" fill="#fff1c8" font-size="23" font-weight="800"></text>
-  <text id="stage-lineup" x="640" y="128" text-anchor="end" fill="#fff1c8" font-size="22" font-weight="800"></text>
 </g>
 <g transform="translate(0 690)">
 <rect width="800" height="732" fill="url(#yard)"/>
@@ -1345,7 +1344,6 @@ function setStage(active){
   get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
   if(!active){
     get('stage-track').textContent='';
-    get('stage-lineup').textContent='';
   }
   get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
@@ -1524,12 +1522,8 @@ function stageTick(show){
     if(member.ready&&member.endsAt<=now)void returnPerformer(show,member);
   }
   const ready=[...show.members.values()].filter(member=>member.ready);
-  if(!ready.length){
-    get('stage-lineup').textContent='';
-    return;
-  }
-  const remaining=Math.max(0,Math.ceil(((ready.find(member=>member.person.name===show.lead)??ready[0]).endsAt-now)/1000));
-  if(ready.length&&remaining>0&&show.nextVerse<=performance.now()){
+  if(!ready.length)return;
+  if(show.nextVerse<=now){
     const lead=ready[show.verseIndex%ready.length];
     show.lead=lead.person.name;
     ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
@@ -1547,9 +1541,8 @@ function stageTick(show){
   const action=show.track.motion==='dance'?'lên nhảy':'lên hát';
   const title=performance.now()-show.startedAt<3000?action:show.track.title;
   const label=lead?crown+shortGuestName(lead.person.name)+' · '+title:show.track.title;
-  fitBoardText(get('stage-track'),label,340);
+  fitBoardText(get('stage-track'),label,480);
   get('stage-track').setAttribute('fill',crown?'#ffd085':'#fff1c8');
-  get('stage-lineup').textContent=show.members.size+'/'+stageSlots.length+' · '+Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0');
 }
 function stageRoute(seat,spot,origin=entry){
   const aisle=seat?.aisleX??309;
