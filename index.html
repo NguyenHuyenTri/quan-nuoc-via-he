@@ -235,19 +235,30 @@ function saveVipProfiles(){
 const liveNames=new Map();
 function connectLiveTest(){
   const button=get('live-connect'),note=get('live-status');
-  let socket=null;
+  let socket=null,timer=null,enabled=false,delay=2000;
   button.onclick=()=>{
-    if(socket){socket.close();return;}
+    enabled=!enabled;
+    button.textContent=enabled?'Ngắt kết nối':'Kết nối TikFinity';
+    if(enabled){connect();return;}
+    clearTimeout(timer);
+    const previous=socket;socket=null;
+    previous?.close();
+    note.textContent='Bạn đã ngắt kết nối.';
+  };
+  function connect(){
+    if(!enabled||socket)return;
     let connection;
     try{connection=new WebSocket('ws://localhost:21213/');}
-    catch{note.textContent='Trình duyệt chưa cho mở kết nối TikFinity trên máy này.';return;}
-    socket=connection;button.textContent='Ngắt kết nối';
+    catch{enabled=false;button.textContent='Kết nối TikFinity';note.textContent='Trình duyệt chưa cho mở kết nối TikFinity trên máy này.';return;}
+    socket=connection;
     note.textContent='Đang tìm TikFinity Desktop trên máy này…';
-    connection.onopen=()=>{note.textContent='Đã nối TikFinity · đang chờ bình luận từ LIVE.';};
+    connection.onopen=()=>{if(socket===connection){delay=2000;note.textContent='Đã nối TikFinity · đang chờ bình luận từ LIVE.';}};
     connection.onclose=()=>{
-      if(socket!==connection)return;
-      socket=null;button.textContent='Kết nối TikFinity';
-      note.textContent='Đã ngắt. Kiểm tra TikFinity Desktop rồi bấm kết nối lại.';
+      if(socket!==connection||!enabled)return;
+      socket=null;
+      note.textContent='Mất kết nối với TikFinity Desktop · thử lại sau '+delay/1000+' giây.';
+      timer=setTimeout(connect,delay);
+      delay=Math.min(15000,delay*2);
     };
     connection.onmessage=({data:raw})=>{
       let packet;
