@@ -845,6 +845,9 @@ function syncStageAudio(){
 async function primeAudio(){
   const AudioEngine=window.AudioContext||window.webkitAudioContext;
   if(!audio&&AudioEngine){
+    if(navigator.audioSession){
+      try{navigator.audioSession.type='playback';}catch{}
+    }
     audio=new AudioEngine();
     audio.addEventListener('statechange',syncStageAudio);
   }
@@ -1716,10 +1719,18 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,giftT
     if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));party();ding([523,659,784,1047]);tell('Cả quán hô nào! '+short+' bao cả quán!');return;}
     previewTrack='chill';tell('Sân khấu độc diễn dành cho '+short+'!');
   }
-  if(onStage(id)&&!activeShow.idle&&!(activeShow.free&&tier==='vip'))return;
+  if(onStage(id)&&!activeShow.idle&&!(activeShow.free&&tier==='vip')
+    &&(tier!=='free'||activeShow.track===stageTracks[previewTrack]))return;
   const queued=stageQueue.findIndex(gift=>gift.id===id);
   if(queued>=0){
-    if(tier!=='vip'||stageQueue[queued].tier==='vip')return;
+    if(tier==='free'){
+      if(stageQueue[queued].tier==='free'){
+        stageQueue[queued].previewTrack=previewTrack;
+        advanceStage();
+      }
+      return;
+    }
+    if(stageQueue[queued].tier==='vip')return;
     stageQueue.splice(queued,1);
   }
   primeAudio();
@@ -1738,13 +1749,15 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,giftT
 }
 function advanceStage(){
   if(!stageQueue.length){armIdle();return;}
-  if(activeShow?.idle||activeShow?.free&&stageQueue[0].tier==='vip'){endShow(activeShow);return;}
+  if(activeShow?.idle&&activeShow.endsAt===null){endShow(activeShow);return;}
   const show=activeShow;
   if(show&&(show.ending||show.members.size>=stageSlots.length
     ||(show.endsAt!==null&&show.endsAt-performance.now()<16000)))return;
   while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
     const gift=stageQueue[0];
-    if(activeShow&&(activeShow.vip||gift.tier==='vip'))return;
+    if(activeShow&&(activeShow.idle||activeShow.vip||gift.tier==='vip'
+      ||activeShow.members.has(gift.id)
+      ||gift.previewTrack&&activeShow.track!==stageTracks[gift.previewTrack]))return;
     const seat=seated(gift.name,true);
     if(seat&&seat.person.state!=='seated')return;
     stageQueue.shift();updateShowQueue();
