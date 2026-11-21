@@ -144,7 +144,7 @@
 </g>
 <g id="stage-reactions" aria-hidden="true"></g>
 <g id="party-fx" pointer-events="none"></g>
-<g id="live-board" transform="translate(14 635)"><rect width="772" height="72" rx="14" fill="#102820" stroke="#a58653"/><text id="goal-note" x="14" y="23" font-size="18"></text><rect x="14" y="33" width="225" height="8" rx="4" fill="#395747"/><rect id="goal-fill" x="14" y="33" height="8" rx="4" fill="#edc76d"/><text id="vip-list" x="257" y="28" font-size="17"></text><text id="host-note" x="14" y="62" font-size="17">Hoa hồng mời nước · Quà vừa chọn món hoặc bài · Quà lớn bao quán · Quà cực lớn độc diễn</text></g>
+<g id="live-board" transform="translate(14 635)"><rect width="772" height="72" rx="14" fill="#102820" stroke="#a58653"/><text id="goal-note" x="14" y="23" font-size="18"></text><rect x="14" y="33" width="225" height="8" rx="4" fill="#395747"/><rect id="goal-fill" x="14" y="33" height="8" rx="4" fill="#edc76d"/><text id="vip-list" x="257" y="28" font-size="17"></text><text id="host-note" x="14" y="62" font-size="17">Hoa hồng mời nước · Quà vừa chọn món hoặc bài · Quà lớn bao quán · Quà cực lớn lên sân khấu</text></g>
 <g id="live-stage-notice" visibility="hidden" pointer-events="none">
   <rect x="64" y="30" width="672" height="55" rx="15" fill="#101d29" fill-opacity=".96" stroke="#ffd085"/>
   <text id="live-stage-message" x="400" y="65" text-anchor="middle" fill="#fff1c8" font-size="25" font-weight="750"></text>
@@ -184,7 +184,7 @@
 </div>
 <section class="gift-menu"><h2>Thang quà của quán</h2>
 <label>Khách thử <input id="gift-name" value="Nguyễn Huyền Trí" maxlength="80"></label>
-<div class="gift-list"><button data-level="small">🌹 Hoa hồng / TikTok · Mời nước (+1)</button><button data-level="medium">🥤 Quà vừa · Chọn món hoặc bài (+10)</button><button data-level="large">🏮 Quà lớn · Bao cả quán (+30)</button><button data-level="solo">🎙 Quà cực lớn · Độc diễn (+60)</button></div>
+<div class="gift-list"><button data-level="small">🌹 Hoa hồng / TikTok · Mời nước (+1)</button><button data-level="medium">🥤 Quà vừa · Chọn món hoặc bài (+10)</button><button data-level="large">🏮 Quà lớn · Bao cả quán (+30)</button><button data-level="solo">🎙 Quà cực lớn · Lên sân khấu (+60)</button></div>
 <label>Chọn cho quà vừa <select id="gift-choice"><option value="tra da">Trà đá</option><option value="ca phe">Cà phê</option><option value="mia lau">Mía lau</option><option value="rap">Rap bên ly đá</option><option value="chill">Đêm chill vỉa hè</option><option value="rock">Rock vỉa hè</option></select></label>
 <div class="grid-buttons"><button id="test-visit">Thử khách ghé</button><button id="test-hour">Thử sự kiện giờ</button><button id="voice-toggle" aria-pressed="false">Bật giọng chủ quán</button></div></section>
 <section class="gift-menu"><h2>Thử kết nối TikTok LIVE</h2><button type="button" id="live-connect">Kết nối TikFinity</button><p id="live-status" role="status">Mở TikFinity Desktop và kết nối phòng LIVE trên cùng máy.</p></section>
@@ -1362,6 +1362,7 @@ function speakVietnamese(text,rate){
   const finish=()=>{
     if(currentSpeech!==utterance)return;
     currentSpeech=null;
+    if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
   };
   utterance.onend=finish;
   utterance.onerror=finish;
@@ -1391,13 +1392,13 @@ function stopStageSound(){
 // Queue a short audio window and skip expired beats after a suspended tab resumes.
 function scheduleMusic(show,step,tail,play){
   const sound=stageSound,start=audio.currentTime+.06;
-  const end=start+(show.endsAt-performance.now())/1000-tail;
   let index=0;
   function fill(){
     if(stageSound!==sound||show.ending||audio.state!=='running')return;
     const now=audio.currentTime;
     index=Math.max(index,Math.ceil((now-start)/step));
-    const until=Math.min(end,now+.7);
+    const remaining=(show.endsAt-performance.now())/1000;
+    const until=now+Math.min(.7,remaining-tail);
     while(start+index*step<until){
       play(index,start+index*step);
       index++;
@@ -1541,13 +1542,13 @@ function stageTick(show){
     cheerStage();
   }
   const lead=ready.find(member=>member.person.name===show.lead)??ready[0];
-  const crown=show.vip?'♛ ':'';
+  const crown=lead?.actor.hasAttribute('data-vip')?'♛ ':'';
   const action=show.track.motion==='dance'?'lên nhảy':'lên hát';
   const title=performance.now()-show.startedAt<3000?action:show.track.title;
   const label=lead?crown+shortGuestName(lead.person.name)+' · '+title:show.track.title;
-  fitBoardText(get('stage-track'),label,400);
-  get('stage-track').setAttribute('fill',show.vip?'#ffd085':'#fff1c8');
-  get('stage-lineup').textContent=Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0');
+  fitBoardText(get('stage-track'),label,340);
+  get('stage-track').setAttribute('fill',crown?'#ffd085':'#fff1c8');
+  get('stage-lineup').textContent=show.members.size+'/'+stageSlots.length+' · '+Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0');
 }
 function stageRoute(seat,spot,origin=entry){
   const aisle=seat?.aisleX??309;
@@ -1566,7 +1567,7 @@ function addPerformer(show,gift,seat){
     {name:person.name,avatar:gift.avatar||person.avatar,gender});
   if(passer&&actor!==passer.actor)passer.actor.remove();
   actor.setAttribute('data-performer','');
-  if(show.vip){
+  if(gift.tier==='vip'){
     actor.setAttribute('data-vip','');
     const halo=node('ellipse',{cx:0,cy:-3,rx:28,ry:8,fill:'#ffd05b','fill-opacity':'.25',stroke:'#ffe79b','stroke-width':2});
     actor.insertBefore(halo,actor.firstChild);
@@ -1576,6 +1577,14 @@ function addPerformer(show,gift,seat){
   positionActor(actor,route[0]);
   const member={person,seat,spot,actor,origin,ready:false};
   show.members.set(person.id,member);
+  if(show.members.size>1&&show.endsAt!==null){
+    const groupEnd=show.startedAt+showDuration;
+    if(groupEnd>show.endsAt){
+      show.endsAt=groupEnd;
+      clearTimeout(show.timer);
+      show.timer=setTimeout(()=>endShow(show),Math.max(0,groupEnd-performance.now()));
+    }
+  }
   if(seat){
     person.actor.setAttribute('visibility','hidden');
     const marker=group(seat.x,seat.y);
@@ -1593,7 +1602,7 @@ function addPerformer(show,gift,seat){
     actor.style.setProperty('--move-delay',(-.14*[...show.members.values()].indexOf(member))+'s');
     if(show.endsAt===null){
       show.startedAt=performance.now();
-      show.duration=show.vip?60000:show.free||show.preview?15000:showDuration;
+      show.duration=show.vip||show.members.size>1?showDuration:show.free||show.preview?15000:showDuration;
       show.endsAt=show.startedAt+show.duration;
       if(show.track.motion==='dance')animateDance(show);
       setStage(true);
@@ -1717,7 +1726,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,giftT
       if(!chooseReward(name,choice)){choices.set(id,(choices.get(id)||0)+amount);tell(short+' ơi, chọn rap, chill, rock, trà đá, cà phê hoặc mía lau nhé!');}return;
     }
     if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));party();ding([523,659,784,1047]);tell('Cả quán hô nào! '+short+' bao cả quán!');return;}
-    previewTrack='chill';tell('Sân khấu độc diễn dành cho '+short+'!');
+    tell(short+' đã mở lượt biểu diễn VIP!');
   }
   if(onStage(id)&&!activeShow.idle&&!(activeShow.free&&tier==='vip')
     &&(tier!=='free'||activeShow.track===stageTracks[previewTrack]))return;
@@ -1751,12 +1760,11 @@ function advanceStage(){
   if(!stageQueue.length){armIdle();return;}
   if(activeShow?.idle&&activeShow.endsAt===null){endShow(activeShow);return;}
   const show=activeShow;
-  if(show&&(show.ending||show.members.size>=stageSlots.length
-    ||(show.endsAt!==null&&show.endsAt-performance.now()<16000)))return;
+  if(show&&(show.ending||show.members.size>=stageSlots.length))return;
+  if(show?.endsAt!=null&&show.endsAt-performance.now()<2500)return;
   while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
     const gift=stageQueue[0];
-    if(activeShow&&(activeShow.idle||activeShow.vip||gift.tier==='vip'
-      ||activeShow.members.has(gift.id)
+    if(activeShow&&(activeShow.members.has(gift.id)
       ||gift.previewTrack&&activeShow.track!==stageTracks[gift.previewTrack]))return;
     const seat=seated(gift.name,true);
     if(seat&&seat.person.state!=='seated')return;
