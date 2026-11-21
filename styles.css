@@ -582,3 +582,9 @@ body.show-mode {
 
 [data-vip] [data-guest-label] {filter:drop-shadow(0 0 2px var(--vip-color,#ffe36d));}
 [data-vip] .actor-body {filter:drop-shadow(0 0 3px var(--vip-color,#ffe36d));}
+
+
+.busy-cafe [data-seated-guest]:not([data-vip]) [data-guest-label],
+.busy-cafe [data-seated-guest]:not([data-vip]) .loyalty {
+  visibility: hidden;
+}
