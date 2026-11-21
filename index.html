@@ -184,6 +184,7 @@
 <div class="gift-list"><button data-level="small">🌹 Hoa hồng / TikTok · Mời nước (+1)</button><button data-level="medium">🥤 Quà vừa · Chọn món hoặc bài (+10)</button><button data-level="large">🏮 Quà lớn · Bao cả quán (+30)</button><button data-level="solo">🎙 Quà cực lớn · Độc diễn (+60)</button></div>
 <label>Chọn cho quà vừa <select id="gift-choice"><option value="tra da">Trà đá</option><option value="ca phe">Cà phê</option><option value="mia lau">Mía lau</option><option value="rap">Rap bên ly đá</option><option value="chill">Đêm chill vỉa hè</option><option value="rock">Rock vỉa hè</option></select></label>
 <div class="grid-buttons"><button id="test-visit">Thử khách ghé</button><button id="test-hour">Thử sự kiện giờ</button><button id="voice-toggle" aria-pressed="false">Bật giọng chủ quán</button></div></section>
+<section class="gift-menu"><h2>Thử kết nối TikTok LIVE</h2><button type="button" id="live-connect">Kết nối TikFinity</button><p id="live-status" role="status">Mở TikFinity Desktop và kết nối phòng LIVE trên cùng máy.</p></section>
 <div id="essential-controls" class="grid-buttons"></div>
 <fieldset class="track-picker">
   <legend>Chọn nhạc · rap / chill / rock</legend>
@@ -231,7 +232,45 @@ function saveVipProfiles(){
       events:[...seenGifts]}));
   }catch{status('Trình duyệt chưa cho phép lưu VIP. Dấu VIP vẫn có trong lượt mở này.');}
 }
+const liveNames=new Map();
+function connectLiveTest(){
+  const button=get('live-connect'),note=get('live-status');
+  let socket=null;
+  button.onclick=()=>{
+    if(socket){socket.close();return;}
+    let connection;
+    try{connection=new WebSocket('ws://localhost:21213/');}
+    catch{note.textContent='Trình duyệt chưa cho mở kết nối TikFinity trên máy này.';return;}
+    socket=connection;button.textContent='Ngắt kết nối';
+    note.textContent='Đang tìm TikFinity Desktop trên máy này…';
+    connection.onopen=()=>{note.textContent='Đã nối TikFinity · đang chờ bình luận từ LIVE.';};
+    connection.onclose=()=>{
+      if(socket!==connection)return;
+      socket=null;button.textContent='Kết nối TikFinity';
+      note.textContent='Đã ngắt. Kiểm tra TikFinity Desktop rồi bấm kết nối lại.';
+    };
+    connection.onmessage=({data:raw})=>{
+      let packet;
+      try{packet=JSON.parse(raw);}catch{return;}
+      const data=packet?.data;
+      if(!data||!['chat','member'].includes(packet.event))return;
+      const handle=data.uniqueId||data.user?.uniqueId;
+      if(typeof handle!=='string'||!handle.trim())return;
+      const name='@'+handle.trim(),nick=data.nickname||data.user?.nickname;
+      liveNames.set(name,typeof nick==='string'&&nick.trim()?nick.trim():handle);
+      const detail={name,avatarUrl:data.profilePictureUrl||data.user?.profilePictureUrl};
+      if(packet.event==='chat'){
+        if(typeof data.comment!=='string')return;
+        detail.comment=data.comment;
+        window.dispatchEvent(new CustomEvent('quannuoc:comment',{detail}));
+        note.textContent='Bình luận vừa nhận · '+name+' · '+data.comment.slice(0,100);
+      }else window.dispatchEvent(new CustomEvent('quannuoc:viewer',{detail}));
+    };
+  };
+}
+
 function shortGuestName(value){
+  value=liveNames.get(value)||value;
   const words=value.normalize('NFC').replace(/[^\p{L}\p{M}\p{N}\s]/gu,'')
     .trim().replace(/\s+/g,' ').split(' ').filter(Boolean);
   if(words.length<=1)return words[0]||'Khách';
@@ -1825,6 +1864,7 @@ setInterval(()=>{const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHou
 
 
 board();
+connectLiveTest();
 nextCounterTip();
 seedSampleGuests();
 armIdle();
