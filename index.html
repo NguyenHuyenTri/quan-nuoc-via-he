@@ -835,15 +835,23 @@ function ding(frequencies=[988,1318]){
     osc.connect(gain);gain.connect(audio.destination);osc.start(at);osc.stop(at+.25);
   });
 }
+function syncStageAudio(){
+  const running=audio?.state==='running';
+  const button=get('enable-audio');
+  button.textContent=running?'Nhạc đã bật':'Bật nhạc cho quán';
+  button.disabled=running;
+  if(running&&activeShow?.endsAt&&!activeShow.ending)playStageSound(activeShow);
+}
 async function primeAudio(){
-  if(!audio&&window.AudioContext)audio=new AudioContext();
-  if(audio?.state==='suspended'){
-    try{await audio.resume();}catch{return;}
+  const AudioEngine=window.AudioContext||window.webkitAudioContext;
+  if(!audio&&AudioEngine){
+    audio=new AudioEngine();
+    audio.addEventListener('statechange',syncStageAudio);
   }
-  if(audio?.state!=='running')return;
-  get('enable-audio').textContent='Âm thanh đã bật · khách mẫu cũng có nhạc';
-  get('enable-audio').disabled=true;
-  if(activeShow?.endsAt&&!activeShow.ending)playStageSound(activeShow);
+  if(audio&&audio.state!=='running'&&audio.state!=='closed'){
+    try{await audio.resume();}catch{}
+  }
+  syncStageAudio();
 }
 document.addEventListener('pointerdown',()=>{primeAudio();},{once:true});
 document.addEventListener('keydown',()=>{primeAudio();},{once:true});
@@ -1379,7 +1387,7 @@ function stopStageSound(){
 }
 // Queue a short audio window and skip expired beats after a suspended tab resumes.
 function scheduleMusic(show,step,tail,play){
-  const sound=stageSound,start=audio.currentTime;
+  const sound=stageSound,start=audio.currentTime+.06;
   const end=start+(show.endsAt-performance.now())/1000-tail;
   let index=0;
   function fill(){
@@ -1437,7 +1445,6 @@ function playDanceBeat(show){
   for(let i=0;i<samples.length;i++)samples[i]=(Math.random()*2-1)*(1-i/samples.length);
   const start=audio.currentTime;
   show.audioStart=start;
-  show.startedAt=performance.now();
   function tone(when,freq,length,volume,type='sine',drop){
     const osc=audio.createOscillator(),gain=audio.createGain();
     osc.type=type;osc.frequency.setValueAtTime(freq,when);
