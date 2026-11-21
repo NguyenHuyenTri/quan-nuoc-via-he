@@ -440,7 +440,7 @@ function badge(actor,n){
 }
 function tell(message,voice=true){
   get('host-note').textContent=message;fitBoardText(get('host-note'),message,742);status(message);
-  if(voice&&voiceOn&&!window.speechSynthesis?.pending)speakVietnamese(message,1.06);
+  if(voice&&voiceOn)speakVietnamese(message,1.06);
 }
 function visitor(detail){
   const name=detail?.name?.trim();if(!name)return;
@@ -1215,7 +1215,7 @@ function toastEffect(participants,tableX,quote){
     if(!effect.isConnected)return;
     effect.setAttribute('visibility','visible');
     ding([1568,2349,3136]);
-    if(quote&&!activeShow&&!window.speechSynthesis?.speaking)speakVietnamese(quote,1.08);
+    if(quote)speakVietnamese(quote,1.08);
   },reduce.matches?0:420);
   setTimeout(()=>effect.remove(),quote?2950:1050);
 }
@@ -1328,13 +1328,6 @@ const audienceLines=[
   'Hay vậy, ai dám tính tiền nữa!'
 ];
 let stageSound=null,stageVoice=null,currentSpeech=null;
-const speechMusicRatio=.45;
-function stageVolume(volume){
-  return volume*(currentSpeech?speechMusicRatio:1);
-}
-function updateStageVolume(){
-  if(stageSound)stageSound.bus.gain.setTargetAtTime(stageVolume(stageSound.volume),audio.currentTime,.04);
-}
 function onStage(id){return activeShow?.members.has(id)??false;}
 function setStage(active){
   get('quang-canh').classList.toggle('stage-performing',active);
@@ -1358,11 +1351,9 @@ function speakVietnamese(text,rate){
   const finish=()=>{
     if(currentSpeech!==utterance)return;
     currentSpeech=null;
-    updateStageVolume();
   };
   utterance.onend=finish;
   utterance.onerror=finish;
-  updateStageVolume();
   try{
     speech.speak(utterance);
   }catch{
@@ -1412,10 +1403,10 @@ function playStageSound(show){
   if(track.motion==='dance'){playDanceBeat(show);return;}
   const bus=audio.createGain();
   const volume=.5;
-  bus.gain.value=stageVolume(volume);
+  bus.gain.value=volume;
   bus.connect(audio.destination);
   const oscillators=new Set();
-  stageSound={bus,oscillators,volume};
+  stageSound={bus,oscillators};
   const {melody,step}=track;
   scheduleMusic(show,step,step,(index,when)=>{
     const osc=audio.createOscillator(),gain=audio.createGain();
@@ -1436,10 +1427,10 @@ function playStageSound(show){
 function playDanceBeat(show){
   const bus=audio.createGain();
   const volume=show.vip?.55:.38;
-  bus.gain.value=stageVolume(volume);
+  bus.gain.value=volume;
   bus.connect(audio.destination);
   const oscillators=new Set();
-  stageSound={bus,oscillators,volume};
+  stageSound={bus,oscillators};
 
   const noise=audio.createBuffer(1,audio.sampleRate*.12,audio.sampleRate);
   const samples=noise.getChannelData(0);
@@ -1531,7 +1522,7 @@ function stageTick(show){
     show.lead=lead.person.name;
     ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
     const {verses}=show.track;
-    if(show.track.motion!=='dance'&&audio?.state==='running'){
+    if(show.track.motion!=='dance'){
       const lyric=verses[show.verseIndex%verses.length];
       stageVoice=speakVietnamese(lyric,show.rap?1.18:.95)??stageVoice;
     }
