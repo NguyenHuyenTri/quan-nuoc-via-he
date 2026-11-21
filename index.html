@@ -98,10 +98,9 @@
 <path d="M402 535l-12-7" stroke="#eee0cf" stroke-width="8" stroke-linecap="round"/>
 <g id="stage-notes" visibility="hidden" fill="#ffd393" font-size="35" font-weight="800" aria-hidden="true"><text x="340" y="450">♪</text><text x="452" y="431">♫</text><text x="490" y="474">♪</text></g>
 <g id="stage-caption" visibility="hidden" aria-hidden="true">
-  <rect x="204" y="365" width="392" height="51" rx="14" fill="#14232c" fill-opacity=".92" stroke="#deaf75"/>
-  <text id="stage-track" x="400" y="383" text-anchor="middle" fill="#ffd085" font-size="13" font-weight="800" letter-spacing="2"></text>
-  <text id="stage-lyric" x="400" y="406" text-anchor="middle" fill="#fff1c8" font-size="24" font-weight="800"></text>
-  <text id="stage-lineup" x="400" y="618" text-anchor="middle" fill="#fff1c8" font-size="16" font-weight="800"></text>
+  <rect x="139" y="98" width="522" height="46" rx="13" fill="#14232c" fill-opacity=".94" stroke="#deaf75"/>
+  <text id="stage-track" x="160" y="128" fill="#fff1c8" font-size="23" font-weight="800"></text>
+  <text id="stage-lineup" x="640" y="128" text-anchor="end" fill="#fff1c8" font-size="22" font-weight="800"></text>
 </g>
 <g transform="translate(0 690)">
 <rect width="800" height="732" fill="url(#yard)"/>
@@ -146,6 +145,10 @@
 <g id="stage-reactions" aria-hidden="true"></g>
 <g id="party-fx" pointer-events="none"></g>
 <g id="live-board" transform="translate(14 635)"><rect width="772" height="72" rx="14" fill="#102820" stroke="#a58653"/><text id="goal-note" x="14" y="23" font-size="18"></text><rect x="14" y="33" width="225" height="8" rx="4" fill="#395747"/><rect id="goal-fill" x="14" y="33" height="8" rx="4" fill="#edc76d"/><text id="vip-list" x="257" y="28" font-size="17"></text><text id="host-note" x="14" y="62" font-size="17">Hoa hồng mời nước · Quà vừa chọn món hoặc bài · Quà lớn bao quán · Quà cực lớn độc diễn</text></g>
+<g id="live-stage-notice" visibility="hidden" pointer-events="none">
+  <rect x="64" y="30" width="672" height="55" rx="15" fill="#101d29" fill-opacity=".96" stroke="#ffd085"/>
+  <text id="live-stage-message" x="400" y="65" text-anchor="middle" fill="#fff1c8" font-size="25" font-weight="750"></text>
+</g>
 </svg>
 
 </section>
@@ -264,7 +267,7 @@ function connectLiveTest(){
       let packet;
       try{packet=JSON.parse(raw);}catch{return;}
       const data=packet?.data;
-      if(!data||!['chat','member'].includes(packet.event))return;
+      if(!data||!['chat','member','gift'].includes(packet.event))return;
       const handle=data.uniqueId||data.user?.uniqueId;
       if(typeof handle!=='string'||!handle.trim())return;
       const name='@'+handle.trim(),nick=data.nickname||data.user?.nickname;
@@ -275,6 +278,13 @@ function connectLiveTest(){
         detail.comment=data.comment;
         window.dispatchEvent(new CustomEvent('quannuoc:comment',{detail}));
         note.textContent='Bình luận vừa nhận · '+name+' · '+data.comment.slice(0,100);
+      }else if(packet.event==='gift'){
+        if(Number(data.giftType)===1&&!data.repeatEnd)return;
+        const value=Number(data.diamondCount);
+        const count=Math.max(1,Math.floor(Number(data.repeatCount)||1));
+        const giftTier=value>=60?'solo':value>=30?'large':value>=10?'medium':'small';
+        const eventId=data.msgId==null?undefined:String(data.msgId);
+        receiveGift({...detail,eventId,count,giftTier,giftName:data.giftName},undefined,'vip',true);
       }else window.dispatchEvent(new CustomEvent('quannuoc:viewer',{detail}));
     };
   };
@@ -1322,6 +1332,10 @@ function onStage(id){return activeShow?.members.has(id)??false;}
 function setStage(active){
   get('quang-canh').classList.toggle('stage-performing',active);
   get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
+  if(!active){
+    get('stage-track').textContent='';
+    get('stage-lineup').textContent='';
+  }
   get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
 function speakVietnamese(text,rate){
@@ -1489,16 +1503,22 @@ function stageTick(show){
     show.lead=lead.person.name;
     ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
     const {verses}=show.track;
-    const lyric=show.track.motion==='dance'?['BƯỚC TRÁI · BƯỚC PHẢI','ĐƯA TAY · ĐỔI BÊN','CAO TRÀO · CÙNG NHẢY!'][Math.min(2,Math.floor((performance.now()-show.startedAt)/5000))]:verses[show.verseIndex%verses.length];
+    if(show.track.motion!=='dance'&&audio?.state==='running'){
+      const lyric=verses[show.verseIndex%verses.length];
+      stageVoice=speakVietnamese(lyric,show.rap?1.18:.95)??stageVoice;
+    }
     show.verseIndex++;
-    get('stage-lyric').textContent=lyric;
-    if(show.track.motion!=='dance'&&audio?.state==='running')stageVoice=speakVietnamese(lyric,show.rap?1.18:.95)??stageVoice;
     show.nextVerse=performance.now()+(show.rap?3900:4600);
     cheerStage();
   }
-  const lead=ready.length>1&&show.lead?show.lead+' · ':'';
-  const reactions=(show.applause?' · 👏 '+show.applause:'')+(show.hearts?' · ♥ '+show.hearts:'');
-  get('stage-lineup').textContent=lead+(show.vip?'Độc diễn':ready.length+'/5')+' · '+remaining+' giây'+(remaining<=30?' · Quà cực lớn ưu tiên lượt kế':'')+reactions;
+  const lead=ready.find(member=>member.person.name===show.lead)??ready[0];
+  const crown=show.vip?'♛ ':'';
+  const action=show.track.motion==='dance'?'lên nhảy':'lên hát';
+  const title=performance.now()-show.startedAt<3000?action:show.track.title;
+  const label=lead?crown+shortGuestName(lead.person.name)+' · '+title:show.track.title;
+  fitBoardText(get('stage-track'),label,400);
+  get('stage-track').setAttribute('fill',show.vip?'#ffd085':'#fff1c8');
+  get('stage-lineup').textContent=Math.floor(remaining/60)+':'+String(remaining%60).padStart(2,'0');
 }
 function stageRoute(seat,spot,origin=entry){
   const aisle=seat?.aisleX??309;
@@ -1547,7 +1567,6 @@ function addPerformer(show,gift,seat){
       show.duration=show.vip?60000:show.free||show.preview?15000:showDuration;
       show.endsAt=show.startedAt+show.duration;
       if(show.track.motion==='dance')animateDance(show);
-      get('stage-track').textContent=(show.vip?'VIP · ':show.free?'MIỄN PHÍ · ':'')+show.track.title.toLocaleUpperCase('vi');
       setStage(true);
       playStageSound(show);
       show.tick=setInterval(()=>stageTick(show),250);
@@ -1625,7 +1644,7 @@ function armIdle(){
     addPerformer(show,person,seat);
   },lastIdleSinger===null?20000:32000);
 }
-function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,giftTier,giftName='',choice}={},previewTrack,tier='vip'){
+function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,giftTier,giftName='',choice}={},previewTrack,tier='vip',fromLive=false){
   name=typeof name==='string'?name.trim():'';
   if(!name||typeof eventId==='string'&&seenGifts.has(eventId))return;
   if(typeof eventId==='string'&&eventId){
@@ -1633,6 +1652,11 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,giftT
     if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
   }
   const id=key(name);
+  if(fromLive){
+    const safeGiftName=typeof giftName==='string'?giftName.trim().slice(0,30):'';
+    showLiveNotice('🎁 '+shortGuestName(name)+' · '+(safeGiftName||'tặng quà')+
+      (Number.isFinite(count)&&count>1?' ×'+Math.floor(count):''));
+  }
   if(tier==='vip'){
     const previous=vipProfiles.get(id);
     const level=Number.isInteger(vipLevel)&&vipLevel>=1?vipLevel:previous?.level??1;
@@ -1709,6 +1733,20 @@ function fitBoardText(element,value,width){
     element.setAttribute('lengthAdjust','spacingAndGlyphs');
   }
 }
+const liveCommandLabels=new Map([
+  ['vao ban','vào bàn'], ['roi ban','rời bàn'], ['nhuong ghe','nhường ghế'],
+  ['cung ly','cụng ly'], ['vo tay','vỗ tay'], ['tha tim','thả tim'],
+  ['rap','rap'], ['chill','chill'], ['rock','rock'],
+  ['nhay','nhảy'], ['len nhay','lên nhảy']
+]);
+let liveNoticeTimer;
+function showLiveNotice(message){
+  fitBoardText(get('live-stage-message'),message,624);
+  const notice=get('live-stage-notice');
+  notice.setAttribute('visibility','visible');
+  clearTimeout(liveNoticeTimer);
+  liveNoticeTimer=setTimeout(()=>notice.setAttribute('visibility','hidden'),4000);
+}
 function submit(name,value,avatar,gender){
   name=name.trim();
   if(!name){get('guest').focus();return;}
@@ -1742,6 +1780,8 @@ function reset(showSamples=true){
     clearInterval(activeShow.tick);clearTimeout(activeShow.timer);
   }
   activeShow=null;stopStageSound();setStage(false);
+  clearTimeout(liveNoticeTimer);
+  get('live-stage-notice').setAttribute('visibility','hidden');
   tableToasts.clear();get('toast-effects').replaceChildren();
   seats.forEach(s=>{s.person=null;});
   for(const name of ['backPeople','frontPeople','drinks','walking'])layers[name].replaceChildren();
@@ -1778,7 +1818,7 @@ get('demo-dance').addEventListener('click',()=>{
   requestFreeDance(get('guest').value,get('guest-avatar').value,get('guest-gender').value);
 });
 window.addEventListener('quannuoc:gift',event=>{
-  if(event.detail&&typeof event.detail==='object')receiveGift(event.detail);
+  if(event.detail&&typeof event.detail==='object')receiveGift(event.detail,undefined,'vip',true);
 });
 get('preview-viewer').addEventListener('click',()=>{
   const name=get('guest').value.trim();
@@ -1869,7 +1909,13 @@ document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio()
 get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
 get('test-hour').onclick=hourEvent;
 get('voice-toggle').onclick=()=>{primeAudio();voiceOn=!voiceOn;get('voice-toggle').setAttribute('aria-pressed',String(voiceOn));get('voice-toggle').textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';if(voiceOn){const v=speakVietnamese('Quán mở cửa rồi!',1);if(!v)tell('Máy chưa có giọng tiếng Việt. Lời chào hiển thị trên bảng.',false);}};
-window.addEventListener('quannuoc:comment',e=>{const d=e.detail;if(typeof d?.name==='string'&&typeof d.comment==='string')submit(d.name,d.comment,avatarUrl(d.avatarUrl),normalizeGender(d.gender));});
+window.addEventListener('quannuoc:comment',event=>{
+  const detail=event.detail;
+  if(typeof detail?.name!=='string'||!detail.name.trim()||typeof detail.comment!=='string')return;
+  const label=liveCommandLabels.get(normalize(detail.comment));
+  if(label)showLiveNotice('💬 '+shortGuestName(detail.name)+' · '+label);
+  submit(detail.name,detail.comment,avatarUrl(detail.avatarUrl),normalizeGender(detail.gender));
+});
 let lastHour=Math.floor(Date.now()/3600000);
 setInterval(()=>{const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHour=h;hourEvent();}board();},5000);
 
