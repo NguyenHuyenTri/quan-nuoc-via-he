@@ -1338,7 +1338,7 @@ const audienceLines=[
   'Ủa, quán mình mời ca sĩ hồi nào vậy?',
   'Hay vậy, ai dám tính tiền nữa!'
 ];
-let stageSound=null,stageVoice=null,currentSpeech=null;
+let stageSound=null,currentSpeech=null;
 function onStage(id){return activeShow?.members.has(id)??false;}
 function setStage(active){
   get('quang-canh').classList.toggle('stage-performing',active);
@@ -1375,13 +1375,6 @@ function speakVietnamese(text,rate){
   return utterance;
 }
 function stopStageSound(){
-  if(stageVoice){
-    if(currentSpeech===stageVoice){
-      currentSpeech=null;
-      window.speechSynthesis.cancel();
-    }
-    stageVoice=null;
-  }
   if(stageSound){
     clearInterval(stageSound.timer);
     stageSound.oscillators.forEach(osc=>osc.stop());
@@ -1526,16 +1519,24 @@ function cheerStage(){
   tableDialogue(fan?.tableX??400,fan?.person.name??'Khán giả',oneOf(audienceLines),true);
 }
 function stageTick(show){
+  const now=performance.now();
+  for(const member of show.members.values()){
+    if(member.ready&&member.endsAt<=now)void returnPerformer(show,member);
+  }
   const ready=[...show.members.values()].filter(member=>member.ready);
-  const remaining=Math.max(0,Math.ceil((show.endsAt-performance.now())/1000));
+  if(!ready.length){
+    get('stage-lineup').textContent='';
+    return;
+  }
+  const remaining=Math.max(0,Math.ceil(((ready.find(member=>member.person.name===show.lead)??ready[0]).endsAt-now)/1000));
   if(ready.length&&remaining>0&&show.nextVerse<=performance.now()){
     const lead=ready[show.verseIndex%ready.length];
     show.lead=lead.person.name;
     ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
     const {verses}=show.track;
-    if(show.track.motion!=='dance'){
+    if(show.track.motion!=='dance'&&voiceOn){
       const lyric=verses[show.verseIndex%verses.length];
-      stageVoice=speakVietnamese(lyric,show.rap?1.18:.95)??stageVoice;
+      speakVietnamese(lyric,show.rap?1.18:.95);
     }
     show.verseIndex++;
     show.nextVerse=performance.now()+(show.rap?3900:4600);
@@ -1557,7 +1558,9 @@ function stageRoute(seat,spot,origin=entry){
 }
 function addPerformer(show,gift,seat){
   const person=seat?.person??gift;
-  const spot={x:(show.vip?[400,490,310,570,230]:[300,500,230,570,400])[show.members.size],y:show.vip?-96:-125};
+  const positions=show.vip?[400,490,310,570,230]:[300,500,230,570,400];
+  const x=positions.find(position=>![...show.members.values()].some(member=>member.spot.x===position));
+  const spot={x,y:show.vip?-96:-125};
   const passer=seat?null:takePasser(gift.id);
   const origin=passer?.origin??gift.origin??entry;
   const route=stageRoute(seat,spot,origin);
@@ -1575,16 +1578,8 @@ function addPerformer(show,gift,seat){
   }
   actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
   positionActor(actor,route[0]);
-  const member={person,seat,spot,actor,origin,ready:false};
+  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier)};
   show.members.set(person.id,member);
-  if(show.members.size>1&&show.endsAt!==null){
-    const groupEnd=show.startedAt+showDuration;
-    if(groupEnd>show.endsAt){
-      show.endsAt=groupEnd;
-      clearTimeout(show.timer);
-      show.timer=setTimeout(()=>endShow(show),Math.max(0,groupEnd-performance.now()));
-    }
-  }
   if(seat){
     person.actor.setAttribute('visibility','hidden');
     const marker=group(seat.x,seat.y);
@@ -1598,56 +1593,67 @@ function addPerformer(show,gift,seat){
   member.arrival=walk(actor,route,1450,show.epoch,true).then(ok=>{
     if(!ok||activeShow!==show||show.ending)return;
     member.ready=true;
+    const now=performance.now();
+    member.endsAt=now+(gift.tier==='vip'||!show.free&&!show.idle?showDuration:15000);
+    show.endsAt=Math.max(show.endsAt??0,member.endsAt);
     actor.setAttribute('data-stage-motion',show.track.motion);
     actor.style.setProperty('--move-delay',(-.14*[...show.members.values()].indexOf(member))+'s');
-    if(show.endsAt===null){
-      show.startedAt=performance.now();
-      show.duration=show.vip||show.members.size>1?showDuration:show.free||show.preview?15000:showDuration;
-      show.endsAt=show.startedAt+show.duration;
+    if(!show.tick){
+      show.startedAt=now;
       if(show.track.motion==='dance')animateDance(show);
       setStage(true);
       playStageSound(show);
       show.tick=setInterval(()=>stageTick(show),250);
-      show.timer=setTimeout(()=>endShow(show),show.duration);
       status(show.idle?person.name+' mở màn '+(show.rap?'với một đoạn rap!':'trên sân khấu!'):show.free?'Tiết mục miễn phí bắt đầu!':'Tiết mục VIP bắt đầu!');
       stageTick(show);
     }
   });
 }
-async function endShow(show){
-  if(activeShow!==show||show.ending)return;
+async function returnPerformer(show,member){
+  if(member.returning)return;
+  member.returning=true;
+  member.ready=false;
+  await member.arrival;
+  if(activeShow!==show)return;
+  const {person,seat,spot,actor,origin}=member;
+  actor.querySelectorAll('.actor-body,.actor-stage-limbs path').forEach(part=>{
+    part.style.removeProperty('transform');
+    part.style.removeProperty('transform-origin');
+  });
+  for(const attribute of ['data-dance-spin','data-stage-motion','data-stage-lead']){
+    actor.removeAttribute(attribute);
+  }
+  const reserved=seat?.person===person?seat:null;
+  await walk(actor,stageRoute(reserved,spot,origin).reverse(),1450,show.epoch,true);
+  if(activeShow!==show)return;
+  actor.remove();
+  if(reserved?.person===person){
+    person.stageMarker?.remove();
+    delete person.stageMarker;
+    person.actor.removeAttribute('visibility');
+  }
+  show.members.delete(person.id);
+  if(!reserved&&!person.sample&&member.guestRequest){
+    join(person.name,person.avatar,person.gender);
+  }
+  if(!show.members.size)endShow(show);
+  else advanceStage();
+  advanceWaiting();
+  serve();
+}
+function endShow(show){
+  if(activeShow!==show||show.ending||show.members.size)return;
   show.ending=true;
   cancelAnimationFrame(show.danceFrame);
-  if(show.request&&show.endsAt===null&&!trackQueue.some(item=>item.id===show.request.id)){
-    trackQueue.unshift(show.request);
-  }
-  clearInterval(show.tick);clearTimeout(show.timer);
-  stopStageSound();setStage(false);
+  clearInterval(show.tick);
+  stopStageSound();
+  setStage(false);
   get('audience-dialogue').replaceChildren();
   get('stage-reactions').replaceChildren();
-  updateShowQueue();
-  status('Tiết mục kết thúc. Mời khách về bàn!');
-  await Promise.all([...show.members.values()].map(async member=>{
-    await member.arrival;
-    if(activeShow!==show)return;
-    const {person,seat,spot,actor,origin}=member;
-    actor.querySelectorAll('.actor-body,.actor-stage-limbs path').forEach(part=>{part.style.removeProperty('transform');part.style.removeProperty('transform-origin');});
-    actor.removeAttribute('data-dance-spin');
-    actor.removeAttribute('data-stage-motion');
-    actor.removeAttribute('data-stage-lead');
-    const reserved=seat?.person===person?seat:null;
-    if(!await walk(actor,stageRoute(reserved,spot,origin).reverse(),1450,show.epoch,true))return;
-    actor.remove();
-    if(seat?.person===person){
-      person.stageMarker?.remove();
-      delete person.stageMarker;
-      person.actor.removeAttribute('visibility');
-    }
-  }));
-  if(activeShow!==show)return;
   activeShow=null;
+  status('Tiết mục kết thúc. Mời khách về bàn!');
   updateShowQueue();
-  advanceStage();advanceWaiting();serve();
+  advanceStage();
 }
 function openShow(idle,rap=false,previewTrack,tier){
   clearTimeout(idleTimer);idleTimer=null;
@@ -1758,10 +1764,8 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,giftT
 }
 function advanceStage(){
   if(!stageQueue.length){armIdle();return;}
-  if(activeShow?.idle&&activeShow.endsAt===null){endShow(activeShow);return;}
   const show=activeShow;
   if(show&&(show.ending||show.members.size>=stageSlots.length))return;
-  if(show?.endsAt!=null&&show.endsAt-performance.now()<2500)return;
   while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
     const gift=stageQueue[0];
     if(activeShow&&(activeShow.members.has(gift.id)
@@ -1824,7 +1828,7 @@ function reset(showSamples=true){
   clearTimeout(idleTimer);idleTimer=null;lastIdleSinger=null;lastIdleFromRoad=false;
   if(activeShow){
     cancelAnimationFrame(activeShow.danceFrame);
-    clearInterval(activeShow.tick);clearTimeout(activeShow.timer);
+    clearInterval(activeShow.tick);
   }
   activeShow=null;stopStageSound();setStage(false);
   clearTimeout(liveNoticeTimer);
