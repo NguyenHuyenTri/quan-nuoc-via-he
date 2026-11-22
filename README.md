@@ -43,6 +43,12 @@ Khi một quà vượt nhiều mốc, quán ăn mừng mốc cao nhất và báo
 
 ## Chạy trên máy
 
+### Web local bằng Python trên Windows
+
+Cài Python 3, giải nén dự án rồi bấm đúp `Mo-game-PC.cmd`. Game mở tại `http://127.0.0.1:21315/`. Giữ cửa sổ lệnh mở trong lúc chơi và mở TikFinity Desktop trên cùng PC để nhận sự kiện LIVE. Máy chủ chỉ nhận kết nối trên PC này.
+
+### Các cách chạy khác
+
 Tải dự án rồi mở `index.html` để thử trên máy. Để nhận sự kiện trên iPhone cùng Wi-Fi, giữ TikFinity Desktop mở, chạy `Mo-game-iPhone.cmd` trên Windows rồi mở link được in ra trong Safari. Cầu nối cần Node.js 22 trở lên.
 
 Bản thử xử lý bình luận ngay trên trang và tự tạo khách mẫu đi hai chiều trên đường trước quầy. Để thử ảnh đại diện, điền tên và URL ảnh HTTPS rồi bấm **Thử khách ghé LIVE**. Dùng cùng tên để gửi **Vào bàn** hoặc thử tặng quà. Bạn có thể chọn kiểu nhân vật **Nam**, **Nữ** hoặc **Mặc định**. Tạo hình đi theo khách từ đường đến bàn và lên sân khấu. Nhân vật đang đi trước quầy sẽ rẽ từ vị trí hiện tại. Khách đã có bàn sẽ đi từ ghế của mình lên sân khấu. Bản giả lập nhận diện một người theo tên, bỏ qua chữ hoa, chữ thường và khoảng trắng thừa. Khi nối TikTok LIVE, nên dùng ID tài khoản để phân biệt những người khác nhau có cùng tên hiển thị.
