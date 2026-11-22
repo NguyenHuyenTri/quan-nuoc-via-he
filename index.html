@@ -212,6 +212,8 @@
 const NS='http://www.w3.org/2000/svg';
 document.getElementById('essential-controls').append(document.getElementById('enable-audio'),document.getElementById('demo-gift'));
 const get=id=>document.getElementById(id);
+const pcTestLayout=matchMedia('(min-width:781px)');
+const testingBesideScene=()=>Boolean(document.querySelector('meta[name="cafe-piper"]'))&&pcTestLayout.matches;
 const layers={back:get('back-seats'),front:get('front-seats'),backPeople:get('back-people'),frontPeople:get('front-people'),drinks:get('drinks'),walking:get('walking')};
 const points=[
   {x:370,y:279,back:true,drink:[381,298]},
@@ -1332,7 +1334,7 @@ function toastEffect(participants,tableX,quote){
   effects.querySelector('[data-toast-key="'+tableX+'-'+kind+'"]')?.remove();
   effects.append(effect);
   const bounds=impact.getBoundingClientRect();
-  if(!document.body.classList.contains('show-mode')&&(bounds.top<0||bounds.bottom>window.innerHeight)){
+  if(!testingBesideScene()&&!document.body.classList.contains('show-mode')&&(bounds.top<0||bounds.bottom>window.innerHeight)){
     impact.scrollIntoView({block:'center',behavior:reduce.matches?'instant':'smooth'});
   }
   const started=performance.now();
@@ -1996,7 +1998,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   sortStageQueue();
   updateShowQueue();
   status(name+(stageTest?' đăng ký lượt thử VIP.':tier==='free'?' đăng ký tiết mục miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
-  if(!fromLive&&tier==='vip'&&!document.body.classList.contains('show-mode')){
+  if(!fromLive&&tier==='vip'&&!testingBesideScene()&&!document.body.classList.contains('show-mode')){
     get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
   }
   advanceStage();advanceWaiting();

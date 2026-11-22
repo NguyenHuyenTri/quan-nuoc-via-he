@@ -587,3 +587,28 @@ body.show-mode {
 .busy-cafe [data-seated-guest]:not([data-vip]) .loyalty {
   visibility: hidden;
 }
+
+@media (min-width:781px) {
+  html:has(meta[name="cafe-piper"]) body:not(.show-mode) main {
+    max-width:1120px;
+  }
+
+  html:has(meta[name="cafe-piper"]) body:not(.show-mode) .layout {
+    grid-template-columns:minmax(0, 1fr) minmax(300px, 380px);
+  }
+
+  html:has(meta[name="cafe-piper"]) body:not(.show-mode) .scene {
+    position:sticky;
+    top:12px;
+    justify-self:center;
+    width:min(100%, max(320px, calc((100dvh - 90px) * 800 / 1422)));
+  }
+
+  html:has(meta[name="cafe-piper"]) body:not(.show-mode) .controls > div:first-child {
+    display:block;
+  }
+
+  html:has(meta[name="cafe-piper"]) body:not(.show-mode) #comment-form {
+    display:grid;
+  }
+}
