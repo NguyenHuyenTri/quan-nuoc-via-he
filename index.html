@@ -2037,8 +2037,7 @@ const liveCommandLabels=new Map([
 let liveNoticeTimer;
 let giftNoticeUntil=0;
 let giftBatch=null,giftBatchTimer;
-let lastGiftVoice=-Infinity,lastGiftEffect=-Infinity,lastTestEffect=-Infinity;
-const flowerCooldowns=new Map();
+let lastGiftVoice=-Infinity,lastGiftEffect=-Infinity;
 function queueGiftNotice(name,count,coins,giftName){
   if(!giftBatch){
     giftBatch={name,count:0,coins:0,single:true,giftName};
@@ -2094,17 +2093,28 @@ function replyToGuest(name,cmd){
   tell(line);
 }
 const testHearts=new Map();
+let flowerBatch=null,flowerBatchTimer;
 function showTestFlowers(name,count){
-  const id=key(name),now=performance.now();
-  if(now<giftNoticeUntil||giftBatch||now-lastTestEffect<5000||
-    now-(flowerCooldowns.get(id)??-Infinity)<15000)return;
-  lastTestEffect=now;
-  flowerCooldowns.delete(id);
-  flowerCooldowns.set(id,now);
-  if(flowerCooldowns.size>500)flowerCooldowns.delete(flowerCooldowns.keys().next().value);
-  celebrateStarGift(name,count,'🌹');
-  showLiveNotice('🌹 '+shortGuestName(name)+' · '+count+' hoa thử');
-  tellGift('Cảm ơn '+shortGuestName(name)+' đã tặng '+count+' bông hoa!');
+  if(!flowerBatch){
+    flowerBatch={name,id:key(name),count:0,single:true};
+    flowerBatchTimer=setTimeout(flushTestFlowers,3000);
+  }
+  flowerBatch.count+=count;
+  if(flowerBatch.id!==key(name))flowerBatch.single=false;
+}
+function flushTestFlowers(){
+  const now=performance.now();
+  const wait=Math.max(giftNoticeUntil-now,voiceOn?nextSpeechAt-now:0);
+  if(giftBatch||(voiceOn&&currentSpeech)||wait>0){
+    flowerBatchTimer=setTimeout(flushTestFlowers,Math.max(250,wait));
+    return;
+  }
+  const {name,count,single}=flowerBatch;
+  flowerBatch=null;
+  const label=single?shortGuestName(name):'Cả quán';
+  celebrateStarGift(single?name:label,count,'🌹');
+  showLiveNotice('🌹 '+label+' · Tổng '+count+' hoa thử',true);
+  tell('Cảm ơn '+(single?label:'mọi người')+' đã tặng tổng cộng '+count+' bông hoa!');
 }
 function addTestHearts(name,count=1){
   if(!Number.isSafeInteger(count)||count<1)return;
@@ -2147,11 +2157,12 @@ function submit(name,value,avatar,gender,live=false){
 }
 function reset(showSamples=true){
   testHearts.clear();
-  flowerCooldowns.clear();
+  clearTimeout(flowerBatchTimer);
+  flowerBatch=null;
   clearTimeout(giftBatchTimer);
   giftBatch=null;
   giftNoticeUntil=0;
-  lastGiftVoice=lastGiftEffect=lastTestEffect=-Infinity;
+  lastGiftVoice=lastGiftEffect=-Infinity;
   clearTimeout(goalNoticeTimer);
   pendingGoalTrack=undefined;
   stopHostSpeech();
