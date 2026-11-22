@@ -1515,38 +1515,42 @@ function setStage(active){
   }
   get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
-const speechQueue=[];
-function speakVietnamese(text,rate,queue=true){
+const speechGap=8000;
+let nextSpeechAt=0,speechTimeout;
+function stopHostSpeech(){
+  clearTimeout(speechTimeout);
+  if(currentSpeech){
+    currentSpeech=null;
+    nextSpeechAt=performance.now()+speechGap;
+    window.speechSynthesis?.cancel();
+  }
+}
+function speakVietnamese(text,rate,manual=false){
+  if(!voiceOn||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return;
   const speech=window.speechSynthesis;
-  const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
   if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
+  const voice=speech.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
   const utterance=new SpeechSynthesisUtterance(text);
   if(voice)utterance.voice=voice;
   utterance.lang='vi-VN';
   utterance.rate=rate;
-  if(currentSpeech){
-    if(queue&&speechQueue.length<8)speechQueue.push({text,rate});
-    return undefined;
-  }
   currentSpeech=utterance;
   const finish=()=>{
-    clearTimeout(timeout);
-    if(currentSpeech!==utterance)return;
+    if(currentSpeech!==utterance)return false;
+    clearTimeout(speechTimeout);
     currentSpeech=null;
-    const next=speechQueue.shift();
-    if(next)setTimeout(()=>{if(voiceOn)speakVietnamese(next.text,next.rate);},0);
+    nextSpeechAt=performance.now()+speechGap;
     if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
+    return true;
   };
-  const timeout=setTimeout(()=>{
-    if(currentSpeech!==utterance)return;
-    finish();
+  speechTimeout=setTimeout(()=>{
+    if(!finish())return;
     speech.cancel();
     status('Trình duyệt chưa phát được giọng chủ quán. Bấm tắt rồi bật giọng để thử lại.');
   },15000);
   utterance.onend=finish;
   utterance.onerror=event=>{
-    finish();
-    if(event.error!=='canceled'&&event.error!=='interrupted'){
+    if(finish()&&event.error!=='canceled'&&event.error!=='interrupted'){
       status('Trình duyệt báo lỗi giọng chủ quán: '+event.error);
     }
   };
@@ -1723,7 +1727,7 @@ function stageTick(show){
     const {verses}=show.track;
     if(show.track.motion!=='dance'&&voiceOn){
       const lyric=verses[show.verseIndex%verses.length];
-      speakVietnamese(lyric,show.rap?1.18:.95,false);
+      speakVietnamese(lyric,show.rap?1.18:.95);
     }
     show.verseIndex++;
     show.nextVerse=performance.now()+(show.rap?3900:4600);
@@ -2124,7 +2128,7 @@ function reset(showSamples=true){
   lastGiftVoice=lastGiftEffect=lastTestEffect=-Infinity;
   clearTimeout(goalNoticeTimer);
   pendingGoalTrack=undefined;
-  speechQueue.length=0;
+  stopHostSpeech();
   owed.clear();
   epoch++;tableDeliveries.clear();
   seats.forEach(seat=>{delete seat.tableReady;seat.stool?.parentNode.removeAttribute('visibility');});
@@ -2273,13 +2277,11 @@ get('voice-toggle').onclick=()=>{
   button.textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';
   if(voiceOn){
     window.speechSynthesis?.resume();
-    const spoken=speakVietnamese('Quán mở cửa rồi!',1);
+    const spoken=speakVietnamese('Quán mở cửa rồi!',1,true);
     if(spoken===null)tell('Thiết bị chưa phát được giọng chủ quán.',false);
     primeAudio();
   }else{
-    speechQueue.length=0;
-    currentSpeech=null;
-    window.speechSynthesis?.cancel();
+    stopHostSpeech();
   }
 };
 window.addEventListener('quannuoc:comment',event=>{
