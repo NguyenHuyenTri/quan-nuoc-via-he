@@ -2,11 +2,60 @@
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from threading import Timer
+from subprocess import DEVNULL, TimeoutExpired, run
+from tempfile import TemporaryDirectory
+from threading import BoundedSemaphore, Timer
+from urllib.parse import parse_qs, urlsplit
+import os
+import sys
 import webbrowser
 
 
 class CafeHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        request = urlsplit(self.path)
+        if request.path in ("/", "/index.html"):
+            page = (ROOT / "index.html").read_bytes().replace(
+                b"</head>", b'<meta name="cafe-piper" content="1"></head>', 1)
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(page)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(page)
+            return
+        if request.path != "/host-voice":
+            return super().do_GET()
+        if self.headers.get("Host") not in {f"{HOST}:{PORT}", f"localhost:{PORT}"} or self.headers.get("Sec-Fetch-Site") == "cross-site":
+            return self.send_error(403)
+        text = parse_qs(request.query).get("text", [""])[0].strip()
+        if not text or len(text) > 300 or "\x00" in text:
+            return self.send_error(400)
+        if not MODEL.is_file() or not MODEL.with_suffix(".onnx.json").is_file():
+            return self.send_error(503, "Vietnamese Piper model missing")
+        if not VOICE_SLOT.acquire(blocking=False):
+            return self.send_error(429)
+        try:
+            with TemporaryDirectory() as directory:
+                output = Path(directory) / "voice.wav"
+                python = ["py", "-3.12"] if os.name == "nt" and sys.version_info[:2] != (3, 12) else [sys.executable]
+                result = run([*python, "-m", "piper", "-m", str(MODEL),
+                              "-f", str(output), "--", text],
+                             stdout=DEVNULL, timeout=12)
+                if result.returncode or not output.is_file():
+                    return self.send_error(503, "Piper unavailable")
+                wave = output.read_bytes()
+        except (OSError, TimeoutExpired):
+            return self.send_error(503, "Piper unavailable")
+        finally:
+            VOICE_SLOT.release()
+        self.send_response(200)
+        self.send_header("Content-Type", "audio/wav")
+        self.send_header("Content-Length", str(len(wave)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(wave)
+
     def translate_path(self, path):
         resolved = Path(super().translate_path(path)).resolve()
         if resolved.parent == ROOT and resolved.name in {"index.html", "styles.css"}:
@@ -17,6 +66,8 @@ class CafeHandler(SimpleHTTPRequestHandler):
 
 
 ROOT = Path(__file__).resolve().parent
+MODEL = ROOT / "vi_VN-vais1000-medium.onnx"
+VOICE_SLOT = BoundedSemaphore(1)
 HOST, PORT = "127.0.0.1", 21315
 
 

@@ -1516,22 +1516,45 @@ function setStage(active){
   get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
 const speechGap=8000;
+const piperAudio=document.querySelector('meta[name="cafe-piper"]')?new Audio():null;
+function speakWithPiper(text,rate){
+  const request={};
+  currentSpeech=request;
+  const finish=(failed=false)=>{
+    if(currentSpeech!==request)return;
+    stopHostSpeech();
+    if(failed)status('Không phát được giọng Piper. Kiểm tra Python 3.12 và model vais1000 trong thư mục game.');
+  };
+  piperAudio.onended=()=>finish();
+  piperAudio.onerror=()=>finish(true);
+  piperAudio.src='./host-voice?'+new URLSearchParams({text});
+  piperAudio.playbackRate=rate;
+  speechTimeout=setTimeout(()=>finish(true),30000);
+  piperAudio.play().catch(()=>finish(true));
+}
+
 let nextSpeechAt=0,speechTimeout;
 function stopHostSpeech(){
   clearTimeout(speechTimeout);
   if(currentSpeech){
     currentSpeech=null;
     nextSpeechAt=performance.now()+speechGap;
-    window.speechSynthesis?.cancel();
+    if(piperAudio){
+      piperAudio.pause();
+      piperAudio.removeAttribute('src');
+      piperAudio.load();
+    }else window.speechSynthesis?.cancel();
   }
 }
 function speakVietnamese(text,rate,manual=false){
   if(!voiceOn||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return;
+  if(piperAudio)return speakWithPiper(text,rate);
   const speech=window.speechSynthesis;
   if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
   const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
+  if(!voice)return null;
   const utterance=new SpeechSynthesisUtterance(text);
-  if(voice)utterance.voice=voice;
+  utterance.voice=voice;
   utterance.lang='vi-VN';
   utterance.rate=rate;
   currentSpeech=utterance;
@@ -2276,7 +2299,7 @@ get('voice-toggle').onclick=()=>{
   button.setAttribute('aria-pressed',String(voiceOn));
   button.textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';
   if(voiceOn){
-    window.speechSynthesis?.resume();
+    if(!piperAudio)window.speechSynthesis?.resume();
     if(speakVietnamese('Quán mở cửa rồi!',1,true)===null){
       voiceOn=false;
       button.setAttribute('aria-pressed','false');
