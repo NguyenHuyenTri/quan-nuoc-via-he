@@ -267,7 +267,7 @@ function connectLiveTest(){
       if(socket!==connection||!enabled)return;
       socket=null;
       connection.close();
-      showLiveNotice('TikFinity mất kết nối · Đang thử lại');
+      showLiveNotice('TikFinity mất kết nối · Đang thử lại',true);
       note.textContent='Mất kết nối với TikFinity Desktop · thử lại sau '+delay/1000+' giây.';
       timer=setTimeout(connect,delay);
       delay=Math.min(15000,delay*2);
@@ -512,7 +512,7 @@ function reachGoals(total){
   goalNoticeTimer=setTimeout(()=>{
     if(session!==epoch)return;
     const message='Vượt mốc '+formatCoins(reached)+' xu · '+reward.title;
-    showLiveNotice('🏆 '+message);
+    showLiveNotice('🏆 '+message,true);
     tell(message+'. Mốc kế '+formatCoins(following)+' xu: '+goalReward(following).title+'.');
   },2200);
 }
@@ -1902,8 +1902,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   if(fromLive)touchGuest(id);
   if(fromLive){
     const safeGiftName=typeof giftName==='string'?giftName.trim().slice(0,30):'';
-    showLiveNotice('🎁 '+shortGuestName(name)+' · '+(safeGiftName||'tặng quà')+
-      (count>1?' ×'+count:'')+' · '+formatCoins(unitCoins*count)+' xu');
+    queueGiftNotice(name,count,unitCoins*count,safeGiftName);
   }
   if(tier==='vip'&&!stageTest){
     const previous=vipProfiles.get(id);
@@ -1926,19 +1925,24 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     daily.set(id,{...daily.get(id),name,coins:(daily.get(id)?.coins||0)+unitCoins*amount});saveLedger();
     const total=board();loyalty(name,1);
     if(total>=nextGoal(before))reachGoals(total);
-    if(unitCoins>=10000)celebrateStarGift(name,unitCoins*amount);
+    const now=performance.now();
+    const giftEffect=now-lastGiftEffect>=6000;
+    if(unitCoins>=10000&&giftEffect){
+      lastGiftEffect=now;
+      celebrateStarGift(name,unitCoins*amount);
+    }
     const short=shortGuestName(name);
     if(level==='small'){
       const own=seated(name,true),available=seats.filter(s=>s.person?.state==='seated'&&s.person.id!==id&&s.tableX!==own?.tableX);
       if(own)available.sort((a,b)=>Math.abs(tableCenters.indexOf(a.tableX)-tableCenters.indexOf(own.tableX))-Math.abs(tableCenters.indexOf(b.tableX)-tableCenters.indexOf(own.tableX)));
-      const target=available[0];if(target){offer(target.person.name,drinks['tra da']);tell(short+' mời '+shortGuestName(target.person.name)+' một ly trà đá!');}
-      else tell('Cảm ơn '+short+'! Bàn bên đang trống.');return;
+      const target=available[0];if(target){offer(target.person.name,drinks['tra da']);tellGift(short+' mời '+shortGuestName(target.person.name)+' một ly trà đá!');}
+      else tellGift('Cảm ơn '+short+'! Bàn bên đang trống.');return;
     }
     if(level==='medium'){
-      if(!chooseReward(name,choice)){choices.set(id,(choices.get(id)||0)+amount);tell(short+' ơi, chọn rap, chill, rock, trà đá, cà phê hoặc mía lau nhé!');}return;
+      if(!chooseReward(name,choice)){choices.set(id,(choices.get(id)||0)+amount);tellGift(short+' ơi, chọn rap, chill, rock, trà đá, cà phê hoặc mía lau nhé!');}return;
     }
-    if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));party();ding([523,659,784,1047]);tell('Cả quán hô nào! '+short+' bao cả quán!');return;}
-    tell(short+' đã mở lượt biểu diễn VIP!');
+    if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));if(giftEffect){lastGiftEffect=now;party();ding([523,659,784,1047]);}tellGift('Cả quán hô nào! '+short+' bao cả quán!');return;}
+    tellGift(short+' đã mở lượt biểu diễn VIP!');
   }
   if(onStage(id))return;
   const existing=stageQueue.find(item=>item.id===id);
@@ -2002,7 +2006,36 @@ const liveCommandLabels=new Map([
   ['nhay','nhảy'], ['len nhay','lên nhảy']
 ]);
 let liveNoticeTimer;
-function showLiveNotice(message){
+let giftNoticeUntil=0;
+let giftBatch=null,giftBatchTimer;
+let lastGiftVoice=-Infinity,lastGiftEffect=-Infinity,lastTestEffect=-Infinity;
+const flowerCooldowns=new Map();
+function queueGiftNotice(name,count,coins,giftName){
+  if(!giftBatch){
+    giftBatch={name,count:0,coins:0,single:true,giftName};
+    giftBatchTimer=setTimeout(()=>{
+      const batch=giftBatch;
+      giftBatch=null;
+      const caption=batch.single?shortGuestName(batch.name):'Cả quán';
+      const label=batch.single&&batch.giftName?batch.giftName:'quà';
+      showLiveNotice('🎁 '+caption+' · '+batch.count+' '+label+' · '+formatCoins(batch.coins)+' xu',true);
+    },2500);
+  }
+  if(giftBatch.name!==name)giftBatch.single=false;
+  if(giftBatch.giftName!==giftName)giftBatch.giftName='';
+  giftBatch.count+=count;
+  giftBatch.coins+=coins;
+}
+function tellGift(message){
+  const now=performance.now();
+  const speak=now-lastGiftVoice>=6000;
+  if(speak)lastGiftVoice=now;
+  tell(message,speak);
+}
+function showLiveNotice(message,gift=false){
+  const now=performance.now();
+  if(!gift&&now<giftNoticeUntil)return;
+  if(gift)giftNoticeUntil=now+4000;
   fitBoardText(get('live-stage-message'),message,624);
   const notice=get('live-stage-notice');
   notice.setAttribute('visibility','visible');
@@ -2033,6 +2066,13 @@ function replyToGuest(name,cmd){
 }
 const testHearts=new Map();
 function showTestFlowers(name,count){
+  const id=key(name),now=performance.now();
+  if(now<giftNoticeUntil||giftBatch||now-lastTestEffect<5000||
+    now-(flowerCooldowns.get(id)??-Infinity)<15000)return;
+  lastTestEffect=now;
+  flowerCooldowns.delete(id);
+  flowerCooldowns.set(id,now);
+  if(flowerCooldowns.size>500)flowerCooldowns.delete(flowerCooldowns.keys().next().value);
   celebrateStarGift(name,count,'🌹');
   showLiveNotice('🌹 '+shortGuestName(name)+' · '+count+' hoa thử');
 }
@@ -2077,6 +2117,11 @@ function submit(name,value,avatar,gender,live=false){
 }
 function reset(showSamples=true){
   testHearts.clear();
+  flowerCooldowns.clear();
+  clearTimeout(giftBatchTimer);
+  giftBatch=null;
+  giftNoticeUntil=0;
+  lastGiftVoice=lastGiftEffect=lastTestEffect=-Infinity;
   clearTimeout(goalNoticeTimer);
   pendingGoalTrack=undefined;
   speechQueue.length=0;
