@@ -1529,9 +1529,11 @@ function speakVietnamese(text,rate,manual=false){
   if(!voiceOn||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return;
   const speech=window.speechSynthesis;
   if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
-  const voice=speech.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
+  const voices=speech.getVoices();
+  const voice=voices.find(item=>/^vi[-_]vn$/i.test(item.lang))??voices.find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
+  if(!voice)return null;
   const utterance=new SpeechSynthesisUtterance(text);
-  if(voice)utterance.voice=voice;
+  utterance.voice=voice;
   utterance.lang='vi-VN';
   utterance.rate=rate;
   currentSpeech=utterance;
@@ -2278,7 +2280,12 @@ get('voice-toggle').onclick=()=>{
   if(voiceOn){
     window.speechSynthesis?.resume();
     const spoken=speakVietnamese('Quán mở cửa rồi!',1,true);
-    if(spoken===null)tell('Thiết bị chưa phát được giọng chủ quán.',false);
+    if(spoken===null){
+      voiceOn=false;
+      button.setAttribute('aria-pressed','false');
+      button.textContent='Bật giọng chủ quán';
+      tell('Trình duyệt chưa có giọng tiếng Việt. Quán sẽ hiện lời bằng chữ.',false);
+    }
     primeAudio();
   }else{
     stopHostSpeech();
