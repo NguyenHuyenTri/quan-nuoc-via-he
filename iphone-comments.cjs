@@ -50,7 +50,8 @@ function listenForComments(res) {
     if (closed || typeof data !== 'string') return;
     let packet;
     try { packet = JSON.parse(data); } catch { return; }
-    if (packet?.event !== 'like' && (packet?.event !== 'chat' || typeof packet.data?.comment !== 'string')) return;
+    if (!['chat','like','member','gift','leave'].includes(packet?.event)) return;
+    if (packet.event === 'chat' && typeof packet.data?.comment !== 'string') return;
     res.write('data: ' + JSON.stringify(packet) + '\n\n');
     if (res.writableLength > 262144) close();
   });

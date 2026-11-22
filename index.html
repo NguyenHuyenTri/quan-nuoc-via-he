@@ -98,8 +98,9 @@
 <path d="M402 535l-12-7" stroke="#eee0cf" stroke-width="8" stroke-linecap="round"/>
 <g id="stage-notes" visibility="hidden" fill="#ffd393" font-size="35" font-weight="800" aria-hidden="true"><text x="340" y="450">♪</text><text x="452" y="431">♫</text><text x="490" y="474">♪</text></g>
 <g id="stage-caption" visibility="hidden" aria-hidden="true">
-  <rect x="139" y="98" width="522" height="46" rx="13" fill="#14232c" fill-opacity=".94" stroke="#deaf75"/>
-  <text id="stage-track" x="160" y="128" fill="#fff1c8" font-size="23" font-weight="800"></text>
+  <rect x="139" y="98" width="522" height="65" rx="13" fill="#14232c" fill-opacity=".94" stroke="#deaf75"/>
+  <text id="stage-track" x="160" y="124" fill="#fff1c8" font-size="23" font-weight="800"></text>
+  <text id="stage-names" x="160" y="149" fill="#ffe29c" font-size="19"></text>
 </g>
 <g transform="translate(0 690)">
 <rect width="800" height="732" fill="url(#yard)"/>
@@ -149,6 +150,7 @@
   <text id="live-stage-message" x="400" y="65" text-anchor="middle" fill="#fff1c8" font-size="25" font-weight="750"></text>
 </g>
 <g id="star-gift" pointer-events="none"></g>
+<g id="stage-queue-led" visibility="hidden" pointer-events="none"><rect x="20" y="180" width="360" height="112" rx="10" fill="#102125" fill-opacity=".96" stroke="#e6bb70"/><text x="33" y="201" fill="#ffe29c" font-size="16">HÀNG CHỜ</text><text id="queue-led-0" x="33" y="222" fill="#fff5d6" font-size="15"></text><text id="queue-led-1" x="33" y="241" fill="#fff5d6" font-size="15"></text><text id="queue-led-2" x="33" y="260" fill="#fff5d6" font-size="15"></text><text id="queue-led-3" x="33" y="279" fill="#fff5d6" font-size="15"></text></g>
 </svg>
 
 </section>
@@ -176,7 +178,7 @@
 </div>
 </form>
 <div class="grid-buttons" aria-label="Lệnh nhanh">
-<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="RỜI BÀN">Rời bàn</button><button type="button" data-command="VỖ TAY">Vỗ tay</button><button type="button" data-command="THẢ TIM">Thả tim</button><button type="button" id="enable-audio">Bật nhạc cho quán</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử quà VIP</button>
+<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="VỖ TAY">Vỗ tay</button><button type="button" data-command="THẢ TIM">Thả tim</button><button type="button" id="enable-audio">Bật nhạc cho quán</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử quà VIP</button>
 </div>
 
 <div class="grid-buttons" aria-label="Thử mở rộng quán">
@@ -194,7 +196,7 @@
   <button type="button" data-command="CHILL">Chill</button>
   <button type="button" data-command="RAP">Rap</button>
   <button type="button" data-command="ROCK">Rock</button>
-  <button type="button" id="demo-dance">Nhảy miễn phí · 15 giây</button>
+  <button type="button" id="demo-dance">Nhảy miễn phí · 30 giây</button>
 </fieldset>
 
 <div id="queue" class="queue"></div>
@@ -204,7 +206,7 @@
 </div>
 <p class="legend">Dùng các nút bên trên để thử tương tác trong quán.</p>
 </main>
-<button type="button" id="exit-show-mode" hidden>Thoát khung phát</button>
+
 <script>
 (() => {
 const NS='http://www.w3.org/2000/svg';
@@ -279,12 +281,14 @@ function connectLiveTest(){
       let packet;
       try{packet=JSON.parse(raw);}catch{return;}
       const data=packet?.data;
-      if(!data||!['chat','member','gift','like'].includes(packet.event))return;
+      if(!data||!['chat','member','gift','like','leave'].includes(packet.event))return;
       const handle=data.uniqueId||data.user?.uniqueId;
       if(typeof handle!=='string'||!handle.trim())return;
       const name='@'+handle.trim(),nick=data.nickname||data.user?.nickname||data.user?.nickName;
       if(typeof nick==='string'&&nick.trim())liveNames.set(key(name),nick.trim());
       const detail={name,avatarUrl:data.profilePictureUrl||data.user?.profilePictureUrl};
+      if(packet.event==='leave'){guestDeparted(name);return;}
+      touchGuest(key(name));
       if(packet.event==='chat'){
         if(typeof data.comment!=='string')return;
         detail.comment=data.comment;
@@ -432,7 +436,6 @@ function guestRoute(seat,origin=entry){
 }
 const queue=[],orders=[],bills=[],stageQueue=[],trackQueue=[];
 const seenGifts=new Set(savedVip.events.filter(value=>typeof value==='string').slice(-300));
-const minSeatTime=60000;
 let seatTimer=null;
 let running=false,epoch=0,audio=null;
 const rapperName='Hái Thứ Hiêu';
@@ -568,14 +571,14 @@ function status(message){
 }
 function info(){
   const samples=seats.filter(s=>s.person?.sample).length;
-  const free=seats.filter(s=>!s.person).length;
+  const free=seats.filter(s=>!s.person&&!s.reservedFor).length;
   get('quang-canh').classList.toggle('busy-cafe',seats.length-free>=36);
   const availability=free?free+' ghế trống':'Quán đã đầy';
   get('seat-count').textContent=availability+(samples?' · '+samples+' khách mẫu':'');
   get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
   updateShowQueue();
 }
-const counterTips=['vào bàn','cụng ly','rap','chill','rock','rời bàn'];
+const counterTips=['vào bàn','cụng ly','rap','chill','rock','ghé'];
 let counterTip=0,counterTimer=null;
 function counterTalk(message){
   const line=get('counter-line');
@@ -957,7 +960,7 @@ function seedSampleGuests(){
   info();
   serve();
 }
-function takeSeat(guest,seat){
+function takeSeat(guest,seat,atSeat=false){
   const session=epoch;
   const passer=takePasser(guest.id);
   const color=passer?.color??colors[seat.index];
@@ -967,7 +970,7 @@ function takeSeat(guest,seat){
   if(passer&&actor!==passer.actor)passer.actor.remove();
   const person={...guest,color,avatar,gender,state:'entering',actor,cup:null,total:0};
   const route=guestRoute(seat,passer?.origin??guest.origin??entry);
-  positionActor(person.actor,route[0]);
+  positionActor(person.actor,atSeat?seat:route[0]);
   tableToasts.delete(seat.tableX);
   seat.person=person;info();
   layers.walking.append(person.actor);
@@ -980,7 +983,7 @@ function takeSeat(guest,seat){
       person.actor.removeAttribute('visibility');
     }
     const arrivalRoute=guestRoute(seat,passer?.origin??guest.origin??entry);
-    if(!await walk(person.actor,arrivalRoute,1450,session))return;
+    if(!atSeat&&!await walk(person.actor,arrivalRoute,1450,session))return;
     if(seat.person!==person||person.state!=='entering')return;
     wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(3px)'},{transform:'translateY(0)'}],380);
     person.actor.remove();
@@ -988,6 +991,7 @@ function takeSeat(guest,seat){
     const seatedBody=person.actor.querySelector('.actor-body');
     wiggle(seatedBody,[{transform:'translate(0,-5px)'},{transform:'translate(0,7px)'},{transform:'translate(0,6px)'}],360);
     person.state='seated';person.seatedAt=performance.now();
+    if(departedGuests.has(person.id)){void leave(person.name,true);return;}
     if(owed.has(person.id)){offer(person.name,owed.get(person.id));owed.delete(person.id);}board();
     status(guest.name+' đã ngồi vào bàn. Quán sẽ mang nước ra nha!');
     serve();
@@ -1019,8 +1023,8 @@ function join(name,avatar,gender){
   const id=key(name);
   const viewer=passers.get(id);
   const guest={id,name:viewer?.name??name,avatar:viewer?.avatar||avatar,gender:gender||viewer?.gender,origin:roadSnapshot(id)};
-  if(!seats.some(s=>!s.person))addDiningTable();
-  const free=seats.find(s=>!s.person);
+  if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
+  const free=seats.find(s=>!s.person&&!s.reservedFor);
   if(free&&!queue.length)return takeSeat(guest,free);
   queue.push(guest);info();
   status('Đã đủ 30 bàn · '+name+' chờ ghế số '+queue.length+'.');
@@ -1029,11 +1033,43 @@ function join(name,avatar,gender){
 function advanceWaiting(){
   clearTimeout(seatTimer);seatTimer=null;
   while(queue.length&&!onStage(queue[0].id)){
-    const free=seats.find(s=>!s.person);
-    if(!free){if(!addDiningTable())break;continue;}
+    const free=seats.find(s=>!s.person&&!s.reservedFor);
+    if(!free){if(!addDiningTable()){scheduleSeatTurn();break;}continue;}
     takeSeat(queue.shift(),free);
   }
 
+}
+const guestActivity=new Map(),departedGuests=new Set();
+const minSeatTime=600000;
+function touchGuest(id){
+  departedGuests.delete(id);
+  guestActivity.delete(id);
+  guestActivity.set(id,performance.now());
+  if(guestActivity.size>2000)guestActivity.delete(guestActivity.keys().next().value);
+}
+function scheduleSeatTurn(){
+  if(seats.some(seat=>seat.person?.state==='leaving'))return;
+  const candidates=seats.map(seat=>seat.person).filter(person=>person?.state==='seated'&&!onStage(person.id));
+  const sample=candidates.find(person=>person.sample);
+  if(sample){void leave(sample.name,true);return;}
+  const now=performance.now();
+  const eligible=candidates.filter(person=>now-person.seatedAt>=minSeatTime)
+    .sort((a,b)=>(guestActivity.get(a.id)??a.seatedAt)-(guestActivity.get(b.id)??b.seatedAt));
+  if(eligible.length){void leave(eligible[0].name,true);return;}
+  const next=Math.min(...candidates.map(person=>person.seatedAt+minSeatTime));
+  if(Number.isFinite(next))seatTimer=setTimeout(advanceWaiting,Math.max(1,next-now));
+}
+function guestDeparted(name){
+  const id=key(name);
+  departedGuests.add(id);
+  if(departedGuests.size>2000)departedGuests.delete(departedGuests.values().next().value);
+  const waiting=stageQueue.findIndex(item=>item.id===id);
+  if(waiting>=0)stageQueue.splice(waiting,1);
+  const seat=seated(name,true);
+  takePasser(id)?.actor.remove();
+  if(!onStage(id)&&(seat?.person.state==='seated'||queue.some(item=>item.id===id)))void leave(name,true);
+  updateShowQueue();
+  advanceStage();
 }
 async function leave(name,makeRoom=false){
   const session=epoch, seat=seated(name,makeRoom);
@@ -1296,7 +1332,9 @@ function cheers(name){
   toastEffect([seat,other],seat.tableX);
   status(name+' cụng ly với '+other.person.name+'! '+ready.size+'/'+table.length+' khách cùng bàn đã hô.');
 }
-const showDuration=60000;
+const regularShowDuration=30000, vipShowDuration=180000;
+const maxStageQueue=10;
+let stageOrder=0;
 const stageSlots=[382,474,290,552,212];
 const stageVerses=[
   'Một, hai, ba, sao nè!', 'Lên sân khấu, hát cùng nhau.',
@@ -1326,6 +1364,15 @@ const stageTracks={
       'Cười lên nào, mai mình lại gặp!']}
 };
 function updateShowQueue(){
+  const ready=[...(activeShow?.members.values()??[])].filter(member=>member.ready);
+  fitBoardText(get('stage-names'),ready.map(member=>shortGuestName(member.person.name)+(member.tier==='vip'?' ♛':'')).join(' · '),480);
+  get('stage-queue-led').setAttribute('visibility',stageQueue.length?'visible':'hidden');
+  for(let i=0;i<3;i++){
+    const item=stageQueue[i],genre=item?.previewTrack??'rock';
+    const label=item?(i+1)+'. '+shortGuestName(item.name)+(item.tier==='vip'?' ♛':'')+' · '+genre.toUpperCase()+' · '+stageTracks[genre].title+' · '+(item.tier==='vip'?'3 phút':'30 giây'):'';
+    fitBoardText(get('queue-led-'+i),label,333);
+  }
+  get('queue-led-3').textContent=stageQueue.length>3?'+'+(stageQueue.length-3)+' lượt chờ':'';
   const messages=[];
   if(activeShow&&!activeShow.ending)messages.push(activeShow.track.title);
   if(stageQueue.length)messages.push(stageQueue.length+' khách chờ hát');
@@ -1394,7 +1441,8 @@ function setStage(active){
   }
   get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
 }
-function speakVietnamese(text,rate){
+const speechQueue=[];
+function speakVietnamese(text,rate,queue=true){
   const speech=window.speechSynthesis;
   const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
   if(!voice||typeof SpeechSynthesisUtterance==='undefined')return null;
@@ -1402,11 +1450,16 @@ function speakVietnamese(text,rate){
   utterance.voice=voice;
   utterance.lang='vi-VN';
   utterance.rate=rate;
-  if(currentSpeech||speech.speaking||speech.pending)return undefined;
+  if(currentSpeech||speech.speaking||speech.pending){
+    if(queue&&speechQueue.length<8)speechQueue.push({text,rate});
+    return undefined;
+  }
   currentSpeech=utterance;
   const finish=()=>{
     if(currentSpeech!==utterance)return;
     currentSpeech=null;
+    const next=speechQueue.shift();
+    if(next)setTimeout(()=>speakVietnamese(next.text,next.rate),0);
     if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
   };
   utterance.onend=finish;
@@ -1577,19 +1630,14 @@ function stageTick(show){
     const {verses}=show.track;
     if(show.track.motion!=='dance'&&voiceOn){
       const lyric=verses[show.verseIndex%verses.length];
-      speakVietnamese(lyric,show.rap?1.18:.95);
+      speakVietnamese(lyric,show.rap?1.18:.95,false);
     }
     show.verseIndex++;
     show.nextVerse=performance.now()+(show.rap?3900:4600);
     cheerStage();
   }
-  const lead=ready.find(member=>member.person.name===show.lead)??ready[0];
-  const crown=lead?.actor.hasAttribute('data-vip')?'♛ ':'';
-  const action=show.track.motion==='dance'?'lên nhảy':'lên hát';
-  const title=performance.now()-show.startedAt<3000?action:show.track.title;
-  const label=lead?crown+shortGuestName(lead.person.name)+' · '+title:show.track.title;
-  fitBoardText(get('stage-track'),label,480);
-  get('stage-track').setAttribute('fill',crown?'#ffd085':'#fff1c8');
+  const genre=Object.keys(stageTracks).find(key=>stageTracks[key]===show.track);
+  fitBoardText(get('stage-track'),'ĐANG PHÁT · '+genre.toUpperCase()+' · '+show.track.title,480);
 }
 function stageRoute(seat,spot,origin=entry){
   const aisle=seat?.aisleX??309;
@@ -1618,7 +1666,13 @@ function addPerformer(show,gift,seat){
   }
   actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
   positionActor(actor,route[0]);
-  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier)};
+  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier};
+  if(!seat&&member.guestRequest&&!queue.length){
+    if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
+    member.returnSeat=seats.find(s=>!s.person&&!s.reservedFor);
+    if(member.returnSeat)member.returnSeat.reservedFor=person.id;
+    info();
+  }
   show.members.set(person.id,member);
   if(seat){
     person.actor.setAttribute('visibility','hidden');
@@ -1633,8 +1687,9 @@ function addPerformer(show,gift,seat){
   member.arrival=walk(actor,route,1450,show.epoch,true).then(ok=>{
     if(!ok||activeShow!==show||show.ending)return;
     member.ready=true;
+    updateShowQueue();
     const now=performance.now();
-    member.endsAt=now+(gift.tier==='vip'||!show.free&&!show.idle?showDuration:15000);
+    member.endsAt=now+(gift.tier==='vip'?vipShowDuration:regularShowDuration);
     show.endsAt=Math.max(show.endsAt??0,member.endsAt);
     actor.setAttribute('data-stage-motion',show.track.motion);
     actor.style.setProperty('--move-delay',(-.14*[...show.members.values()].indexOf(member))+'s');
@@ -1653,6 +1708,7 @@ async function returnPerformer(show,member){
   if(member.returning)return;
   member.returning=true;
   member.ready=false;
+  updateShowQueue();
   await member.arrival;
   if(activeShow!==show)return;
   const {person,seat,spot,actor,origin}=member;
@@ -1664,7 +1720,8 @@ async function returnPerformer(show,member){
     actor.removeAttribute(attribute);
   }
   const reserved=seat?.person===person?seat:null;
-  await walk(actor,stageRoute(reserved,spot,origin).reverse(),1450,show.epoch,true);
+  const destination=departedGuests.has(person.id)?null:reserved??member.returnSeat;
+  await walk(actor,stageRoute(destination,spot,origin).reverse(),1450,show.epoch,true);
   if(activeShow!==show)return;
   actor.remove();
   if(reserved?.person===person){
@@ -1673,9 +1730,16 @@ async function returnPerformer(show,member){
     person.actor.removeAttribute('visibility');
   }
   show.members.delete(person.id);
-  if(!reserved&&!person.sample&&member.guestRequest){
-    join(person.name,person.avatar,person.gender);
+  if(member.returnSeat)delete member.returnSeat.reservedFor;
+  if(departedGuests.has(person.id)){
+    if(reserved)void leave(person.name,true);
+    else if(queue.some(item=>item.id===person.id))void leave(person.name,true);
+  }else if(!reserved&&member.guestRequest){
+    const returnSeat=member.returnSeat;
+    if(returnSeat&&!returnSeat.person)takeSeat(person,returnSeat,destination===returnSeat);
+    else join(person.name,person.avatar,person.gender);
   }
+  info();
   if(!show.members.size)endShow(show);
   else advanceStage();
   advanceWaiting();
@@ -1738,6 +1802,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
   }
   const id=key(name);
+  if(fromLive)touchGuest(id);
   if(fromLive){
     const safeGiftName=typeof giftName==='string'?giftName.trim().slice(0,30):'';
     showLiveNotice('🎁 '+shortGuestName(name)+' · '+(safeGiftName||'tặng quà')+
@@ -1759,7 +1824,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   }
   if(tier==='vip'){
     const level=unitCoins>=60?'solo':unitCoins>=30?'large':unitCoins>=10?'medium':'small';
-    if(!seated(name,true)&&!onStage(id))join(name,avatarUrl(photo),normalizeGender(gender));
+    if(level!=='solo'&&!seated(name,true)&&!onStage(id))join(name,avatarUrl(photo),normalizeGender(gender));
     const before=board(), amount=Number.isFinite(count)?Math.max(1,Math.floor(count)):1;
     daily.set(id,{...daily.get(id),name,coins:(daily.get(id)?.coins||0)+unitCoins*amount});saveLedger();
     const total=board();loyalty(name,1);
@@ -1778,33 +1843,38 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));party();ding([523,659,784,1047]);tell('Cả quán hô nào! '+short+' bao cả quán!');return;}
     tell(short+' đã mở lượt biểu diễn VIP!');
   }
-  if(onStage(id)&&!activeShow.idle&&!(activeShow.free&&tier==='vip')
-    &&(tier!=='free'||activeShow.track===stageTracks[previewTrack]))return;
-  const queued=stageQueue.findIndex(gift=>gift.id===id);
-  if(queued>=0){
-    if(tier==='free'){
-      if(stageQueue[queued].tier==='free'){
-        stageQueue[queued].previewTrack=previewTrack;
-        advanceStage();
-      }
-      return;
+  if(onStage(id))return;
+  const existing=stageQueue.find(item=>item.id===id);
+  if(existing){
+    if(previewTrack)existing.previewTrack=previewTrack;
+    if(tier==='vip'){
+      existing.tier='vip';
+      existing.gifts+=count;
     }
-    if(stageQueue[queued].tier==='vip')return;
-    stageQueue.splice(queued,1);
+    sortStageQueue();
+    updateShowQueue();
+    advanceStage();
+    return;
+  }
+  if(stageQueue.length>=maxStageQueue){
+    showLiveNotice(shortGuestName(name)+' · Hàng chờ đã đầy');
+    return;
   }
   primeAudio();
   const seat=seated(name,true),viewer=passers.get(id);
-  const registration={id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,origin:roadSnapshot(id),previewTrack,tier};
-  if(tier==='vip'){
-    const freeIndex=stageQueue.findIndex(item=>item.tier==='free');
-    stageQueue.splice(freeIndex<0?stageQueue.length:freeIndex,0,registration);
-  }else stageQueue.push(registration);
+  stageQueue.push({id,name:seat?.person.name??viewer?.name??name,
+    avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,
+    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,order:stageOrder++});
+  sortStageQueue();
   updateShowQueue();
   status(name+(tier==='free'?' đăng ký nhảy miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
   if(!document.body.classList.contains('show-mode')){
     get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
   }
   advanceStage();advanceWaiting();
+}
+function sortStageQueue(){
+  stageQueue.sort((a,b)=>Number(b.tier==='vip')-Number(a.tier==='vip')||b.gifts-a.gifts||a.order-b.order);
 }
 function advanceStage(){
   if(!stageQueue.length){armIdle();return;}
@@ -1813,11 +1883,11 @@ function advanceStage(){
   while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
     const gift=stageQueue[0];
     if(activeShow&&(activeShow.members.has(gift.id)
-      ||gift.previewTrack&&activeShow.track!==stageTracks[gift.previewTrack]))return;
+      ||activeShow.track!==stageTracks[gift.previewTrack??'rock']))return;
     const seat=seated(gift.name,true);
     if(seat&&seat.person.state!=='seated')return;
     stageQueue.shift();updateShowQueue();
-    addPerformer(activeShow??openShow(false,false,gift.previewTrack,gift.tier),gift,seat);
+    addPerformer(activeShow??openShow(false,false,gift.previewTrack??'rock',gift.tier),gift,seat);
   }
 }
 function fitBoardText(element,value,width){
@@ -1829,7 +1899,7 @@ function fitBoardText(element,value,width){
   }
 }
 const liveCommandLabels=new Map([
-  ['vao ban','vào bàn'], ['roi ban','rời bàn'], ['nhuong ghe','nhường ghế'],
+  ['vao ban','vào bàn'],
   ['cung ly','cụng ly'], ['vo tay','vỗ tay'], ['tha tim','thả tim'],
   ['rap','rap'], ['chill','chill'], ['rock','rock'],
   ['nhay','nhảy'], ['len nhay','lên nhảy']
@@ -1846,7 +1916,7 @@ function parseComment(value){
   const words=normalize(value).replace(/[^a-z0-9 ]+/g,' ').trim().replace(/\s+/g,' ');
   const cmd=words.replace(/^(?:(?:cho minh|cho em|cho toi|minh muon|em muon|ad oi|ad) )+/,'')
     .replace(/(?: (?:voi|nhe|nha|a|di|nhe ad))+$/,'');
-  if(['xin ghe','xin mot ghe','ngoi ban','vao ban'].includes(cmd))return 'vao ban';
+  if(['ghe','vao ban'].includes(cmd))return 'vao ban';
   if(['dzo','dzo ne','zo','vo','can ly','cung ly'].includes(cmd))return 'cung ly';
   return cmd;
 }
@@ -1881,6 +1951,7 @@ function addTestHearts(name,count=1){
 function submit(name,value,avatar,gender,live=false){
   name=name.trim();
   if(!name){get('guest').focus();return;}
+  if(live)touchGuest(key(name));
   const cmd=parseComment(value);
   const testGift=/^tang ([1-9][0-9]?)$/.exec(cmd);
   if(testGift){showTestFlowers(name,Number(testGift[1]));return;}
@@ -1897,7 +1968,6 @@ function submit(name,value,avatar,gender,live=false){
   if(['rap','chill','rock'].includes(cmd))return requestFreeDance(name,avatar,gender,cmd);
   if(cmd==='nhay'||cmd==='len nhay')return requestFreeDance(name,avatar,gender,'rock');
   if(cmd==='vao ban')return join(name,avatar,gender);
-  if(cmd==='roi ban'||cmd==='nhuong ghe')return leave(name);
   if(cmd==='cung ly')return cheers(name);
   if(cmd==='vo tay')return reactToShow(name,'applause');
   if(cmd==='tha tim')return reactToShow(name,'heart');
@@ -1910,6 +1980,7 @@ function submit(name,value,avatar,gender,live=false){
 }
 function reset(showSamples=true){
   testHearts.clear();
+  speechQueue.length=0;
   owed.clear();
   epoch++;tableDeliveries.clear();
   seats.forEach(seat=>{delete seat.tableReady;seat.stool?.parentNode.removeAttribute('visibility');});
@@ -1926,12 +1997,14 @@ function reset(showSamples=true){
   clearTimeout(liveNoticeTimer);
   get('live-stage-notice').setAttribute('visibility','hidden');
   tableToasts.clear();get('toast-effects').replaceChildren();
-  seats.forEach(s=>{s.person=null;});
+  seats.forEach(s=>{s.person=null;delete s.reservedFor;});
+  guestActivity.clear();departedGuests.clear();
   for(const name of ['backPeople','frontPeople','drinks','walking'])layers[name].replaceChildren();
   get('staff-foreground').replaceChildren();
   host=serverIdle();get('events').replaceChildren();get('demo').disabled=false;get('live-demo').disabled=false;
   if(showSamples)seedSampleGuests();
   armIdle();
+  updateShowQueue();
   info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
 }
 get('comment-form').addEventListener('submit',e=>{
@@ -1942,13 +2015,11 @@ document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('c
 }));
 function setShowMode(enabled){
   document.body.classList.toggle('show-mode',enabled);
-  get('exit-show-mode').hidden=!enabled;
-  (enabled?get('exit-show-mode'):get('show-mode')).focus();
+  if(!enabled)get('show-mode').focus();
 }
 get('show-mode').addEventListener('click',()=>{primeAudio();setShowMode(true);});
-get('exit-show-mode').addEventListener('click',()=>setShowMode(false));
-document.addEventListener('keydown',event=>{
-  if(event.key==='Escape'&&document.body.classList.contains('show-mode'))setShowMode(false);
+document.addEventListener('click',event=>{
+  if(document.body.classList.contains('show-mode')&&!event.target.closest('.scene,#show-mode'))setShowMode(false);
 });
 get('enable-audio').addEventListener('click',primeAudio);
 get('demo-gift').addEventListener('click',()=>{

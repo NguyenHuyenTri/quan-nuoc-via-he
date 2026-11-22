@@ -457,19 +457,18 @@ body.show-mode {
 .show-mode .controls,.show-mode .legend {
   display:none;
 }
+.show-mode .layout {
+  display:grid;
+  justify-items:center;
+  align-items:center;
+  min-height:100dvh;
+}
 .show-mode .scene {
-  width:min(100vw,calc(100vh * 9 / 16));
-  width:min(100vw,calc(100dvh * 9 / 16));
-  margin:auto;
+  width:min(calc(100vw - 16px),calc((100vh - 16px) * 9 / 16));
+  width:min(calc(100vw - 16px),calc((100dvh - 16px) * 9 / 16));
+  margin:0;
   border:0;
   border-radius:0;
-}
-#exit-show-mode {
-  position:fixed;
-  top:8px;
-  right:8px;
-  z-index:2;
-  background:#142922e6;
 }
 
 
