@@ -1032,10 +1032,12 @@ function join(name,avatar,gender){
 }
 function advanceWaiting(){
   clearTimeout(seatTimer);seatTimer=null;
-  while(queue.length&&!onStage(queue[0].id)){
+  while(queue.length){
+    const next=queue.findIndex(guest=>!onStage(guest.id));
+    if(next<0)break;
     const free=seats.find(s=>!s.person&&!s.reservedFor);
     if(!free){if(!addDiningTable()){scheduleSeatTurn();break;}continue;}
-    takeSeat(queue.shift(),free);
+    takeSeat(queue.splice(next,1)[0],free);
   }
 
 }
@@ -1507,7 +1509,9 @@ function speakVietnamese(text,rate,queue=true){
 function stopStageSound(){
   if(stageSound){
     clearInterval(stageSound.timer);
-    stageSound.oscillators.forEach(osc=>osc.stop());
+    stageSound.oscillators.forEach(osc=>{
+      try{osc.stop();}catch(error){if(error.name!=='InvalidStateError')throw error;}
+    });
     stageSound.bus.disconnect();
     stageSound=null;
   }
@@ -1827,7 +1831,7 @@ function armIdle(){
     addPerformer(show,person,seat);
   },lastIdleSinger===null?20000:32000);
 }
-function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitCoins,giftTier,giftName='',choice}={},previewTrack,tier='vip',fromLive=false){
+function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitCoins,giftTier,giftName='',choice,stageTest=false}={},previewTrack,tier='vip',fromLive=false){
   name=typeof name==='string'?name.trim():'';
   unitCoins=Number(unitCoins??weights[giftTier]??1);
   if(tier==='vip'&&(!Number.isSafeInteger(unitCoins)||unitCoins<1||!Number.isSafeInteger(count)||count<1||!Number.isSafeInteger(count*unitCoins)))return;
@@ -1843,7 +1847,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     showLiveNotice('🎁 '+shortGuestName(name)+' · '+(safeGiftName||'tặng quà')+
       (count>1?' ×'+count:'')+' · '+formatCoins(unitCoins*count)+' xu');
   }
-  if(tier==='vip'){
+  if(tier==='vip'&&!stageTest){
     const previous=vipProfiles.get(id);
     const level=Number.isInteger(vipLevel)&&vipLevel>=1?vipLevel:previous?.level??1;
     const amount=Number.isFinite(count)&&count>0?Math.floor(count):1;
@@ -1857,7 +1861,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     const performer=activeShow?.members.get(id);
     if(performer?.actor)markVip(performer.actor);
   }
-  if(tier==='vip'){
+  if(tier==='vip'&&!stageTest){
     const level=unitCoins>=60?'solo':unitCoins>=30?'large':unitCoins>=10?'medium':'small';
     if(level!=='solo'&&!seated(name,true)&&!onStage(id))join(name,avatarUrl(photo),normalizeGender(gender));
     const before=board(), amount=Number.isFinite(count)?Math.max(1,Math.floor(count)):1;
@@ -1902,8 +1906,8 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,order:stageOrder++});
   sortStageQueue();
   updateShowQueue();
-  status(name+(tier==='free'?' đăng ký nhảy miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
-  if(!document.body.classList.contains('show-mode')){
+  status(name+(stageTest?' đăng ký lượt thử VIP.':tier==='free'?' đăng ký tiết mục miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
+  if(!fromLive&&tier==='vip'&&!document.body.classList.contains('show-mode')){
     get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
   }
   advanceStage();advanceWaiting();
@@ -2058,7 +2062,7 @@ document.addEventListener('click',event=>{
 });
 get('enable-audio').addEventListener('click',primeAudio);
 get('demo-gift').addEventListener('click',()=>{
-  receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value});
+  receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value,stageTest:true},'rock');
 });
 function requestFreeDance(name,avatar,gender,track='rock'){
   receiveGift({name,avatarUrl:avatar,gender},track,'free');
@@ -2118,7 +2122,7 @@ async function waitForDemo(condition,session,limit){
   return false;
 }
 get('live-demo').addEventListener('click',async()=>{
-  const table=tableCenters.map(x=>seats.filter(seat=>seat.tableX===x&&!seat.person))
+  const table=tableCenters.map(x=>seats.filter(seat=>seat.tableX===x&&!seat.person&&!seat.reservedFor))
     .find(free=>free.length>=2);
   if(!table||queue.length||stageQueue.length||activeShow&&!activeShow.idle){
     status('Cần hai ghế trống cùng bàn và sân khấu rảnh để chạy thử trọn buổi.');
@@ -2135,7 +2139,7 @@ get('live-demo').addEventListener('click',async()=>{
   try{
     guests.forEach(guest=>passBy(guest));
     await sleep(750);
-    if(epoch!==session||queue.length||table.slice(0,2).some(seat=>seat.person))return;
+    if(epoch!==session||queue.length||table.slice(0,2).some(seat=>seat.person||seat.reservedFor))return;
     await Promise.all(guests.map((guest,index)=>takeSeat(guest,table[index])));
     if(!await waitForDemo(()=>guests.every(guest=>seated(guest.name)?.person.cup),session,22000)){
       if(epoch===session)status('Lượt thử chưa đủ nước để cụng ly. Mời bạn thử lại.');
@@ -2144,8 +2148,8 @@ get('live-demo').addEventListener('click',async()=>{
     guests.forEach(guest=>cheers(guest.name));
     await sleep(2400);
     if(epoch!==session||stageQueue.length||activeShow&&!activeShow.idle)return;
-    if(!trackQueue.length)requestTrack(guests[0].name,'rock');
-    guests.forEach(guest=>receiveGift(guest));
+    const genre=activeShow?.genre??'rock';
+    guests.forEach(guest=>receiveGift({...guest,stageTest:true},genre));
     if(!await waitForDemo(()=>activeShow&&!activeShow.idle&&activeShow.endsAt
       &&guests.every(guest=>activeShow.members.get(guest.id)?.ready),session,9500))return;
     reactToShow(guests[0].name,'applause');
