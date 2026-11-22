@@ -1529,8 +1529,7 @@ function speakVietnamese(text,rate,manual=false){
   if(!voiceOn||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return;
   const speech=window.speechSynthesis;
   if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
-  const voices=speech.getVoices();
-  const voice=voices.find(item=>/^vi[-_]vn$/i.test(item.lang))??voices.find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
+  const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
   if(!voice)return null;
   const utterance=new SpeechSynthesisUtterance(text);
   utterance.voice=voice;
