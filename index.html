@@ -2104,6 +2104,7 @@ function showTestFlowers(name,count){
   if(flowerCooldowns.size>500)flowerCooldowns.delete(flowerCooldowns.keys().next().value);
   celebrateStarGift(name,count,'🌹');
   showLiveNotice('🌹 '+shortGuestName(name)+' · '+count+' hoa thử');
+  tellGift('Cảm ơn '+shortGuestName(name)+' đã tặng '+count+' bông hoa!');
 }
 function addTestHearts(name,count=1){
   if(!Number.isSafeInteger(count)||count<1)return;
