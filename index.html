@@ -501,7 +501,7 @@ function board(){
   return total;
 }
 function chooseReward(name,choice){
-  if(Object.hasOwn(stageTracks,choice)){requestTrack(name,choice);tell(shortGuestName(name)+' chọn bài '+stageTracks[choice].title);return true;}
+  if(Object.hasOwn(stageTracks,choice)){requestTrack(name,choice);tell(shortGuestName(name)+' chọn bài '+nextStageTrack(choice).title);return true;}
   const drink=choice==='mia lau'?{name:'mía lau',color:'#edd58a'}:Object.hasOwn(drinks,choice)?drinks[choice]:null;
   if(!drink)return false;
   offer(name,drink);tell('Mời '+shortGuestName(name)+' một ly '+drink.name+'!');return true;
@@ -1308,7 +1308,7 @@ function toastEffect(participants,tableX,quote){
     if(!effect.isConnected)return;
     effect.setAttribute('visibility','visible');
     ding([1568,2349,3136]);
-    if(quote)speakVietnamese(quote,1.08);
+    if(quote&&voiceOn)speakVietnamese(quote,1.08);
   },reduce.matches?0:420);
   setTimeout(()=>effect.remove(),quote?2950:1050);
 }
@@ -1363,20 +1363,40 @@ const stageTracks={
       'Đèn sáng lên rồi, mình hát thêm câu!',
       'Cười lên nào, mai mình lại gặp!']}
 };
+const extraStageTracks={
+  chill:[
+    {title:'Đèn vàng trước hiên',step:.44,melody:[64,67,71,74,71,67,62,65,69,72,69,65,60,64,67,71]},
+    {title:'Mưa trên mái tôn',step:.31,melody:[69,72,76,74,72,67,64,67,65,69,72,74,71,67,64,62]}
+  ],
+  rap:[
+    {title:'Nhịp phố sau giờ',step:.24,melody:[45,45,52,55,48,53,48,55,43,50,53,55,45,52,57,55]},
+    {title:'Chuyện bàn bên',step:.32,melody:[50,57,53,60,48,55,60,55,46,53,58,57,50,53,55,57]}
+  ],
+  rock:[
+    {title:'Đèn phố bật lên',step:.22,bass:[43,43,48,50,46,48,53,50],melody:[67,74,72,70,77,74,72,69]},
+    {title:'Qua ngã tư',step:.28,bass:[47,47,50,52,45,45,52,54],melody:[71,74,76,78,76,74,69,73]}
+  ]
+};
+const nextTrackIndex={chill:0,rap:0,rock:0};
+function nextStageTrack(genre){
+  const base=stageTracks[genre];
+  const index=nextTrackIndex[genre];
+  return index?{...base,...extraStageTracks[genre][index-1]}:base;
+}
 function updateShowQueue(){
   const ready=[...(activeShow?.members.values()??[])].filter(member=>member.ready);
   fitBoardText(get('stage-names'),ready.map(member=>shortGuestName(member.person.name)+(member.tier==='vip'?' ♛':'')).join(' · '),480);
   get('stage-queue-led').setAttribute('visibility',stageQueue.length?'visible':'hidden');
   for(let i=0;i<3;i++){
     const item=stageQueue[i],genre=item?.previewTrack??'rock';
-    const label=item?(i+1)+'. '+shortGuestName(item.name)+(item.tier==='vip'?' ♛':'')+' · '+genre.toUpperCase()+' · '+stageTracks[genre].title+' · '+(item.tier==='vip'?'3 phút':'30 giây'):'';
+    const label=item?(i+1)+'. '+shortGuestName(item.name)+(item.tier==='vip'?' ♛':'')+' · '+genre.toUpperCase()+' · '+(activeShow?.genre===genre?activeShow.track:nextStageTrack(genre)).title+' · '+(item.tier==='vip'?'3 phút':'30 giây'):'';
     fitBoardText(get('queue-led-'+i),label,333);
   }
   get('queue-led-3').textContent=stageQueue.length>3?'+'+(stageQueue.length-3)+' lượt chờ':'';
   const messages=[];
   if(activeShow&&!activeShow.ending)messages.push(activeShow.track.title);
   if(stageQueue.length)messages.push(stageQueue.length+' khách chờ hát');
-  if(trackQueue.length)messages.push('Bài kế: '+stageTracks[trackQueue[0].track].title);
+  if(trackQueue.length)messages.push('Bài kế: '+nextStageTrack(trackQueue[0].track).title);
   get('show-queue').textContent=messages.join(' · ')||'Sân khấu đang chờ';
 }
 function requestTrack(name,track){
@@ -1392,7 +1412,7 @@ function requestTrack(name,track){
     return;
   }
   updateShowQueue();
-  status(name+' xin bài '+stageTracks[track].title+' cho lượt sau.');
+  status(name+' xin bài '+nextStageTrack(track).title+' cho lượt sau.');
 }
 const reactionTimes=new Map();
 function reactToShow(name,type){
@@ -1445,25 +1465,37 @@ const speechQueue=[];
 function speakVietnamese(text,rate,queue=true){
   const speech=window.speechSynthesis;
   const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
-  if(!voice||typeof SpeechSynthesisUtterance==='undefined')return null;
+  if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
   const utterance=new SpeechSynthesisUtterance(text);
-  utterance.voice=voice;
+  if(voice)utterance.voice=voice;
   utterance.lang='vi-VN';
   utterance.rate=rate;
-  if(currentSpeech||speech.speaking||speech.pending){
+  if(currentSpeech){
     if(queue&&speechQueue.length<8)speechQueue.push({text,rate});
     return undefined;
   }
   currentSpeech=utterance;
   const finish=()=>{
+    clearTimeout(timeout);
     if(currentSpeech!==utterance)return;
     currentSpeech=null;
     const next=speechQueue.shift();
-    if(next)setTimeout(()=>speakVietnamese(next.text,next.rate),0);
+    if(next)setTimeout(()=>{if(voiceOn)speakVietnamese(next.text,next.rate);},0);
     if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
   };
+  const timeout=setTimeout(()=>{
+    if(currentSpeech!==utterance)return;
+    finish();
+    speech.cancel();
+    status('Trình duyệt chưa phát được giọng chủ quán. Bấm tắt rồi bật giọng để thử lại.');
+  },15000);
   utterance.onend=finish;
-  utterance.onerror=finish;
+  utterance.onerror=event=>{
+    finish();
+    if(event.error!=='canceled'&&event.error!=='interrupted'){
+      status('Trình duyệt báo lỗi giọng chủ quán: '+event.error);
+    }
+  };
   try{
     speech.speak(utterance);
   }catch{
@@ -1558,8 +1590,9 @@ function playDanceBeat(show){
     src.connect(filter);filter.connect(gain);gain.connect(bus);oscillators.add(src);
     src.onended=()=>{oscillators.delete(src);src.disconnect();filter.disconnect();gain.disconnect();};src.start(when);src.stop(when+.12);
   }
-  const bass=[48,48,55,53,48,51,55,58];
-  scheduleMusic(show,.25,.15,(n,when)=>{
+  const bass=show.track.bass??[48,48,55,53,48,51,55,58];
+  const riff=show.track.melody;
+  scheduleMusic(show,show.track.step,.15,(n,when)=>{
     const beat=Math.floor(n/2);
     if(n%2===0){
       tone(when,145,.15,.5,'sine',43);
@@ -1573,7 +1606,7 @@ function playDanceBeat(show){
       tone(when,root*2,.16,show.vip?.075:.045,'sawtooth');
       tone(when,root*3,.15,show.vip?.05:.025,'sawtooth');
     }
-    if(n%4===1||n%4===3)tone(when,440*2**(([72,76,79,74][Math.floor(n/4)%4]-69)/12),.13,.07,'triangle');
+    if(n%4===1||n%4===3)tone(when,440*2**((riff[Math.floor(n/4)%riff.length]-69)/12),.13,.07,'triangle');
   });
 }
 function animateDance(show){
@@ -1581,7 +1614,7 @@ function animateDance(show){
     if(activeShow!==show||show.ending)return;
     const elapsed=show.audioStart!==undefined&&audio?.state==='running'
       ?audio.currentTime-show.audioStart:(performance.now()-show.startedAt)/1000;
-    const beat=elapsed/.5;
+    const beat=elapsed/(2*show.track.step);
     const phase=Math.floor(elapsed/5)%3;
     const pulse=Math.sin(beat*Math.PI*2);
     for(const [index,member] of [...show.members.values()].entries()){
@@ -1636,7 +1669,7 @@ function stageTick(show){
     show.nextVerse=performance.now()+(show.rap?3900:4600);
     cheerStage();
   }
-  const genre=Object.keys(stageTracks).find(key=>stageTracks[key]===show.track);
+  const genre=show.genre;
   fitBoardText(get('stage-track'),'ĐANG PHÁT · '+genre.toUpperCase()+' · '+show.track.title,480);
 }
 function stageRoute(seat,spot,origin=entry){
@@ -1763,7 +1796,9 @@ function openShow(idle,rap=false,previewTrack,tier){
   clearTimeout(idleTimer);idleTimer=null;
   const request=previewTrack||tier==='vip'?undefined:trackQueue.shift();
   const kind=previewTrack??(tier==='vip'?'rock':request?.track??(rap?'rap':'chill'));
-  const show={idle,free:tier==='free',vip:tier==='vip',preview:Boolean(previewTrack),rap:kind==='rap',track:stageTracks[kind],request,epoch,members:new Map(),
+  const track=nextStageTrack(kind);
+  nextTrackIndex[kind]=(nextTrackIndex[kind]+1)%(extraStageTracks[kind].length+1);
+  const show={genre:kind,idle,free:tier==='free',vip:tier==='vip',preview:Boolean(previewTrack),rap:kind==='rap',track,request,epoch,members:new Map(),
     endsAt:null,ending:false,verseIndex:0,nextVerse:0,applause:0,hearts:0};
   reactionTimes.clear();
   activeShow=show;updateShowQueue();
@@ -1883,7 +1918,7 @@ function advanceStage(){
   while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
     const gift=stageQueue[0];
     if(activeShow&&(activeShow.members.has(gift.id)
-      ||activeShow.track!==stageTracks[gift.previewTrack??'rock']))return;
+      ||activeShow.genre!==(gift.previewTrack??'rock')))return;
     const seat=seated(gift.name,true);
     if(seat&&seat.person.state!=='seated')return;
     stageQueue.shift();updateShowQueue();
@@ -2122,7 +2157,22 @@ get('live-demo').addEventListener('click',async()=>{
 document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();receiveGift({name:get('gift-name').value,giftTier:b.dataset.level,choice:get('gift-choice').value});});
 get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
 get('test-hour').onclick=hourEvent;
-get('voice-toggle').onclick=()=>{primeAudio();voiceOn=!voiceOn;get('voice-toggle').setAttribute('aria-pressed',String(voiceOn));get('voice-toggle').textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';if(voiceOn){const v=speakVietnamese('Quán mở cửa rồi!',1);if(v===null)tell('Máy chưa có giọng tiếng Việt. Lời chào hiển thị trên bảng.',false);}};
+get('voice-toggle').onclick=()=>{
+  const button=get('voice-toggle');
+  voiceOn=!voiceOn;
+  button.setAttribute('aria-pressed',String(voiceOn));
+  button.textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';
+  if(voiceOn){
+    window.speechSynthesis?.resume();
+    const spoken=speakVietnamese('Quán mở cửa rồi!',1);
+    if(spoken===null)tell('Thiết bị chưa phát được giọng chủ quán.',false);
+    primeAudio();
+  }else{
+    speechQueue.length=0;
+    currentSpeech=null;
+    window.speechSynthesis?.cancel();
+  }
+};
 window.addEventListener('quannuoc:comment',event=>{
   const detail=event.detail;
   if(typeof detail?.name!=='string'||!detail.name.trim()||typeof detail.comment!=='string')return;
