@@ -2271,24 +2271,45 @@ get('live-demo').addEventListener('click',async()=>{
 document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();receiveGift({name:get('gift-name').value,giftTier:b.dataset.level,choice:get('gift-choice').value});});
 get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
 get('test-hour').onclick=hourEvent;
-get('voice-toggle').onclick=()=>{
+const hostSpeech=window.speechSynthesis;
+hostSpeech?.getVoices();
+get('voice-toggle').onclick=async()=>{
   const button=get('voice-toggle');
-  voiceOn=!voiceOn;
+  if(voiceOn){
+    voiceOn=false;
+    button.setAttribute('aria-pressed','false');
+    button.textContent='Bật giọng chủ quán';
+    stopHostSpeech();
+    return;
+  }
+  hostSpeech?.resume();
+  primeAudio();
+  if(hostSpeech&&!hostSpeech.getVoices().some(voice=>/^vi(?:[-_]|$)/i.test(voice.lang))){
+    button.disabled=true;
+    button.textContent='Đang tìm giọng tiếng Việt…';
+    await new Promise(resolve=>{
+      const check=()=>{
+        if(hostSpeech.getVoices().some(voice=>/^vi(?:[-_]|$)/i.test(voice.lang)))finish();
+      };
+      const finish=()=>{
+        clearTimeout(deadline);
+        hostSpeech.removeEventListener('voiceschanged',check);
+        resolve();
+      };
+      const deadline=setTimeout(finish,2500);
+      hostSpeech.addEventListener('voiceschanged',check);
+      check();
+    });
+    button.disabled=false;
+  }
+  voiceOn=true;
+  const spoken=speakVietnamese('Quán mở cửa rồi!',1,true);
+  if(spoken===null){
+    voiceOn=false;
+    tell('Trình duyệt chưa cung cấp giọng tiếng Việt. Quán sẽ hiện lời bằng chữ.',false);
+  }
   button.setAttribute('aria-pressed',String(voiceOn));
   button.textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';
-  if(voiceOn){
-    window.speechSynthesis?.resume();
-    const spoken=speakVietnamese('Quán mở cửa rồi!',1,true);
-    if(spoken===null){
-      voiceOn=false;
-      button.setAttribute('aria-pressed','false');
-      button.textContent='Bật giọng chủ quán';
-      tell('Trình duyệt chưa có giọng tiếng Việt. Quán sẽ hiện lời bằng chữ.',false);
-    }
-    primeAudio();
-  }else{
-    stopHostSpeech();
-  }
 };
 window.addEventListener('quannuoc:comment',event=>{
   const detail=event.detail;
