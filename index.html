@@ -178,6 +178,7 @@
 <button type="button" id="preview-viewer">Thử khách ghé LIVE</button>
 <label for="comment">Bình luận</label>
 <div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: vào bàn" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
+<fieldset class="named-song-picker" data-name-field="guest"><legend>Chọn bài để hát · từ 11 hoa</legend><label>Bài hát<select class="song-title"></select></label><button type="button" class="choose-song">Đăng ký bài</button><p class="song-status hint" role="status"></p></fieldset>
 <div class="counter-hint">
   <p><strong>Nhân viên nhắc khéo</strong><span id="counter-comment-tip">vào bàn</span></p>
 </div>
@@ -193,6 +194,7 @@
 <p class="hint">Các nút dùng chung số hoa với lệnh “tặng”. Mốc 10 hoa mở lượt VIP, 50 hoa có múa phụ họa, 100 hoa có pháo hoa.</p>
 <label>Khách thử <input id="gift-name" value="Nguyễn Huyền Trí" maxlength="80"></label>
 <div class="gift-list"><button data-level="small">🌹 Tặng 1 hoa</button><button data-level="medium">🌹 Tặng 10 hoa</button><button data-level="large">🌹 Tặng 30 hoa</button><button data-level="solo">🌹 Tặng 60 hoa</button></div>
+<fieldset class="named-song-picker" data-name-field="gift-name"><legend>Chọn bài để hát · từ 11 hoa</legend><label>Bài hát<select class="song-title"></select></label><button type="button" class="choose-song">Đăng ký bài</button><p class="song-status hint" role="status"></p></fieldset>
 <div class="grid-buttons"><button id="test-visit">Thử khách ghé</button><button id="test-hour">Thử sự kiện giờ</button><button id="voice-toggle" aria-pressed="true">Tắt giọng chủ quán</button></div></section>
 <section class="gift-menu"><h2>Thử kết nối TikTok LIVE</h2><button type="button" id="live-connect">Kết nối TikFinity</button><p id="live-status" role="status">Mở TikFinity Desktop và kết nối phòng LIVE trên cùng máy.</p></section>
 <div id="essential-controls" class="grid-buttons"></div>
@@ -1636,13 +1638,30 @@ const missingSummary=document.createElement('summary');
 const missingList=document.createElement('ul');
 missingPanel.append(missingSummary,missingList);
 get('events').after(missingPanel);
-const songGuide=document.createElement('details');
-const songSummary=document.createElement('summary');
-songSummary.textContent='Trên 10 hoa · Gõ tên bài để hát';
-const songTitles=document.createElement('p');
-songTitles.textContent=[...namedSongs.values()].map(song=>song.track.title).join(' · ');
-songGuide.append(songSummary,songTitles);
-get('comment-form').after(songGuide);
+const songPickers=document.querySelectorAll('.named-song-picker');
+function refreshSongPickers(){
+  for(const panel of songPickers){
+    const name=get(panel.dataset.nameField).value.trim(),id=key(name);
+    const waiting=stageQueue.find(item=>item.id===id)?.song;
+    const singing=onStage(id),flowers=songFlowers.get(id)||0n;
+    const button=panel.querySelector('button');
+    button.textContent=waiting?'Đổi bài':'Đăng ký bài';
+    button.disabled=!name||singing||flowers<=10n;
+    panel.querySelector('.song-status').textContent=singing?'Đã lên sân khấu · Đã khóa chọn bài':
+      waiting?'Đang chờ · '+waiting.track.title:name+' · '+flowers+' hoa';
+  }
+}
+for(const panel of songPickers){
+  const field=get(panel.dataset.nameField),select=panel.querySelector('select');
+  for(const {track} of namedSongs.values())select.add(new Option(track.title,track.title));
+  field.addEventListener('input',refreshSongPickers);
+  panel.querySelector('button').onclick=()=>{
+    primeAudio();
+    const guest=field.id==='guest';
+    requestNamedSong(field.value.trim(),select.value,guest?avatarUrl(get('guest-avatar').value):'',guest?get('guest-gender').value:'');
+    refreshSongPickers();
+  };
+}
 let missingSongs=new Map();
 try{missingSongs=new Map(JSON.parse(localStorage.getItem(missingKey)||'[]'));}catch{}
 function drawMissing(){
@@ -1696,12 +1715,13 @@ function stageWaitHint(show,item,now=performance.now()){
   return seconds>0?label+' ~'+seconds+' giây':label;
 }
 function updateShowQueue(){
+  refreshSongPickers();
   const ready=[...(activeShow?.members.values()??[])].filter(member=>member.ready);
   fitBoardText(get('stage-names'),ready.map(member=>shortGuestName(member.person.name)+(member.tier==='vip'?' ♛':'')).join(' · '),480);
   get('stage-queue-led').setAttribute('visibility',stageQueue.length?'visible':'hidden');
   for(let i=0;i<3;i++){
     const item=stageQueue[i],genre=item?.previewTrack??'rock';
-    const label=item?(i+1)+'. '+shortGuestName(item.name)+(item.tier==='vip'?' ♛':'')+' · '+genre.toUpperCase()+' · '+(activeShow?.genre===genre?activeShow.track:nextStageTrack(genre)).title+' · '+(item.tier==='vip'?'1 phút':'30 giây'):'';
+    const label=item?(i+1)+'. '+shortGuestName(item.name)+(item.tier==='vip'?' ♛':'')+' · '+genre.toUpperCase()+' · '+(item.song?.track??(activeShow?.genre===genre?activeShow.track:nextStageTrack(genre))).title+' · '+(item.tier==='vip'?'1 phút':'30 giây'):'';
     fitBoardText(get('queue-led-'+i),label,333);
   }
   const extra=stageQueue.length>3?' · +'+(stageQueue.length-3)+' lượt':'';
@@ -2360,6 +2380,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   const id=key(name);
   if(tier==='vip'&&!stageTest){
     songFlowers.set(id,(songFlowers.get(id)||0n)+BigInt(unitCoins)*BigInt(count));
+    refreshSongPickers();
   }
   const pendingSong=stageQueue.find(item=>item.id===id&&item.song);
   if(pendingSong&&tier==='vip'&&!stageTest){
@@ -2613,6 +2634,7 @@ function submit(name,value,avatar,gender,live=false){
     showTestFlowers(name,flowers);
     const id=key(name);
     songFlowers.set(id,(songFlowers.get(id)||0n)+flowers);
+    refreshSongPickers();
     const queued=stageQueue.find(item=>item.id===id);
     if(queued?.song){queued.flowers=songFlowers.get(id);queued.backupFlowers=queued.flowers;}
     if(!onStage(id)){
