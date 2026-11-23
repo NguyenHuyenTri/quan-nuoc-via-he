@@ -190,10 +190,9 @@
   <button type="button" id="test-add-guests">Thêm 1 khách</button>
 </div>
 <section class="gift-menu"><h2>Thang quà của quán</h2>
-<p class="hint">Mốc sân khấu: 50 điểm múa phụ họa, 100 điểm pháo hoa. Quà cực lớn mở lượt diễn VIP.</p>
+<p class="hint">Các nút dùng chung số hoa với lệnh “tặng”. Mốc 10 hoa mở lượt VIP, 50 hoa có múa phụ họa, 100 hoa có pháo hoa.</p>
 <label>Khách thử <input id="gift-name" value="Nguyễn Huyền Trí" maxlength="80"></label>
-<div class="gift-list"><button data-level="small">🌹 Hoa hồng / TikTok · Mời nước (+1)</button><button data-level="medium">🥤 Quà vừa · Chọn món hoặc bài (+10)</button><button data-level="large">🏮 Quà lớn · Bao cả quán (+30)</button><button data-level="solo">🎙 Quà cực lớn · Lên sân khấu (+60)</button></div>
-<label>Chọn cho quà vừa <select id="gift-choice"><option value="tra da">Trà đá</option><option value="ca phe">Cà phê</option><option value="mia lau">Mía lau</option><option value="rap">Rap bên ly đá</option><option value="chill">Đêm chill vỉa hè</option><option value="rock">Rock vỉa hè</option></select></label>
+<div class="gift-list"><button data-level="small">🌹 Tặng 1 hoa</button><button data-level="medium">🌹 Tặng 10 hoa</button><button data-level="large">🌹 Tặng 30 hoa</button><button data-level="solo">🌹 Tặng 60 hoa</button></div>
 <div class="grid-buttons"><button id="test-visit">Thử khách ghé</button><button id="test-hour">Thử sự kiện giờ</button><button id="voice-toggle" aria-pressed="true">Tắt giọng chủ quán</button></div></section>
 <section class="gift-menu"><h2>Thử kết nối TikTok LIVE</h2><button type="button" id="live-connect">Kết nối TikFinity</button><p id="live-status" role="status">Mở TikFinity Desktop và kết nối phòng LIVE trên cùng máy.</p></section>
 <div id="essential-controls" class="grid-buttons"></div>
@@ -2172,7 +2171,6 @@ function addPerformer(show,gift,seat){
   member.arrival=walk(actor,route,1450,show.epoch,true).then(ok=>{
     if(!ok||activeShow!==show||show.ending)return;
     member.ready=true;
-    ladderGiftBursts.delete(member.person.id);
     raiseShowMix(show,member);
     if(member.backupFlowers||member.backupGifts)countFireworksGifts(member,member.backupFlowers,member.backupGifts);
     updateShowQueue();
@@ -2287,14 +2285,6 @@ function armIdle(){
     addPerformer(show,person,seat);
   },lastIdleSinger===null?20000:32000);
 }
-const ladderGiftBursts=new Map();
-function countLadderGiftBurst(id,amount,now=performance.now()){
-  const previous=ladderGiftBursts.get(id);
-  const total=amount+(previous&&now-previous.at<5000?previous.total:0);
-  ladderGiftBursts.set(id,{total,at:now});
-  return total;
-}
-
 function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitCoins,giftTier,giftName='',choice,stageTest=false,flowers=0n}={},previewTrack,tier='vip',fromLive=false){
   name=typeof name==='string'?name.trim():'';
   unitCoins=Number(unitCoins??weights[giftTier]??1);
@@ -2307,13 +2297,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   const id=key(name);
   if(fromLive)touchGuest(id);
   const performing=activeShow?.members.get(id);
-  const isLadderGift=tier==='vip'&&!fromLive&&!stageTest&&Object.hasOwn(weights,giftTier);
-  const giftCount=tier==='vip'&&!stageTest?(isLadderGift?unitCoins*count:count):0;
-  const queued=stageQueue.find(item=>item.id===id);
-  const ladderBurst=isLadderGift&&!performing?countLadderGiftBurst(id,giftCount):0;
-  if(ladderBurst&&queued){
-    queued.backupGifts=Math.max(queued.backupGifts,ladderBurst);
-  }
+  const giftCount=tier==='vip'&&!stageTest?count:0;
   if(performing&&!performing.returning&&tier==='vip'){
     performing.giftCoins+=stageTest?(flowers?0:60):unitCoins*count;
     performing.flowers+=flowers;
@@ -2324,7 +2308,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
       if(flowers||giftCount)countFireworksGifts(performing,flowers,giftCount);
     }else{
       if(flowers>performing.backupFlowers)performing.backupFlowers=flowers;
-      performing.backupGifts=isLadderGift?performing.backupGifts+giftCount:Math.max(performing.backupGifts,giftCount);
+      performing.backupGifts=Math.max(performing.backupGifts,giftCount);
     }
   }
   if(tier==='vip'&&!stageTest){
@@ -2398,7 +2382,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   const seat=seated(name,true),viewer=passers.get(id);
   stageQueue.push({id,name:seat?.person.name??viewer?.name??name,
     avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,
-    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,coins:giftCoins,flowers,backupFlowers:flowers,backupGifts:Math.max(giftCount,ladderBurst),order:stageOrder++});
+    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,coins:giftCoins,flowers,backupFlowers:flowers,backupGifts:giftCount,order:stageOrder++});
   sortStageQueue();
   updateShowQueue();
   status(name+(stageTest?' đăng ký lượt thử VIP.':tier==='free'?' đăng ký tiết mục miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
@@ -2581,7 +2565,6 @@ function submit(name,value,avatar,gender,live=false){
   else status('Gõ VÀO BÀN để lấy ghế, quán sẽ tự mang nước ra.');
 }
 function reset(showSamples=true){
-  ladderGiftBursts.clear();
   parkOwner();
   get('stage-fireworks').replaceChildren();
   testHearts.clear();
@@ -2740,7 +2723,7 @@ get('live-demo').addEventListener('click',async()=>{
     if(epoch===session)get('live-demo').disabled=false;
   }
 });
-document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();receiveGift({name:get('gift-name').value,giftTier:b.dataset.level,choice:get('gift-choice').value});});
+document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();submit(get('gift-name').value,'tặng '+weights[b.dataset.level],'','');});
 get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
 get('test-hour').onclick=hourEvent;
 function startDefaultVoice(event){
