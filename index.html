@@ -144,6 +144,7 @@
 </g>
 <g id="stage-reactions" aria-hidden="true"></g>
 <g id="party-fx" pointer-events="none"></g>
+<g id="stage-fireworks" pointer-events="none" aria-hidden="true"></g>
 <g id="live-board" transform="translate(14 635)"><rect width="772" height="72" rx="14" fill="#102820" stroke="#a58653"/><text id="goal-note" x="14" y="23" font-size="18"></text><rect x="14" y="33" width="225" height="8" rx="4" fill="#395747"/><rect id="goal-fill" x="14" y="33" height="8" rx="4" fill="#edc76d"/><text id="vip-list" x="257" y="28" font-size="17"></text><text id="host-note" x="14" y="62" font-size="17">Hoa hồng mời nước · Quà vừa chọn món hoặc bài · Quà lớn bao quán · Quà cực lớn lên sân khấu</text></g>
 <g id="live-stage-notice" visibility="hidden" pointer-events="none">
   <rect x="64" y="30" width="672" height="55" rx="15" fill="#101d29" fill-opacity=".96" stroke="#ffd085"/>
@@ -551,8 +552,8 @@ function offer(name,drink){
   actor.querySelector('.treat')?.remove();
   const glass=cup(drink);glass.classList.add('treat');glass.setAttribute('transform','translate(16 -34) scale(.8)');actor.append(glass);
 }
-function party(rain=false){
-  const layer=group(0,0);get('party-fx').replaceChildren(layer);
+function party(rain=false,target='party-fx'){
+  const layer=group(0,0);get(target).replaceChildren(layer);
   for(let i=0;i<(rain?40:25);i++){
     const x=Math.random()*760+20,y=rain?Math.random()*690:100+Math.random()*220;
     const e=node('text',{x,y,'font-size':rain?20:26,fill:rain?'#bcddff':'#ffe887'},rain?'╱':i%4?'✦':'🏮');
@@ -1692,7 +1693,11 @@ function giftMixLevel(coins){
 const flowerMixCoins=[0,60,300,1000,3000];
 function raiseShowMix(show,member){
   show.giftCoins=Math.max(show.giftCoins,member.giftCoins,flowerMixCoins[flowerVipLevel(member.flowers)]);
-  if(member.backupFlowers>=100n||member.backupGifts>=100)startBackupDancers(show);
+  if(member.backupFlowers>=50n||member.backupGifts>=50)startBackupDancers(show);
+  if(!show.fireworksLaunched&&(member.backupFlowers>=100n||member.backupGifts>=100)){
+    show.fireworksLaunched=true;
+    party(false,'stage-fireworks');
+  }
 }
 
 function playDanceBeat(show){
@@ -1972,6 +1977,7 @@ function endShow(show){
   show.ending=true;
   cancelAnimationFrame(show.danceFrame);
   show.backupLayer?.remove();
+  get('stage-fireworks').replaceChildren();
   clearInterval(show.tick);
   stopStageSound();
   setStage(false);
@@ -2298,6 +2304,7 @@ function submit(name,value,avatar,gender,live=false){
   else status('Gõ VÀO BÀN để lấy ghế, quán sẽ tự mang nước ra.');
 }
 function reset(showSamples=true){
+  get('stage-fireworks').replaceChildren();
   testHearts.clear();
   clearGiftAnnouncements();
   giftNoticeUntil=0;
