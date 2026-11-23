@@ -538,11 +538,11 @@ function board(){
   [...get('tables').children].forEach((table,i)=>table.classList.toggle('seat-star',seats.some(s=>s.tableX===tableCenters[i]&&s.person&&top.some(([id])=>id===s.person.id))));
   return total;
 }
-function chooseReward(name,choice){
-  if(Object.hasOwn(stageTracks,choice)){requestTrack(name,choice);tell(shortGuestName(name)+' chọn bài '+nextStageTrack(choice).title);return true;}
+function chooseReward(name,choice,voice=true){
+  if(Object.hasOwn(stageTracks,choice)){requestTrack(name,choice);tell(shortGuestName(name)+' chọn bài '+nextStageTrack(choice).title,voice);return true;}
   const drink=choice==='mia lau'?{name:'mía lau',color:'#edd58a'}:Object.hasOwn(drinks,choice)?drinks[choice]:null;
   if(!drink)return false;
-  offer(name,drink);tell('Mời '+shortGuestName(name)+' một ly '+drink.name+'!');return true;
+  offer(name,drink);tell('Mời '+shortGuestName(name)+' một ly '+drink.name+'!',voice);return true;
 }
 function offer(name,drink){
   const seat=seated(name,true);
@@ -1541,6 +1541,7 @@ function stopHostSpeech(){
   if(currentSpeech){
     currentSpeech=null;
     nextSpeechAt=performance.now()+speechGap;
+    queueMicrotask(playGiftAnnouncements);
     if(piperAudio){
       piperAudio.pause();
       piperAudio.removeAttribute('src');
@@ -1565,6 +1566,7 @@ function speakVietnamese(text,rate,manual=false){
     clearTimeout(speechTimeout);
     currentSpeech=null;
     nextSpeechAt=performance.now()+speechGap;
+    queueMicrotask(playGiftAnnouncements);
     if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
     return true;
   };
@@ -1929,11 +1931,9 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   }
   const id=key(name);
   if(fromLive)touchGuest(id);
-  if(fromLive){
-    const safeGiftName=typeof giftName==='string'?giftName.trim().slice(0,30):'';
-    queueGiftNotice(name,count,unitCoins*count,safeGiftName);
-  }
   if(tier==='vip'&&!stageTest){
+    const label=typeof giftName==='string'?giftName.trim().slice(0,30):'';
+    queueGiftAnnouncement(name,count,unitCoins*count,label);
     const previous=vipProfiles.get(id);
     const level=Number.isInteger(vipLevel)&&vipLevel>=1?vipLevel:previous?.level??1;
     const amount=Number.isFinite(count)&&count>0?Math.floor(count):1;
@@ -1964,14 +1964,14 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     if(level==='small'){
       const own=seated(name,true),available=seats.filter(s=>s.person?.state==='seated'&&s.person.id!==id&&s.tableX!==own?.tableX);
       if(own)available.sort((a,b)=>Math.abs(tableCenters.indexOf(a.tableX)-tableCenters.indexOf(own.tableX))-Math.abs(tableCenters.indexOf(b.tableX)-tableCenters.indexOf(own.tableX)));
-      const target=available[0];if(target){offer(target.person.name,drinks['tra da']);tellGift(short+' mời '+shortGuestName(target.person.name)+' một ly trà đá!');}
-      else tellGift('Cảm ơn '+short+'! Bàn bên đang trống.');return;
+      const target=available[0];if(target){offer(target.person.name,drinks['tra da']);tell(short+' mời '+shortGuestName(target.person.name)+' một ly trà đá!',false);}
+      else tell('Cảm ơn '+short+'! Bàn bên đang trống.',false);return;
     }
     if(level==='medium'){
-      if(!chooseReward(name,choice)){choices.set(id,(choices.get(id)||0)+amount);tellGift(short+' ơi, chọn rap, chill, rock, trà đá, cà phê hoặc mía lau nhé!');}return;
+      if(!chooseReward(name,choice,false)){choices.set(id,(choices.get(id)||0)+amount);tell(short+' ơi, chọn rap, chill, rock, trà đá, cà phê hoặc mía lau nhé!',false);}return;
     }
-    if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));if(giftEffect){lastGiftEffect=now;party();ding([523,659,784,1047]);}tellGift('Cả quán hô nào! '+short+' bao cả quán!');return;}
-    tellGift(short+' đã mở lượt biểu diễn VIP!');
+    if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));if(giftEffect){lastGiftEffect=now;party();ding([523,659,784,1047]);}tell('Cả quán hô nào! '+short+' bao cả quán!',false);return;}
+    tell(short+' đã mở lượt biểu diễn VIP!',false);
   }
   if(onStage(id))return;
   const existing=stageQueue.find(item=>item.id===id);
@@ -2036,30 +2036,51 @@ const liveCommandLabels=new Map([
 ]);
 let liveNoticeTimer;
 let giftNoticeUntil=0;
-let giftBatch=null,giftBatchTimer;
-let lastGiftVoice=-Infinity,lastGiftEffect=-Infinity;
-function queueGiftNotice(name,count,coins,giftName){
-  if(!giftBatch){
-    giftBatch={name,count:0,coins:0,single:true,giftName};
-    giftBatchTimer=setTimeout(()=>{
-      const batch=giftBatch;
-      giftBatch=null;
-      const caption=batch.single?shortGuestName(batch.name):'Cả quán';
-      const label=batch.single&&batch.giftName?batch.giftName:'quà';
-      showLiveNotice('🎁 '+caption+' · '+batch.count+' '+label+' · '+formatCoins(batch.coins)+' xu',true);
-    },2500);
+let lastGiftEffect=-Infinity;
+const giftQuietMs=1500;
+const giftRuns=new Map(), giftAnnouncements=[];
+function queueGiftAnnouncement(name,count,coins=0,label='',flowers=false){
+  const id=(flowers?'flowers:':'gifts:')+key(name);
+  const incoming={name,count,coins,label,flowers};
+  let run=giftRuns.get(id);
+  if(!run){
+    run={extra:null,timer:null};
+    giftRuns.set(id,run);
+    giftAnnouncements.push(incoming);
+  }else if(!run.extra){
+    run.extra=incoming;
+  }else{
+    run.extra.count+=count;
+    run.extra.coins+=coins;
+    if(run.extra.label!==label)run.extra.label='';
   }
-  if(giftBatch.name!==name)giftBatch.single=false;
-  if(giftBatch.giftName!==giftName)giftBatch.giftName='';
-  giftBatch.count+=count;
-  giftBatch.coins+=coins;
+  clearTimeout(run.timer);
+  run.timer=setTimeout(()=>{
+    giftRuns.delete(id);
+    if(run.extra)giftAnnouncements.push(run.extra);
+    playGiftAnnouncements();
+  },giftQuietMs);
+  playGiftAnnouncements();
 }
-function tellGift(message){
-  const now=performance.now();
-  const speak=now-lastGiftVoice>=6000;
-  if(speak)lastGiftVoice=now;
-  tell(message,speak);
+function playGiftAnnouncements(){
+  while(giftAnnouncements.length&&(!voiceOn||!currentSpeech)){
+    const {name,count,coins,label,flowers}=giftAnnouncements.shift();
+    const guest=shortGuestName(name);
+    const item=flowers?'bông hoa':label||'phần quà';
+    if(flowers)celebrateStarGift(name,count,'🌹');
+    showLiveNotice((flowers?'🌹 ':'🎁 ')+guest+' · '+count+' '+item+
+      (flowers?' thử':' · '+formatCoins(coins)+' xu'),true);
+    const message='Cảm ơn '+guest+' đã tặng '+count+' '+item+'!';
+    tell(message,false);
+    if(voiceOn)speakVietnamese(message,1.06,true);
+  }
 }
+function clearGiftAnnouncements(){
+  for(const run of giftRuns.values())clearTimeout(run.timer);
+  giftRuns.clear();
+  giftAnnouncements.length=0;
+}
+
 function showLiveNotice(message,gift=false){
   const now=performance.now();
   if(!gift&&now<giftNoticeUntil)return;
@@ -2093,28 +2114,8 @@ function replyToGuest(name,cmd){
   tell(line);
 }
 const testHearts=new Map();
-let flowerBatch=null,flowerBatchTimer;
 function showTestFlowers(name,count){
-  if(!flowerBatch){
-    flowerBatch={name,id:key(name),count:0,single:true};
-    flowerBatchTimer=setTimeout(flushTestFlowers,3000);
-  }
-  flowerBatch.count+=count;
-  if(flowerBatch.id!==key(name))flowerBatch.single=false;
-}
-function flushTestFlowers(){
-  const now=performance.now();
-  const wait=Math.max(giftNoticeUntil-now,voiceOn?nextSpeechAt-now:0);
-  if(giftBatch||(voiceOn&&currentSpeech)||wait>0){
-    flowerBatchTimer=setTimeout(flushTestFlowers,Math.max(250,wait));
-    return;
-  }
-  const {name,count,single}=flowerBatch;
-  flowerBatch=null;
-  const label=single?shortGuestName(name):'Cả quán';
-  celebrateStarGift(single?name:label,count,'🌹');
-  showLiveNotice('🌹 '+label+' · Tổng '+count+' hoa thử',true);
-  tell('Cảm ơn '+(single?label:'mọi người')+' đã tặng tổng cộng '+count+' bông hoa!');
+  queueGiftAnnouncement(name,count,0,'',true);
 }
 function addTestHearts(name,count=1){
   if(!Number.isSafeInteger(count)||count<1)return;
@@ -2157,12 +2158,9 @@ function submit(name,value,avatar,gender,live=false){
 }
 function reset(showSamples=true){
   testHearts.clear();
-  clearTimeout(flowerBatchTimer);
-  flowerBatch=null;
-  clearTimeout(giftBatchTimer);
-  giftBatch=null;
+  clearGiftAnnouncements();
   giftNoticeUntil=0;
-  lastGiftVoice=lastGiftEffect=-Infinity;
+  lastGiftEffect=-Infinity;
   clearTimeout(goalNoticeTimer);
   pendingGoalTrack=undefined;
   stopHostSpeech();
