@@ -1671,6 +1671,7 @@ function giftMixLevel(coins){
 const flowerMixCoins=[0,60,300,1000,3000];
 function raiseShowMix(show,member){
   show.giftCoins=Math.max(show.giftCoins,member.giftCoins,flowerMixCoins[flowerVipLevel(member.flowers)]);
+  if(member.flowers>100n||member.giftCount>100)startBackupDancers(show);
 }
 
 function playDanceBeat(show){
@@ -1732,6 +1733,34 @@ function playDanceBeat(show){
     }
   });
 }
+function startBackupDancers(show){
+  if(show.backupDancers||show.ending)return;
+  const dancers=[];
+  show.backupDancers=dancers;
+  const layer=group(0,0);
+  show.backupLayer=layer;
+  layer.setAttribute('aria-label','Mười nhân viên nữ nhảy phụ họa');
+  layers.walking.prepend(layer);
+  for(const side of [-1,1]){
+    for(let i=0;i<5;i++){
+      const actor=character(colors[i%colors.length],{gender:'female'});
+      actor.setAttribute('data-backup-dancer','');
+      const entry={x:side<0?-35:835,y:-100};
+      const spot={x:400+side*(252-i*24),y:i%2?-95:-145};
+      const dancer={actor,ready:false};
+      dancers.push(dancer);
+      positionActor(actor,entry);
+      layer.append(actor);
+      walk(actor,[entry,{x:side<0?95:705,y:-100},spot],650+i*125,show.epoch).then(arrived=>{
+        if(!arrived||activeShow!==show||show.ending)return;
+        dancer.ready=true;
+        actor.setAttribute('data-stage-motion','dance');
+        if(!show.danceFrame)animateDance(show);
+      });
+    }
+  }
+}
+
 function animateDance(show){
   function draw(){
     if(activeShow!==show||show.ending)return;
@@ -1740,7 +1769,9 @@ function animateDance(show){
     const beat=elapsed/(2*show.track.step);
     const phase=Math.floor(elapsed/5)%3;
     const pulse=Math.sin(beat*Math.PI*2);
-    for(const [index,member] of [...show.members.values()].entries()){
+    const performers=show.track.motion==='dance'?[...show.members.values()]:[];
+    const dancers=show.backupDancers??[];
+    for(const [index,member] of [...performers,...dancers].entries()){
       if(!member.ready)continue;
       const actor=member.actor,body=actor.querySelector('.actor-body');
       const side=Math.sin(beat*Math.PI+index*.25);
@@ -1832,7 +1863,7 @@ function addPerformer(show,gift,seat){
   }
   actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
   positionActor(actor,route[0]);
-  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier,giftCoins:gift.coins??0,flowers:gift.flowers??0n};
+  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier,giftCoins:gift.coins??0,flowers:gift.flowers??0n,giftCount:gift.gifts??0};
   if(!seat&&member.guestRequest&&!queue.length){
     if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
     member.returnSeat=seats.find(s=>!s.person&&!s.reservedFor);
@@ -1862,7 +1893,7 @@ function addPerformer(show,gift,seat){
     actor.style.setProperty('--move-delay',(-.14*[...show.members.values()].indexOf(member))+'s');
     if(!show.tick){
       show.startedAt=now;
-      if(show.track.motion==='dance')animateDance(show);
+      if(show.track.motion==='dance'&&!show.danceFrame)animateDance(show);
       setStage(true);
       playStageSound(show);
       show.tick=setInterval(()=>stageTick(show),250);
@@ -1916,6 +1947,7 @@ function endShow(show){
   if(activeShow!==show||show.ending||show.members.size)return;
   show.ending=true;
   cancelAnimationFrame(show.danceFrame);
+  show.backupLayer?.remove();
   clearInterval(show.tick);
   stopStageSound();
   setStage(false);
@@ -1978,6 +2010,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   if(performing&&tier==='vip'){
     performing.giftCoins+=stageTest?(flowers?0:60):unitCoins*count;
     performing.flowers+=flowers;
+    if(!stageTest)performing.giftCount+=count;
     if(performing.ready)raiseShowMix(activeShow,performing);
   }
   if(tier==='vip'&&!stageTest){
