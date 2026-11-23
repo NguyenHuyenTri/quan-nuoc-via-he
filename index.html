@@ -16,7 +16,7 @@
 <main>
 <header class="top"><div><div class="eyebrow">LIVE TƯƠNG TÁC · BẢN CHƠI THỬ</div><h1>Quán Nước Vỉa Hè</h1><p class="subtitle">Ghé quán, kéo ghế, gọi một ly.</p></div><span class="badge">● QUÁN ĐANG MỞ</span></header>
 <div class="action-banner" aria-label="Thông báo hành động">
-  <small>CHỦ QUÁN TRÍ</small>
+  <small>Trí Chủ Quán</small>
   <span id="announcement" role="status">Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!</span>
 </div>
 <div class="layout">
@@ -119,7 +119,6 @@
 <g id="counter-front" transform="translate(588 425) scale(1.12 1.06)">
 <rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
 <g id="prep-station" aria-label="Nhân viên pha chế"></g>
-<g id="beer-counter-staff" aria-label="Nhân viên giới thiệu bia"></g>
 <g transform="translate(0 -10)">
 <path d="M-6 15h166l13 42H-19z" fill="url(#roof)" stroke="#eea26a" stroke-width="2"/>
 <path d="M20 16 13 55m40-39-4 39m37-39v39m32-39 4 39m29-39 8 39" stroke="#ffc584" opacity=".65" stroke-width="3"/>
@@ -134,13 +133,6 @@
   <rect width="383" height="69" rx="14" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
   <text x="18" y="23" fill="#ffd391" font-size="14" font-weight="800">NHÂN VIÊN NHẮC KHÉO</text>
   <text id="counter-line" x="18" y="49" fill="#fff2cf" font-size="19" font-weight="750">vào bàn</text>
-</g>
-<g id="beer-counter-dialogue" transform="translate(398 468)">
-  <path d="M222 43l35 19-35-3" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
-  <rect width="224" height="72" rx="12" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
-  <text x="13" y="21" fill="#ffd391" font-size="14" font-weight="800">NHÂN VIÊN QUẦY BIA</text>
-  <text x="13" y="43" fill="#fff2cf" font-size="16">Huda, Tiger, Larue</text>
-  <text x="13" y="62" fill="#fff2cf" font-size="16">và bia hơi mát lạnh!</text>
 </g>
 <g id="back-seats"></g><g id="back-people"></g>
 <defs><g id="square-table" transform="translate(400 312) scale(.4) translate(-400 -312)">
@@ -1019,7 +1011,7 @@ document.addEventListener('pointerdown',()=>{primeAudio();},{once:true});
 document.addEventListener('keydown',()=>{primeAudio();},{once:true});
 const sceneRoot=get('counter-front').parentNode;
 const staffLayer=node('g',{id:'staff-foreground'});
-sceneRoot.append(get('counter-front'),staffLayer,get('counter-dialogue'),get('beer-counter-dialogue'));
+sceneRoot.append(get('counter-front'),staffLayer,get('counter-dialogue'));
 const prep=character('#81c6b3',{host:true,gender:'male'});
 prep.setAttribute('transform','translate(86 130)');
 get('prep-station').append(prep);
@@ -1036,11 +1028,52 @@ ellipse(ownerOutfit,0,-49,17,3,'#222c36');
 line(ownerOutfit,'M-10 -51H10','#eac27b',2);
 owner.append(node('text',{x:0,y:-83,'text-anchor':'middle',
   fill:'#ffe0a5',stroke:'#162e2a','stroke-width':3,'paint-order':'stroke',
-  'font-size':15,'font-weight':800},'TRÍ · ÔNG CHỦ'));
+  'font-size':15,'font-weight':800},'Trí Chủ Quán'));
 sceneRoot.append(owner);
-const beerStaff=character('#9f88ce',{host:true,gender:'female'});
-beerStaff.setAttribute('transform','translate(35 130)');
-get('beer-counter-staff').append(beerStaff);
+const ownerMouth=node('ellipse',{cx:0,cy:-37,rx:2.5,ry:1,fill:'#542627',
+  style:'transform-box:fill-box;transform-origin:center'});
+ownerOutfit.append(ownerMouth);
+const ownerBubble=group(65,452);
+ownerBubble.setAttribute('visibility','hidden');
+ownerBubble.setAttribute('pointer-events','none');
+const ownerBubbleShape=node('rect',{width:330,height:70,rx:12,fill:'#162e2a',stroke:'#eac27b','stroke-width':2});
+const ownerBubbleTail=node('path',{fill:'#162e2a',stroke:'#eac27b','stroke-width':2});
+const ownerBubbleText=group(0,0);
+ownerBubble.append(ownerBubbleTail,ownerBubbleShape,
+  node('text',{x:13,y:20,fill:'#ffd391','font-size':15,'font-weight':800},'Trí Chủ Quán'),ownerBubbleText);
+sceneRoot.append(ownerBubble);
+let ownerMouthMotion=null;
+function showOwnerSpeech(message){
+  const lines=[];
+  for(const word of message.split(/\s+/)){
+    const last=lines.length-1;
+    if(last>=0&&lines[last].length+word.length+1<=38)lines[last]+=' '+word;
+    else lines.push(word);
+  }
+  const visible=lines.slice(0,3);
+  if(lines.length>3)visible[2]+='…';
+  const height=30+visible.length*19;
+  ownerBubble.setAttribute('transform','translate(65 '+(521-height)+')');
+  ownerBubbleShape.setAttribute('height',height);
+  ownerBubbleTail.setAttribute('d','M65 '+(height-5)+'l16 17 15-17Z');
+  ownerBubbleText.replaceChildren();
+  visible.forEach((line,index)=>{
+    const label=node('text',{x:13,y:40+index*19,fill:'#fff2cf','font-size':17});
+    ownerBubbleText.append(label);
+    fitBoardText(label,line,304);
+  });
+  ownerBubble.setAttribute('visibility','visible');
+  ownerMouthMotion?.cancel();
+  if(!reduce.matches&&ownerMouth.animate){
+    ownerMouthMotion=ownerMouth.animate([{transform:'scaleY(1)'},{transform:'scaleY(2.7)'},{transform:'scaleY(1)'}],
+      {duration:340,iterations:Infinity});
+  }
+}
+function hideOwnerSpeech(){
+  ownerBubble.setAttribute('visibility','hidden');
+  ownerMouthMotion?.cancel();
+  ownerMouthMotion=null;
+}
 function serviceWorker(carry=[]){
   const actor=character('#edba64',{host:true,carry});
   actor.setAttribute('aria-label','Nhân viên bưng nước');
@@ -1662,7 +1695,7 @@ function setStage(active){
 }
 const speechGap=8000;
 const piperAudio=document.querySelector('meta[name="cafe-piper"]')?new Audio():null;
-function speakWithPiper(text,rate){
+function speakWithPiper(text,rate,ownerSpeaking){
   const request={};
   currentSpeech=request;
   const finish=(failed=false)=>{
@@ -1670,6 +1703,7 @@ function speakWithPiper(text,rate){
     stopHostSpeech();
     if(failed)status('Không phát được giọng Piper. Kiểm tra Python 3.12 và model vais1000 trong thư mục game.');
   };
+  piperAudio.onplaying=()=>{if(ownerSpeaking&&currentSpeech===request)showOwnerSpeech(text);};
   piperAudio.onended=()=>finish();
   piperAudio.onerror=()=>finish(true);
   piperAudio.src='./host-voice?'+new URLSearchParams({text});
@@ -1683,6 +1717,7 @@ function stopHostSpeech(){
   clearTimeout(speechTimeout);
   if(currentSpeech){
     currentSpeech=null;
+    hideOwnerSpeech();
     nextSpeechAt=performance.now()+speechGap;
     queueMicrotask(playGiftAnnouncements);
     if(piperAudio){
@@ -1692,9 +1727,9 @@ function stopHostSpeech(){
     }else window.speechSynthesis?.cancel();
   }
 }
-function speakVietnamese(text,rate,manual=false){
+function speakVietnamese(text,rate,manual=false,ownerSpeaking=true){
   if(!voiceOn||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return;
-  if(piperAudio)return speakWithPiper(text,rate);
+  if(piperAudio)return speakWithPiper(text,rate,ownerSpeaking);
   const speech=window.speechSynthesis;
   if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
   const voice=speech?.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang));
@@ -1708,6 +1743,7 @@ function speakVietnamese(text,rate,manual=false){
     if(currentSpeech!==utterance)return false;
     clearTimeout(speechTimeout);
     currentSpeech=null;
+    hideOwnerSpeech();
     nextSpeechAt=performance.now()+speechGap;
     queueMicrotask(playGiftAnnouncements);
     if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
@@ -1718,6 +1754,7 @@ function speakVietnamese(text,rate,manual=false){
     speech.cancel();
     status('Trình duyệt chưa phát được giọng chủ quán. Bấm tắt rồi bật giọng để thử lại.');
   },15000);
+  utterance.onstart=()=>{if(ownerSpeaking&&currentSpeech===utterance)showOwnerSpeech(text);};
   utterance.onend=finish;
   utterance.onerror=event=>{
     if(finish()&&event.error!=='canceled'&&event.error!=='interrupted'){
@@ -2020,7 +2057,7 @@ function stageTick(show){
     }
     if(voiceOn&&verses?.length){
       const lyric=verses[show.verseIndex%verses.length];
-      speakVietnamese(lyric,show.rap?1.18:.95,true);
+      speakVietnamese(lyric,show.rap?1.18:.95,true,false);
     }
     show.verseIndex++;
     show.nextVerse=now+(show.rap?3900:show.track.motion==='dance'?6500:4600);
