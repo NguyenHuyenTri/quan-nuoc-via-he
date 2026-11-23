@@ -160,7 +160,7 @@
 
 </section>
 <aside class="controls" aria-label="Giả lập bình luận">
-<div><h2>Bình luận giả lập</h2><p class="hint">Bình luận: vào bàn · cụng ly · rap · chill · rock. Chạm Bật nhạc cho quán để nghe cả tiết mục tự động.</p></div>
+<div><h2>Bình luận giả lập</h2><p class="hint">Gõ “vào bàn” hoặc “ghé” để vào quán. Khi đã ngồi, gõ rock, chill hoặc rap để lên sân khấu.</p></div>
 <div class="grid-buttons">
 <button type="button" id="live-demo" class="primary">▶ Chạy thử một buổi LIVE</button>
 <button type="button" id="demo">Xem một lượt phục vụ</button>
@@ -681,7 +681,7 @@ function info(){
   get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
   updateShowQueue();
 }
-const counterTips=['vào bàn','cụng ly','rap','chill','rock','ghé'];
+const counterTips=['Gõ VÀO BÀN hoặc GHÉ để vào quán.','Đã ngồi? Gõ ROCK, CHILL hoặc RAP để lên sân khấu.'];
 let counterTip=0,counterTimer=null;
 function counterTalk(message){
   const line=get('counter-line');
@@ -1096,7 +1096,8 @@ function takeSeat(guest,seat,atSeat=false){
     person.state='seated';person.seatedAt=performance.now();
     if(departedGuests.has(person.id)){void leave(person.name,true);return;}
     if(owed.has(person.id)){offer(person.name,owed.get(person.id));owed.delete(person.id);}board();
-    status(guest.name+' đã ngồi vào bàn. Quán sẽ mang nước ra nha!');
+    counterTalk('Đã ngồi? Gõ ROCK, CHILL hoặc RAP để lên sân khấu.');
+    status(guest.name+' đã ngồi. Gõ rock, chill hoặc rap để lên sân khấu!');
     serve();
     advanceStage();advanceWaiting();
   })();
@@ -1118,7 +1119,12 @@ function join(name,avatar,gender){
       }
       info();serve();
     }
-    status(person.name+(person.state==='leaving'?' đang rời bàn.':' đã có ghế rồi. Ngồi chill nha!'));
+    if(person.state==='seated'){
+      counterTalk('Đã ngồi? Gõ ROCK, CHILL hoặc RAP để lên sân khấu.');
+      status(person.name+' đã có ghế. Gõ rock, chill hoặc rap để lên sân khấu!');
+    }else{
+      status(person.name+(person.state==='leaving'?' đang rời bàn.':' đang đi vào bàn.'));
+    }
     return;
   }
   if(queue.some(p=>p.id===key(name))){status(name+' đang chờ ghế.');return;}
@@ -2495,6 +2501,16 @@ get('demo-gift').addEventListener('click',()=>{
   receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value,stageTest:true},'rock');
 });
 function requestFreeDance(name,avatar,gender,track='rock'){
+  const seat=seated(name);
+  if(seat?.person.state!=='seated'){
+    const message=seat?.person.state==='entering'
+      ?'Chờ ngồi vào bàn rồi gõ rock, chill hoặc rap nhé!'
+      :'Gõ VÀO BÀN hoặc GHÉ trước khi lên sân khấu.';
+    counterTalk(message);
+    status(message);
+    showLiveNotice(message);
+    return;
+  }
   receiveGift({name,avatarUrl:avatar,gender},track,'free');
 }
 get('demo-dance').addEventListener('click',()=>{
