@@ -1754,7 +1754,7 @@ function speakWithPiper(text,rate,ownerSpeaking){
 }
 
 let nextSpeechAt=0,speechTimeout;
-let browserVoiceReady=false,piperGreetingRequested=false;
+let browserVoiceStarted=false,piperGreetingRequested=false;
 function stopHostSpeech(){
   clearTimeout(speechTimeout);
   if(currentSpeech){
@@ -1769,16 +1769,16 @@ function stopHostSpeech(){
     }else window.speechSynthesis?.cancel();
   }
 }
-function speakVietnamese(text,rate,manual=false,ownerSpeaking=true,unlock=false){
+function speakVietnamese(text,rate,manual=false,ownerSpeaking=true){
   if(!voiceOn||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return;
   if(piperAudio)return speakWithPiper(text,rate,ownerSpeaking);
-  if(!browserVoiceReady&&!unlock)return null;
+  if(!browserVoiceStarted)return null;
   const speech=window.speechSynthesis;
   if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
   const voice=speech.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang)||/(?:Vietnamese|Tiếng Việt)/i.test(item.name));
-  if(!voice)return null;
+  if(!voice&&!/iPhone|iPad|iPod/i.test(navigator.userAgent)&&!(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))return null;
   const utterance=new SpeechSynthesisUtterance(text);
-  utterance.voice=voice;
+  if(voice)utterance.voice=voice;
   utterance.lang='vi-VN';
   utterance.rate=rate;
   currentSpeech=utterance;
@@ -1794,7 +1794,7 @@ function speakVietnamese(text,rate,manual=false,ownerSpeaking=true,unlock=false)
   };
   const timeout=()=>{
     if(currentSpeech!==utterance)return;
-    browserVoiceReady=false;
+    browserVoiceStarted=false;
     finish();
     speech.cancel();
     status('Chạm vào game để mở lại giọng chủ quán.');
@@ -1802,14 +1802,13 @@ function speakVietnamese(text,rate,manual=false,ownerSpeaking=true,unlock=false)
   speechTimeout=setTimeout(timeout,4000);
   utterance.onstart=()=>{
     if(currentSpeech!==utterance)return;
-    browserVoiceReady=true;
     clearTimeout(speechTimeout);
     speechTimeout=setTimeout(timeout,15000);
     if(ownerSpeaking)showOwnerSpeech(text);
   };
   utterance.onend=finish;
   utterance.onerror=event=>{
-    if(currentSpeech===utterance&&event.error==='not-allowed')browserVoiceReady=false;
+    if(currentSpeech===utterance&&event.error==='not-allowed')browserVoiceStarted=false;
     if(finish()&&event.error!=='canceled'&&event.error!=='interrupted'){
       status('Trình duyệt báo lỗi giọng chủ quán: '+event.error);
     }
@@ -2741,12 +2740,16 @@ get('test-hour').onclick=hourEvent;
 function startDefaultVoice(event){
   if(event.type==='keydown'&&(event.altKey||event.ctrlKey||event.metaKey||event.repeat))return;
   if(!voiceOn||event.target.closest?.('#voice-toggle')||currentSpeech)return;
-  if(piperAudio?piperGreetingRequested:browserVoiceReady)return;
+  if(piperAudio?piperGreetingRequested:browserVoiceStarted)return;
   requestOpeningVoice();
 }
 function requestOpeningVoice(){
-  if(!piperAudio&&window.speechSynthesis?.paused)window.speechSynthesis.resume();
-  if(speakVietnamese('Quán mở cửa rồi!',1,true,true,true)===null){
+  if(!piperAudio){
+    browserVoiceStarted=true;
+    window.speechSynthesis?.resume();
+  }
+  if(speakVietnamese('Quán mở cửa rồi!',1,true)===null){
+    browserVoiceStarted=false;
     tell('Chưa thấy giọng tiếng Việt. Chạm lại vào game để thử.',false);
     return;
   }
@@ -2754,11 +2757,6 @@ function requestOpeningVoice(){
 }
 document.addEventListener('click',startDefaultVoice,true);
 document.addEventListener('keydown',startDefaultVoice,true);
-document.addEventListener('visibilitychange',()=>{
-  if(piperAudio||!document.hidden)return;
-  browserVoiceReady=false;
-  stopHostSpeech();
-});
 get('voice-toggle').onclick=()=>{
   const button=get('voice-toggle');
   voiceOn=!voiceOn;
