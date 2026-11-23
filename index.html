@@ -1754,6 +1754,7 @@ function speakWithPiper(text,rate,ownerSpeaking){
 }
 
 let nextSpeechAt=0,speechTimeout;
+let browserVoiceReady=false,piperGreetingRequested=false;
 function stopHostSpeech(){
   clearTimeout(speechTimeout);
   if(currentSpeech){
@@ -1768,9 +1769,10 @@ function stopHostSpeech(){
     }else window.speechSynthesis?.cancel();
   }
 }
-function speakVietnamese(text,rate,manual=false,ownerSpeaking=true){
+function speakVietnamese(text,rate,manual=false,ownerSpeaking=true,unlock=false){
   if(!voiceOn||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return;
   if(piperAudio)return speakWithPiper(text,rate,ownerSpeaking);
+  if(!browserVoiceReady&&!unlock)return null;
   const speech=window.speechSynthesis;
   if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
   const voice=speech.getVoices().find(item=>/^vi(?:[-_]|$)/i.test(item.lang)||/(?:Vietnamese|Tiếng Việt)/i.test(item.name));
@@ -1790,14 +1792,24 @@ function speakVietnamese(text,rate,manual=false,ownerSpeaking=true){
     if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
     return true;
   };
-  speechTimeout=setTimeout(()=>{
-    if(!finish())return;
+  const timeout=()=>{
+    if(currentSpeech!==utterance)return;
+    browserVoiceReady=false;
+    finish();
     speech.cancel();
-    status('Trình duyệt chưa phát được giọng chủ quán. Bấm tắt rồi bật giọng để thử lại.');
-  },15000);
-  utterance.onstart=()=>{if(ownerSpeaking&&currentSpeech===utterance)showOwnerSpeech(text);};
+    status('Chạm vào game để mở lại giọng chủ quán.');
+  };
+  speechTimeout=setTimeout(timeout,4000);
+  utterance.onstart=()=>{
+    if(currentSpeech!==utterance)return;
+    browserVoiceReady=true;
+    clearTimeout(speechTimeout);
+    speechTimeout=setTimeout(timeout,15000);
+    if(ownerSpeaking)showOwnerSpeech(text);
+  };
   utterance.onend=finish;
   utterance.onerror=event=>{
+    if(currentSpeech===utterance&&event.error==='not-allowed')browserVoiceReady=false;
     if(finish()&&event.error!=='canceled'&&event.error!=='interrupted'){
       status('Trình duyệt báo lỗi giọng chủ quán: '+event.error);
     }
@@ -2729,29 +2741,31 @@ get('test-hour').onclick=hourEvent;
 function startDefaultVoice(event){
   if(event.type==='keydown'&&(event.altKey||event.ctrlKey||event.metaKey||event.repeat))return;
   if(!voiceOn||event.target.closest?.('#voice-toggle')||currentSpeech)return;
+  if(piperAudio?piperGreetingRequested:browserVoiceReady)return;
+  requestOpeningVoice();
+}
+function requestOpeningVoice(){
   if(!piperAudio&&window.speechSynthesis?.paused)window.speechSynthesis.resume();
-  if(speakVietnamese('Quán mở cửa rồi!',1,true)===null){
-    tell('Chưa thấy giọng tiếng Việt. Chạm lại vào game để thử hoặc bấm nút Giọng chủ quán.',false);
+  if(speakVietnamese('Quán mở cửa rồi!',1,true,true,true)===null){
+    tell('Chưa thấy giọng tiếng Việt. Chạm lại vào game để thử.',false);
     return;
   }
-  document.removeEventListener('click',startDefaultVoice,true);
-  document.removeEventListener('keydown',startDefaultVoice,true);
+  if(piperAudio)piperGreetingRequested=true;
 }
 document.addEventListener('click',startDefaultVoice,true);
 document.addEventListener('keydown',startDefaultVoice,true);
+document.addEventListener('visibilitychange',()=>{
+  if(piperAudio||!document.hidden)return;
+  browserVoiceReady=false;
+  stopHostSpeech();
+});
 get('voice-toggle').onclick=()=>{
   const button=get('voice-toggle');
   voiceOn=!voiceOn;
   button.setAttribute('aria-pressed',String(voiceOn));
   button.textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';
   if(voiceOn){
-    if(!piperAudio&&window.speechSynthesis?.paused)window.speechSynthesis.resume();
-    if(speakVietnamese('Quán mở cửa rồi!',1,true)===null){
-      voiceOn=false;
-      button.setAttribute('aria-pressed','false');
-      button.textContent='Bật giọng chủ quán';
-      tell('Chưa tìm thấy giọng tiếng Việt. Bật giọng lại sau khi thiết bị tải xong.',false);
-    }
+    requestOpeningVoice();
     primeAudio();
   }else{
     stopHostSpeech();
