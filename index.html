@@ -478,7 +478,28 @@ function visitor(detail){
   const name=detail?.name?.trim();if(!name)return;
   passBy({name,avatar:avatarUrl(detail.avatarUrl),gender:normalizeGender(detail.gender)});
   const id=key(name),now=Date.now();
-  if(now-(visits.get(id)||0)>60000){visits.set(id,now);loyalty(name,1);tell('Mời '+shortGuestName(name)+' ghé quán!');}
+  if(now-(visits.get(id)||0)<=60000)return;
+  visits.set(id,now);
+  loyalty(name,1);
+  const guest=shortGuestName(name);
+  const message='Chào '+guest+' đã ghé LIVE! Vào làm một cốc bia hơi chứ, '+guest+'? Ở đây có bia hơi, Tiger và Huda nhé!';
+  tell(message,false);
+  if(voiceOn){
+    viewerGreetings.push({message,expiresAt:performance.now()+20000});
+    playViewerGreeting();
+  }
+}
+const viewerGreetings=[];
+function playViewerGreeting(){
+  const now=performance.now();
+  while(viewerGreetings[0]?.expiresAt<=now)viewerGreetings.shift();
+  if(!voiceOn){
+    viewerGreetings.length=0;
+    return;
+  }
+  if(currentSpeech||giftAnnouncements.length||ownerPatrolling||!viewerGreetings.length)return;
+  const {message}=viewerGreetings.shift();
+  if(speakVietnamese(message,1.06,true)!==null)waveToGuests();
 }
 const formatCoins=n=>n.toLocaleString('vi-VN');
 function nextGoal(total){
@@ -2084,7 +2105,7 @@ function stageTick(show){
     show.lead=lead.person.name;
     ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
     const {verses}=show.track;
-    if(voiceOn&&(currentSpeech||giftAnnouncements.length)){
+    if(voiceOn&&(currentSpeech||giftAnnouncements.length||viewerGreetings.length)){
       show.nextVerse=now+250;
       return;
     }
@@ -2548,6 +2569,7 @@ function reset(showSamples=true){
   get('stage-fireworks').replaceChildren();
   testHearts.clear();
   clearGiftAnnouncements();
+  viewerGreetings.length=0;
   giftNoticeUntil=0;
   lastGiftEffect=-Infinity;
   clearTimeout(goalNoticeTimer);
@@ -2627,7 +2649,7 @@ get('preview-viewer').addEventListener('click',()=>{
     avatarField.setCustomValidity('');
     return;
   }
-  passBy({name,avatar,gender:get('guest-gender').value});
+  visitor({name,avatarUrl:avatar,gender:get('guest-gender').value});
 });
 let testGuestSerial=0;
 get('test-add-guests').addEventListener('click',()=>{
@@ -2779,19 +2801,14 @@ function speakWhileStageIdle(){
   if(!voiceOn||activeShow||stageQueue.length||currentSpeech||giftAnnouncements.length||
     now<nextSpeechAt||now-lastIdleVoiceAt<12000)return;
   if(ownerPatrolling)return;
-  const passer=[...passers.values()].find(guest=>{
-    const point=guest.actor.walkPosition;
-    return point&&point.x>=0&&point.x<=800&&Math.abs(point.x-owner.walkPosition.x)<120;
-  });
-  const nearby=passer&&idleVoiceIndex>0&&idleVoiceIndex%2===1;
-  const line=nearby
-    ?shortGuestName(passer.name)+' ơi, ghé quán làm một cốc bia không? Có Huda, Tiger, Larue và bia hơi nha!'
-    :idleVoiceLines[idleVoiceIndex];
+  if(viewerGreetings.length)return;
+  const line=idleVoiceLines[idleVoiceIndex];
   if(speakVietnamese(line,1.06)===null)return;
   waveToGuests();
   idleVoiceIndex=(idleVoiceIndex+1)%idleVoiceLines.length;
   lastIdleVoiceAt=now;
 }
+setInterval(playViewerGreeting,500);
 setInterval(speakWhileStageIdle,2000);
 let lastHour=Math.floor(Date.now()/3600000);
 setInterval(()=>{const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHour=h;hourEvent();}board();},5000);
