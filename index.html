@@ -2118,7 +2118,7 @@ function replyToGuest(name,cmd){
 }
 const testHearts=new Map();
 function showTestFlowers(name,count){
-  queueGiftAnnouncement(name,count,0,'',true);
+  queueGiftAnnouncement(name,BigInt(count),0,'',true);
 }
 function addTestHearts(name,count=1){
   if(!Number.isSafeInteger(count)||count<1)return;
@@ -2134,11 +2134,11 @@ function submit(name,value,avatar,gender,live=false){
   if(!name){get('guest').focus();return;}
   if(live)touchGuest(key(name));
   const cmd=parseComment(value);
-  const testGift=/^tang ([1-9][0-9]?)$/.exec(cmd);
+  const testGift=/^tang ([1-9][0-9]*)$/.exec(cmd);
   if(testGift){
     const occupied=seated(name,true);
     if((!occupied||occupied.person.sample)&&!onStage(key(name)))join(name,avatar,gender);
-    showTestFlowers(name,Number(testGift[1]));
+    showTestFlowers(name,testGift[1]);
     return;
   }
   if(cmd==='tha tim')addTestHearts(name);
