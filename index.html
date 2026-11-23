@@ -1703,7 +1703,7 @@ for(const placeholder of document.querySelectorAll('[data-stage-speaker]')){
 }
 const speakerParts=document.querySelectorAll('#quang-canh .speaker-cone, #speaker-pulses .speaker-pulse');
 function setStage(active){
-  if(active)parkOwner();
+  if(active)parkOwner(true);
   const beat=active&&activeShow?activeShow.track.step*2+'s':'';
   for(const part of speakerParts)part.style.animationDuration=beat;
   get('quang-canh').classList.toggle('stage-performing',active);
@@ -2739,9 +2739,16 @@ window.addEventListener('quannuoc:comment',event=>{
 });
 const ownerStops=[{x:265,y:613},{x:425,y:623},{x:532,y:611},{x:320,y:602},ownerHome];
 let ownerStopIndex=0,ownerPatrolling=false;
-function parkOwner(){
+function parkOwner(animateReturn=false){
   walkingRuns.delete(owner);
   ownerWave?.cancel();
+  const from=owner.walkPosition;
+  const distance=Math.hypot(ownerHome.x-from.x,ownerHome.y-from.y);
+  if(animateReturn&&!reduce.matches&&distance>2){
+    const duration=Math.max(450,Math.min(2200,distance*5));
+    void walk(owner,[from,ownerHome],duration,null);
+    return;
+  }
   owner.stepLegs.setAttribute('d','M-7 -14 -9 0M7 -14 9 0');
   positionActor(owner,ownerHome);
 }
