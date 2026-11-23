@@ -5,15 +5,28 @@ const salt = encoder.encode('38c5cd180ad2d217f2e5503f2d72615b');
 const expected = '63d3f7e751df59fface5aa61aa6652d3c2c6c6f7dc26a68538fa3393233d4cda';
 
 const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'private, no-store', 'Vary': 'Cookie, X-Quan-Login' };
+const loaderStyle = `<style>
+.quan-loading{display:flex;align-items:center;justify-content:center;gap:.7rem;font:600 16px system-ui;color:#fff3d6}
+.quan-loading::before{content:"";width:1.1em;height:1.1em;border:3px solid #546b5e;border-top-color:#ffda91;border-radius:50%;animation:quan-spin .8s linear infinite}
+@keyframes quan-spin{to{transform:rotate(1turn)}}
+#quan-arrival{position:fixed;inset:0;z-index:2147483647;background:#11251e;pointer-events:none;animation:quan-enter .6s ease-out forwards}
+@keyframes quan-enter{0%,60%{opacity:1}100%{opacity:0;visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.quan-loading::before{animation:none}#quan-arrival{animation-duration:.15s}}
+</style>`;
+const arrival = '<div id="quan-arrival" class="quan-loading" role="status">Đang vào quán…</div><script>document.getElementById("quan-arrival").addEventListener("animationend",function(e){if(e.target===this)this.remove()})</script>';
 const loginPage = `<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đăng nhập · Quán Nước Vỉa Hè</title>
 <style>*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;background:#11251e;color:#fff3d6;font:16px system-ui}form{width:min(90vw,350px);padding:24px;background:#20382e;border-radius:14px}label,input,button{display:block;width:100%}input,button{margin:6px 0 16px;padding:12px;border-radius:8px;font:inherit}button{background:#ffda91;cursor:pointer}</style>
-<form id="login" method="post" autocomplete="off"><h2>Quán Nước Vỉa Hè</h2><label>Tài khoản<input name="username" required autocapitalize="none"></label><label>Mật khẩu<input name="password" type="password" required></label><button>Đăng nhập</button><p role="status" id="notice"></p></form>
+${loaderStyle}<form id="login" method="post" autocomplete="off"><h2>Quán Nước Vỉa Hè</h2><label>Tài khoản<input name="username" required autocapitalize="none"></label><label>Mật khẩu<input name="password" type="password" required></label><button>Đăng nhập</button><p role="status" id="notice"></p></form>
 <script>
 const form=document.getElementById('login');
 form.onsubmit=async event=>{
   event.preventDefault();
   const button=form.querySelector('button');
   button.disabled=true;
+  const notice=document.getElementById('notice');
+  notice.classList.add('quan-loading');
+  notice.textContent='Đang đăng nhập…';
+  let navigating=false;
   try {
     const credentials=btoa(form.username.value+':'+form.password.value);
     const response=await fetch('/index.html',{headers:{'X-Quan-Login':credentials},credentials:'same-origin',cache:'no-store'});
@@ -22,9 +35,11 @@ form.onsubmit=async event=>{
       return;
     }
     form.reset();
-    location.replace(location.href);
+    navigating=true;
+    notice.textContent="Đang vào quán…";
+    location.reload();
   }catch{document.getElementById('notice').textContent='Chưa đăng nhập được. Vui lòng thử lại.'}
-  finally{button.disabled=false}
+  finally{if(!navigating){notice.classList.remove('quan-loading');button.disabled=false}}
 };
 </script></html>`;
 
@@ -64,7 +79,7 @@ export default async function requireLogin(request, context) {
     if (!expiry) return new Response(loginPage, {headers});
     const response = await context.next();
     const guard = '<script>(()=>{const expires='+expiry+'*1000;function check(){if(Date.now()>=expires)location.reload()}setTimeout(check,Math.max(0,expires-Date.now())+100);addEventListener("pageshow",check);document.addEventListener("visibilitychange",check)})();</script>';
-    const html = (await response.text()).replace('</head>',guard+'</head>');
+    const html = (await response.text()).replace('</head>',loaderStyle+guard+'</head>').replace(/<body\b[^>]*>/i, tag=>tag+arrival);
     return new Response(html,{status:response.status,headers});
   }
   let credentials = '';
@@ -77,7 +92,7 @@ export default async function requireLogin(request, context) {
       const expiry = String(Math.floor(Date.now()/1000)+lifetime);
       const bytes = await crypto.subtle.sign('HMAC',await signingKey(),encoder.encode(expiry));
       const signature = Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join('');
-      return new Response(null,{status:204,headers:{...headers,'X-Quan-Game':'1','Set-Cookie':cookieName+'='+expiry+'.'+signature+'; Path=/; Max-Age='+lifetime+'; Secure; HttpOnly; SameSite=Strict'}});
+      return new Response(null,{status:204,headers:{...headers,'X-Quan-Game':'1','Set-Cookie':cookieName+'='+expiry+'.'+signature+'; Path=/; Max-Age='+lifetime+'; Secure; HttpOnly; SameSite=Lax'}});
     }
   }
   return new Response(null, {status:401, headers});
