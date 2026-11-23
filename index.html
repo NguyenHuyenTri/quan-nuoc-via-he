@@ -1991,6 +1991,12 @@ function cheerStage(){
   const fan=oneOf(audience);
   tableDialogue(fan?.tableX??400,fan?.person.name??'Khán giả',oneOf(audienceLines),true);
 }
+const ownerMovesByGenre={
+  chill:['rotate(0deg)','translateX(-3px) rotate(-5deg)','translateX(3px) rotate(5deg)','rotate(0deg)'],
+  rap:['translateY(0)','translateY(3px) rotate(8deg)','translateY(0)','translateY(3px) rotate(-5deg)','translateY(0)'],
+  rock:['translateY(0)','translate(-6px,-11px) rotate(-9deg)','translateY(0)',
+    'translate(6px,-11px) rotate(9deg)','translateY(0)']
+};
 const audienceMovesByGenre={
   chill:{share:.25,beats:4,frames:[
     {transform:'translate(0,6px) rotate(0deg)'},
@@ -2015,6 +2021,13 @@ function moveSeatedAudience(show,now){
   show.nextAudienceAt=start+8*beatMs;
   show.audienceMoves?.forEach(animation=>animation.cancel());
   show.audienceMoves=[];
+  if(ownerOutfit.animate){
+    const frames=ownerMovesByGenre[show.genre].map(transform=>({transform}));
+    show.audienceMoves.push(ownerOutfit.animate(frames,{
+      duration:beatMs*style.beats,iterations:8/style.beats,
+      delay:Math.max(0,start-now),easing:'ease-in-out'
+    }));
+  }
   const audience=seats.filter(({person})=>person?.state==='seated'&&!onStage(person.id));
   if(audience.length<2)return;
   const count=Math.max(1,Math.round(audience.length*style.share));
@@ -2704,8 +2717,8 @@ window.addEventListener('quannuoc:comment',event=>{
   submit(detail.name,detail.comment,avatarUrl(detail.avatarUrl),normalizeGender(detail.gender),true);
 });
 const idleVoiceLines=[
-  'Chào cả nhà! Tôi là Trí, ông chủ Quán Nước Vỉa Hè. Mời mọi người ghé quán chơi nha!',
-  'Mời cả nhà ghé quầy! Quán có bia Huda, Tiger, Larue và bia hơi mát lạnh nha!',
+  'Chào cả nhà, tôi là Trí Chủ Quán! Gõ vào bàn hoặc ghé, Trí kéo ghế mời bạn ngồi nha!',
+  'Trí mời cả nhà ghé quầy bia! Có Huda, Tiger, Larue và bia hơi mát lạnh nha!',
   'Bạn mới tới thì gõ vào bàn hoặc ghé để Trí kéo ghế nhé!',
   'Bàn mình có ai muốn làm một ly bia hơi không? Quầy cũng có Huda, Tiger và Larue nha!',
   'Ngồi vào bàn rồi, bạn có thể gõ rock, chill hoặc rap để lên sân khấu!',
