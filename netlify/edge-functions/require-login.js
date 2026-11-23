@@ -1,4 +1,4 @@
-import { getStore } from 'npm:@netlify/blobs@10';
+import { getStore } from 'https://esm.sh/@netlify/blobs@10?target=deno&bundle';
 
 const encoder = new TextEncoder();
 const salt = encoder.encode('38c5cd180ad2d217f2e5503f2d72615b');
