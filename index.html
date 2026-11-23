@@ -571,7 +571,7 @@ function launchStageFireworks(){
   const layer=group(0,0);
   get('stage-fireworks').replaceChildren(layer);
   const palette=['#ffd36d','#ff8fb7','#81e8ff','#b7ffa0','#c9a4ff'];
-  const centers=[[170,145],[630,145],[287,100],[513,100],[400,150]];
+  const centers=[[168,179],[632,173],[284,157],[516,183],[400,166]];
   if(reduce.matches){
     for(const [x,y] of centers)layer.append(node('text',{x,y,fill:'#ffd36d','font-size':38},'✦'));
     setTimeout(()=>layer.remove(),8000);
@@ -583,17 +583,24 @@ function launchStageFireworks(){
     if(!layer.isConnected)return;
     const elapsed=performance.now()-start;
     if(elapsed>=20000){
-      setTimeout(()=>layer.remove(),1800);
+      setTimeout(()=>layer.remove(),1950);
       return;
     }
     const finale=elapsed>=15000;
     const [x,y]=centers[wave%centers.length];
-    burst(x,y,palette[wave%palette.length],finale?27:19);
-    if(finale)burst(800-x,y+24,palette[(wave+2)%palette.length],21);
+    const color=palette[wave%palette.length];
+    if(finale){
+      burst(163,184,color,32,154);
+      burst(400,166,palette[(wave+1)%palette.length],36,164);
+      burst(637,184,palette[(wave+2)%palette.length],32,154);
+    }else{
+      burst(x,y,color,32,148);
+      if(wave%3===2)burst(800-x,y+34,palette[(wave+2)%palette.length],20,105);
+    }
     wave++;
-    setTimeout(launch,finale?470:830+(wave%3)*110);
+    setTimeout(launch,finale?620:830+(wave%3)*110);
   }
-  function burst(x,y,color,count){
+  function burst(x,y,color,count,size){
     const shot=group(x,y);
     layer.append(shot);
     const rocket=node('path',{d:'M0 0v32',stroke:color,'stroke-width':3,'stroke-linecap':'round'});
@@ -601,17 +608,17 @@ function launchStageFireworks(){
     rocket.animate([{transform:'translateY(185px)',opacity:0},
       {opacity:1,offset:.3},{transform:'translateY(0)',opacity:0}],{duration:420,fill:'both'});
     for(let i=0;i<count;i++){
-      const angle=i*2*Math.PI/count;
-      const radius=48+(i%4)*14;
+      const angle=i*2*Math.PI/count+(x%13)*.04;
+      const radius=size*(i%2===0?1:.63)*(1-(i%4)*.018);
       const dx=Math.cos(angle)*radius,dy=Math.sin(angle)*radius;
       const spark=node('line',{x1:0,y1:0,x2:dx*.19,y2:dy*.19,
-        stroke:i%4===0?'#fff3ca':color,'stroke-width':i%4===0?3:2,'stroke-linecap':'round'});
+        stroke:i%4===0?'#fff3ca':color,'stroke-width':i%4===0?4:2.6,'stroke-linecap':'round'});
       shot.append(spark);
       spark.animate([{transform:'translate(0,0)',opacity:0},{opacity:1,offset:.13},
         {transform:'translate('+dx+'px,'+(dy+18)+'px)',opacity:0}],
-        {delay:405,duration:1050+(i%3)*130,easing:'cubic-bezier(.16,.66,.32,1)',fill:'both'});
+        {delay:405,duration:1200+(i%3)*130,easing:'cubic-bezier(.16,.66,.32,1)',fill:'both'});
     }
-    setTimeout(()=>shot.remove(),1800);
+    setTimeout(()=>shot.remove(),1950);
   }
   launch();
 }
