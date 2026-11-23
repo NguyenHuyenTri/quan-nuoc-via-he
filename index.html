@@ -87,9 +87,13 @@
   <circle cx="424" cy="592" r="4"/><circle cx="464" cy="592" r="4"/><circle cx="504" cy="592" r="4"/>
   <circle cx="544" cy="592" r="4"/><circle cx="584" cy="592" r="4"/><circle cx="624" cy="592" r="4"/>
 </g>
-<use href="#speaker-stack" transform="translate(43 267)"/>
-<use href="#speaker-stack" transform="translate(652 267)"/>
+<use href="#speaker-stack" transform="translate(43 267)" data-stage-speaker/>
+<use href="#speaker-stack" transform="translate(652 267)" data-stage-speaker/>
 <g id="speaker-pulses" fill="none" stroke="#efb675" stroke-width="2.5" aria-hidden="true">
+  <circle class="speaker-pulse" cx="95" cy="343" r="20"/>
+  <circle class="speaker-pulse" cx="95" cy="425" r="24"/>
+  <circle class="speaker-pulse" cx="704" cy="343" r="20"/>
+  <circle class="speaker-pulse" cx="704" cy="425" r="24"/>
   <circle class="speaker-pulse" cx="95" cy="552" r="29"/>
   <circle class="speaker-pulse" cx="704" cy="552" r="29"/>
 </g>
@@ -1606,7 +1610,17 @@ const audienceLines=[
 ];
 let stageSound=null,currentSpeech=null;
 function onStage(id){return activeShow?.members.has(id)??false;}
+const speakerShape=get('speaker-stack');
+for(const placeholder of document.querySelectorAll('[data-stage-speaker]')){
+  const speaker=speakerShape.cloneNode(true);
+  speaker.removeAttribute('id');
+  speaker.setAttribute('transform',placeholder.getAttribute('transform'));
+  placeholder.replaceWith(speaker);
+}
+const speakerParts=document.querySelectorAll('#quang-canh .speaker-cone, #speaker-pulses .speaker-pulse');
 function setStage(active){
+  const beat=active&&activeShow?activeShow.track.step*2+'s':'';
+  for(const part of speakerParts)part.style.animationDuration=beat;
   get('quang-canh').classList.toggle('stage-performing',active);
   get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
   if(!active){
