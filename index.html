@@ -570,8 +570,10 @@ function party(rain=false){
 function launchStageFireworks(){
   const layer=group(0,0);
   const stage=get('stage-fireworks');
-  const restarting=stage.hasChildNodes();
-  stage.replaceChildren(layer);
+  const previous=stage.lastElementChild;
+  const restarting=Boolean(previous);
+  stage.append(layer);
+  if(previous)setTimeout(()=>previous.remove(),1950);
   const palette=['#ffd36d','#ff8fb7','#81e8ff','#b7ffa0','#c9a4ff'];
   const centers=[[168,179],[632,173],[284,157],[516,183],[400,166]];
   if(reduce.matches){
@@ -582,7 +584,7 @@ function launchStageFireworks(){
   const start=performance.now();
   let wave=0;
   function launch(){
-    if(!layer.isConnected)return;
+    if(!layer.isConnected||stage.lastElementChild!==layer)return;
     const elapsed=performance.now()-start;
     if(elapsed>=20000){
       setTimeout(()=>layer.remove(),1950);
@@ -611,10 +613,10 @@ function launchStageFireworks(){
       {opacity:1,offset:.3},{transform:'translateY(0)',opacity:0}],{duration:420,fill:'both'});
     for(let i=0;i<count;i++){
       const angle=i*2*Math.PI/count+(x%13)*.04;
-      const radius=size*(i%2===0?1:.63)*(1-(i%4)*.018);
+      const radius=3*size*(i%2===0?1:.63)*(1-(i%4)*.018);
       const dx=Math.cos(angle)*radius,dy=Math.sin(angle)*radius;
       const spark=node('line',{x1:0,y1:0,x2:dx*.19,y2:dy*.19,
-        stroke:i%4===0?'#fff3ca':color,'stroke-width':i%4===0?4:2.6,'stroke-linecap':'round'});
+        stroke:i%4===0?'#fff3ca':color,'stroke-width':i%4===0?6:3.6,'stroke-linecap':'round'});
       shot.append(spark);
       spark.animate([{transform:'translate(0,0)',opacity:0},{opacity:1,offset:.13},
         {transform:'translate('+dx+'px,'+(dy+18)+'px)',opacity:0}],
