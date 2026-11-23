@@ -569,7 +569,9 @@ function party(rain=false){
 }
 function launchStageFireworks(){
   const layer=group(0,0);
-  get('stage-fireworks').replaceChildren(layer);
+  const stage=get('stage-fireworks');
+  const restarting=stage.hasChildNodes();
+  stage.replaceChildren(layer);
   const palette=['#ffd36d','#ff8fb7','#81e8ff','#b7ffa0','#c9a4ff'];
   const centers=[[168,179],[632,173],[284,157],[516,183],[400,166]];
   if(reduce.matches){
@@ -589,7 +591,7 @@ function launchStageFireworks(){
     const finale=elapsed>=15000;
     const [x,y]=centers[wave%centers.length];
     const color=palette[wave%palette.length];
-    if(finale){
+    if(finale||(restarting&&wave===0)){
       burst(163,184,color,32,154);
       burst(400,166,palette[(wave+1)%palette.length],36,164);
       burst(637,184,palette[(wave+2)%palette.length],32,154);
@@ -1750,8 +1752,19 @@ const flowerMixCoins=[0,60,300,1000,3000];
 function raiseShowMix(show,member){
   show.giftCoins=Math.max(show.giftCoins,member.giftCoins,flowerMixCoins[flowerVipLevel(member.flowers)]);
   if(member.backupFlowers>=50n||member.backupGifts>=50)startBackupDancers(show);
-  if(!show.fireworksLaunched&&(member.backupFlowers>=100n||member.backupGifts>=100)){
-    show.fireworksLaunched=true;
+}
+
+function countFireworksGifts(member,flowers,gifts,now=performance.now()){
+  if(now-(member.lastFireworksGiftAt??-Infinity)>=5000){
+    member.fireworksFlowers=0n;
+    member.fireworksGifts=0;
+  }
+  member.lastFireworksGiftAt=now;
+  member.fireworksFlowers+=flowers;
+  member.fireworksGifts+=gifts;
+  if(member.fireworksFlowers>=100n||member.fireworksGifts>=100){
+    member.fireworksFlowers%=100n;
+    member.fireworksGifts%=100;
     launchStageFireworks();
   }
 }
@@ -1970,6 +1983,7 @@ function addPerformer(show,gift,seat){
     if(!ok||activeShow!==show||show.ending)return;
     member.ready=true;
     raiseShowMix(show,member);
+    if(member.backupFlowers||member.backupGifts)countFireworksGifts(member,member.backupFlowers,member.backupGifts);
     updateShowQueue();
     const now=performance.now();
     member.endsAt=now+(gift.tier==='vip'?vipShowDuration:regularShowDuration);
@@ -2101,6 +2115,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
       performing.backupFlowers+=flowers;
       performing.backupGifts+=giftCount;
       raiseShowMix(activeShow,performing);
+      if(flowers||giftCount)countFireworksGifts(performing,flowers,giftCount);
     }else{
       if(flowers>performing.backupFlowers)performing.backupFlowers=flowers;
       performing.backupGifts=Math.max(performing.backupGifts,giftCount);
