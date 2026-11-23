@@ -1029,7 +1029,7 @@ line(ownerOutfit,'M-10 -51H10','#eac27b',2);
 owner.append(node('text',{x:0,y:-83,'text-anchor':'middle',
   fill:'#ffe0a5',stroke:'#162e2a','stroke-width':3,'paint-order':'stroke',
   'font-size':15,'font-weight':800},'Trí Chủ Quán'));
-sceneRoot.append(owner);
+sceneRoot.insertBefore(owner,pedestrianLayer);
 const ownerMouth=node('ellipse',{cx:0,cy:-37,rx:2.5,ry:1,fill:'#542627',
   style:'transform-box:fill-box;transform-origin:center'});
 ownerOutfit.append(ownerMouth);
