@@ -59,17 +59,8 @@ class CafeHandler(SimpleHTTPRequestHandler):
 
 
 ROOT = Path(__file__).resolve().parent
-VOICE_MODELS = ("vi_VN-vais1000-medium.onnx",)
 VOICE_SLOT = BoundedSemaphore(1)
 HOST, PORT = "127.0.0.1", 21315
-
-
-def select_voice_model(directory):
-    for name in VOICE_MODELS:
-        model = directory / name
-        if model.is_file() and model.with_suffix(".onnx.json").is_file():
-            return model
-    return None
 
 
 def synthesize_voice(text):
@@ -79,20 +70,12 @@ def synthesize_voice(text):
         try:
             online = run([*python, "-m", "edge_tts", "--voice", "vi-VN-NamMinhNeural",
                           f"--text={text}", "--write-media", str(output)],
-                         stdout=DEVNULL, timeout=6)
+                         stdout=DEVNULL, timeout=12)
             if online.returncode == 0 and output.is_file() and output.stat().st_size:
                 return output.read_bytes(), "audio/mpeg"
         except (OSError, TimeoutExpired):
             pass
 
-        model = select_voice_model(ROOT)
-        if model is None:
-            return None
-        output = Path(directory) / "voice.wav"
-        offline = run([*python, "-m", "piper", "-m", str(model),
-                       "-f", str(output), "--", text], stdout=DEVNULL, timeout=12)
-        if offline.returncode == 0 and output.is_file() and output.stat().st_size:
-            return output.read_bytes(), "audio/wav"
         return None
 
 
