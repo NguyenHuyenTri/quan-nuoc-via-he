@@ -571,7 +571,7 @@ function celebrateStarGift(name,coins,flower){
   layer.replaceChildren();
   const title=node('text',{x:400,y:178,'text-anchor':'middle',fill:'#ffe496',stroke:'#362740','stroke-width':5,'paint-order':'stroke','font-size':26,'font-weight':800});
   layer.append(title);
-  fitBoardText(title,flower?'🌹 '+shortGuestName(name)+' · '+coins+' hoa thử':'✦ '+shortGuestName(name)+' · '+formatCoins(coins)+' xu ✦',625);
+  fitBoardText(title,flower?'🌹 '+shortGuestName(name)+' · '+coins+' hoa thử'+(flowerVipLevel(coins)?' · VIP '+flowerVipLevel(coins):''):'✦ '+shortGuestName(name)+' · '+formatCoins(coins)+' xu ✦',625);
   for(let i=0;i<22;i++){
     const x=60+(i*137)%685,y=185+(i*73)%330;
     const star=node('text',{x,y,fill:i%2?'#ffe496':'#ccb7ff','font-size':16+i%14},flower||'✦');
@@ -1662,6 +1662,7 @@ function playStageSound(show){
 }
 
 function giftMixLevel(coins){
+  if(coins>=3000)return 4;
   if(coins>=1000)return 3;
   if(coins>=300)return 2;
   return coins>0?1:0;
@@ -1712,6 +1713,7 @@ function playDanceBeat(show){
     if(mix>=1&&n%8>=6)hit(when+.1,.11,4800);
     if(mix>=2&&n%8===7)tone(when+.07,108,.11,.18,'sine',46);
     if(mix>=3&&n%16===0)hit(when,.14,3100);
+    if(mix>=4&&n%16>=13)hit(when+.08,.12,2200);
     if(n%2===0){
       const root=440*2**((bass[beat%bass.length]-69)/12);
       tone(when,root*2,.16,mix?.075:.045,'sawtooth');
@@ -1791,7 +1793,7 @@ function stageTick(show){
   }
   const genre=show.genre;
   const mix=genre==='rock'?giftMixLevel(show.giftCoins):0;
-  const mixLabel=['',' · VIP',' · TRỐNG DỒN',' · CAO TRÀO'][mix];
+  const mixLabel=['',' · VIP',' · TRỐNG DỒN',' · CAO TRÀO',' · ĐẠI NHẠC HỘI'][mix];
   fitBoardText(get('stage-track'),'ĐANG PHÁT · '+genre.toUpperCase()+' · '+show.track.title+mixLabel,480);
 }
 function stageRoute(seat,spot,origin=entry){
@@ -2008,7 +2010,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));if(giftEffect){lastGiftEffect=now;party();ding([523,659,784,1047]);}tell('Cả quán hô nào! '+short+' bao cả quán!',false);return;}
     tell(short+' đã mở lượt biểu diễn VIP!',false);
   }
-  const giftCoins=tier==='vip'?(stageTest?60:unitCoins*count):0;
+  const giftCoins=tier==='vip'?(stageTest?Math.max(60,unitCoins*count):unitCoins*count):0;
   const performing=activeShow?.members.get(id);
   if(performing){
     performing.giftCoins+=giftCoins;
@@ -2088,6 +2090,10 @@ function queueGiftAnnouncement(name,count,coins=0,label='',flowers=false){
   if(!run){
     run={extra:null,timer:null};
     giftRuns.set(id,run);
+    if(flowers){
+      celebrateStarGift(name,count,'🌹');
+      incoming.shown=true;
+    }
     giftAnnouncements.push(incoming);
   }else if(!run.extra){
     run.extra=incoming;
@@ -2106,10 +2112,10 @@ function queueGiftAnnouncement(name,count,coins=0,label='',flowers=false){
 }
 function playGiftAnnouncements(){
   while(giftAnnouncements.length&&(!voiceOn||!currentSpeech)){
-    const {name,count,coins,label,flowers}=giftAnnouncements.shift();
+    const {name,count,coins,label,flowers,shown}=giftAnnouncements.shift();
     const guest=shortGuestName(name);
     const item=flowers?'bông hoa':label||'phần quà';
-    if(flowers)celebrateStarGift(name,count,'🌹');
+    if(flowers&&!shown)celebrateStarGift(name,count,'🌹');
     showLiveNotice((flowers?'🌹 ':'🎁 ')+guest+' · '+count+' '+item+
       (flowers?' thử':' · '+formatCoins(coins)+' xu'),true);
     const message='Cảm ơn '+guest+' đã tặng '+count+' '+item+'!';
@@ -2156,6 +2162,12 @@ function replyToGuest(name,cmd){
   tell(line);
 }
 const testHearts=new Map();
+function flowerVipLevel(count){
+  if(count>=100)return 4;
+  if(count>=50)return 3;
+  if(count>=20)return 2;
+  return count>=10?1:0;
+}
 function showTestFlowers(name,count){
   queueGiftAnnouncement(name,BigInt(count),0,'',true);
 }
@@ -2177,7 +2189,12 @@ function submit(name,value,avatar,gender,live=false){
   if(testGift){
     const occupied=seated(name,true);
     if((!occupied||occupied.person.sample)&&!onStage(key(name)))join(name,avatar,gender);
-    showTestFlowers(name,testGift[1]);
+    const flowers=BigInt(testGift[1]);
+    showTestFlowers(name,flowers);
+    const level=flowerVipLevel(flowers);
+    if(level){
+      receiveGift({name,avatarUrl:avatar,gender,stageTest:true,unitCoins:[0,60,300,1000,3000][level]},'rock');
+    }
     return;
   }
   if(cmd==='tha tim')addTestHearts(name);
