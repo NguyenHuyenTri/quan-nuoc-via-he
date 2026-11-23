@@ -119,6 +119,7 @@
 <g id="counter-front" transform="translate(588 425) scale(1.12 1.06)">
 <rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
 <g id="prep-station" aria-label="Nhân viên pha chế"></g>
+<g id="beer-counter-staff" aria-label="Nhân viên giới thiệu bia"></g>
 <g transform="translate(0 -10)">
 <path d="M-6 15h166l13 42H-19z" fill="url(#roof)" stroke="#eea26a" stroke-width="2"/>
 <path d="M20 16 13 55m40-39-4 39m37-39v39m32-39 4 39m29-39 8 39" stroke="#ffc584" opacity=".65" stroke-width="3"/>
@@ -133,6 +134,13 @@
   <rect width="383" height="69" rx="14" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
   <text x="18" y="23" fill="#ffd391" font-size="14" font-weight="800">NHÂN VIÊN NHẮC KHÉO</text>
   <text id="counter-line" x="18" y="49" fill="#fff2cf" font-size="19" font-weight="750">vào bàn</text>
+</g>
+<g id="beer-counter-dialogue" transform="translate(398 468)">
+  <path d="M222 43l35 19-35-3" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
+  <rect width="224" height="72" rx="12" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
+  <text x="13" y="21" fill="#ffd391" font-size="14" font-weight="800">NHÂN VIÊN QUẦY BIA</text>
+  <text x="13" y="43" fill="#fff2cf" font-size="16">Huda, Tiger, Larue</text>
+  <text x="13" y="62" fill="#fff2cf" font-size="16">và bia hơi mát lạnh!</text>
 </g>
 <g id="back-seats"></g><g id="back-people"></g>
 <defs><g id="square-table" transform="translate(400 312) scale(.4) translate(-400 -312)">
@@ -1011,10 +1019,13 @@ document.addEventListener('pointerdown',()=>{primeAudio();},{once:true});
 document.addEventListener('keydown',()=>{primeAudio();},{once:true});
 const sceneRoot=get('counter-front').parentNode;
 const staffLayer=node('g',{id:'staff-foreground'});
-sceneRoot.append(get('counter-front'),staffLayer,get('counter-dialogue'));
+sceneRoot.append(get('counter-front'),staffLayer,get('counter-dialogue'),get('beer-counter-dialogue'));
 const prep=character('#81c6b3',{host:true});
 prep.setAttribute('transform','translate(86 130)');
 get('prep-station').append(prep);
+const beerStaff=character('#9f88ce',{host:true,gender:'female'});
+beerStaff.setAttribute('transform','translate(35 130)');
+get('beer-counter-staff').append(beerStaff);
 function serviceWorker(carry=[]){
   const actor=character('#edba64',{host:true,carry});
   actor.setAttribute('aria-label','Nhân viên bưng nước');
@@ -2640,6 +2651,10 @@ window.addEventListener('quannuoc:comment',event=>{
   if(typeof detail?.name!=='string'||!detail.name.trim()||typeof detail.comment!=='string')return;
   submit(detail.name,detail.comment,avatarUrl(detail.avatarUrl),normalizeGender(detail.gender),true);
 });
+setInterval(()=>{
+  if(!voiceOn||currentSpeech||giftAnnouncements.length||performance.now()<nextSpeechAt)return;
+  speakVietnamese('Mời cả nhà ghé quầy! Quán có bia Huda, Tiger, Larue và bia hơi mát lạnh nha!',1.06);
+},45000);
 let lastHour=Math.floor(Date.now()/3600000);
 setInterval(()=>{const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHour=h;hourEvent();}board();},5000);
 
