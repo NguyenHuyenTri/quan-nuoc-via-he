@@ -26,6 +26,11 @@ button,input {
 }
 
 button {
+  touch-action:manipulation;
+}
+
+
+button {
   cursor:pointer;
 }
 
@@ -614,5 +619,11 @@ body.show-mode {
 
   html:has(meta[name="cafe-piper"]) body:not(.show-mode) #preview-viewer {
     display:block;
+  }
+}
+
+@media (pointer:coarse) {
+  .controls input,.controls select,.controls textarea {
+    font-size:16px;
   }
 }
