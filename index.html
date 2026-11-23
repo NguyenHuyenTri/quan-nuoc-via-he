@@ -1949,7 +1949,10 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   }
   if(tier==='vip'&&!stageTest){
     const level=unitCoins>=60?'solo':unitCoins>=30?'large':unitCoins>=10?'medium':'small';
-    if(level!=='solo'&&!seated(name,true)&&!onStage(id))join(name,avatarUrl(photo),normalizeGender(gender));
+    const occupied=seated(name,true);
+    if(level!=='solo'&&(!occupied||occupied.person.sample)&&!onStage(id)){
+      join(name,avatarUrl(photo),normalizeGender(gender));
+    }
     const before=board(), amount=Number.isFinite(count)?Math.max(1,Math.floor(count)):1;
     daily.set(id,{...daily.get(id),name,coins:(daily.get(id)?.coins||0)+unitCoins*amount});saveLedger();
     const total=board();loyalty(name,1);
@@ -2132,7 +2135,12 @@ function submit(name,value,avatar,gender,live=false){
   if(live)touchGuest(key(name));
   const cmd=parseComment(value);
   const testGift=/^tang ([1-9][0-9]?)$/.exec(cmd);
-  if(testGift){showTestFlowers(name,Number(testGift[1]));return;}
+  if(testGift){
+    const occupied=seated(name,true);
+    if((!occupied||occupied.person.sample)&&!onStage(key(name)))join(name,avatar,gender);
+    showTestFlowers(name,Number(testGift[1]));
+    return;
+  }
   if(cmd==='tha tim')addTestHearts(name);
   if(cmd)loyalty(name,1);
   function announce(label){
