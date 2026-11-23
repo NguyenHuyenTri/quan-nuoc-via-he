@@ -4,7 +4,7 @@ const encoder = new TextEncoder();
 const salt = encoder.encode('38c5cd180ad2d217f2e5503f2d72615b');
 const expected = '63d3f7e751df59fface5aa61aa6652d3c2c6c6f7dc26a68538fa3393233d4cda';
 
-const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'private, no-store', 'Vary': 'Cookie, X-Quan-Login' };
+const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'private, no-store', 'Vary': 'Cookie' };
 const loaderStyle = `<style>
 .quan-loading{display:flex;align-items:center;justify-content:center;gap:.7rem;font:600 16px system-ui;color:#fff3d6}
 .quan-loading::before{content:"";width:1.1em;height:1.1em;border:3px solid #546b5e;border-top-color:#ffda91;border-radius:50%;animation:quan-spin .8s linear infinite}
@@ -14,33 +14,18 @@ const loaderStyle = `<style>
 @media(prefers-reduced-motion:reduce){.quan-loading::before{animation:none}#quan-arrival{animation-duration:.15s}}
 </style>`;
 const arrival = '<div id="quan-arrival" class="quan-loading" role="status">Đang vào quán…</div><script>document.getElementById("quan-arrival").addEventListener("animationend",function(e){if(e.target===this)this.remove()})</script>';
-const loginPage = `<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đăng nhập · Quán Nước Vỉa Hè</title>
+const loginPage = (message = '') => `<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đăng nhập · Quán Nước Vỉa Hè</title>
 <style>*{box-sizing:border-box}body{margin:0;min-height:100svh;display:grid;place-items:center;background:#11251e;color:#fff3d6;font:16px system-ui}form{width:min(90vw,350px);padding:24px;background:#20382e;border-radius:14px}label,input,button{display:block;width:100%}input,button{margin:6px 0 16px;padding:12px;border-radius:8px;font:inherit}button{background:#ffda91;cursor:pointer}</style>
-${loaderStyle}<form id="login" method="post" autocomplete="off"><h2>Quán Nước Vỉa Hè</h2><label>Tài khoản<input name="username" required autocapitalize="none"></label><label>Mật khẩu<input name="password" type="password" required></label><button>Đăng nhập</button><p role="status" id="notice"></p></form>
+${loaderStyle}<form id="login" method="post" action="/"><h2>Quán Nước Vỉa Hè</h2><label>Tài khoản<input name="username" required autocomplete="username" autocapitalize="none"></label><label>Mật khẩu<input name="password" type="password" autocomplete="current-password" required></label><button>Đăng nhập</button><p role="status" id="notice">${message}</p></form>
 <script>
 const form=document.getElementById('login');
-form.onsubmit=async event=>{
-  event.preventDefault();
-  const button=form.querySelector('button');
-  button.disabled=true;
+form.addEventListener('submit',()=>{
+  form.querySelector('button').disabled=true;
   const notice=document.getElementById('notice');
   notice.classList.add('quan-loading');
   notice.textContent='Đang đăng nhập…';
-  let navigating=false;
-  try {
-    const credentials=btoa(form.username.value+':'+form.password.value);
-    const response=await fetch('/index.html',{headers:{'X-Quan-Login':credentials},credentials:'same-origin',cache:'no-store'});
-    if(response.headers.get('X-Quan-Game')!=='1'){
-      document.getElementById('notice').textContent=response.status===401?'Sai tài khoản hoặc mật khẩu.':'Chưa mở được quán. Vui lòng thử lại.';
-      return;
-    }
-    form.reset();
-    navigating=true;
-    notice.textContent="Đang vào quán…";
-    location.reload();
-  }catch{document.getElementById('notice').textContent='Chưa đăng nhập được. Vui lòng thử lại.'}
-  finally{if(!navigating){notice.classList.remove('quan-loading');button.disabled=false}}
-};
+});
+window.addEventListener('pageshow',event=>{if(event.persisted)location.reload()});
 </script></html>`;
 
 const lifetime = 24 * 60 * 60;
@@ -73,18 +58,26 @@ export default async function requireLogin(request, context) {
     if ((asset.headers.get('Content-Type') || '').includes('text/html')) return new Response(null, {status:404});
     return asset;
   }
-  const token = request.headers.get('X-Quan-Login');
-  if (!token || request.method !== 'GET') {
+  if (request.method === 'GET' || request.method === 'HEAD') {
     const expiry = await sessionExpiry(request);
-    if (!expiry) return new Response(loginPage, {headers});
+    if (!expiry) {
+      const message = new URL(request.url).searchParams.has('vao-quan') ? 'Đăng nhập đúng nhưng trình duyệt chưa gửi lại cookie. Hãy cho phép cookie của trang quán rồi thử lại.' : '';
+      return new Response(loginPage(message), {headers});
+    }
+    if (new URL(request.url).searchParams.has('vao-quan')) {
+      return new Response(null,{status:303,headers:{...headers,Location:'/'}});
+    }
     const response = await context.next();
     const guard = '<script>(()=>{const expires='+expiry+'*1000;function check(){if(Date.now()>=expires)location.reload()}setTimeout(check,Math.max(0,expires-Date.now())+100);addEventListener("pageshow",check);document.addEventListener("visibilitychange",check)})();</script>';
     const html = (await response.text()).replace('</head>',loaderStyle+guard+'</head>').replace(/<body\b[^>]*>/i, tag=>tag+arrival);
     return new Response(html,{status:response.status,headers});
   }
-  let credentials = '';
-  try { if (token.length <= 512) credentials = atob(token); } catch {}
-  if (credentials.startsWith('admin:')) {
+  if (request.method !== 'POST') return new Response(null,{status:405,headers:{Allow:'GET, HEAD, POST'}});
+  if (request.headers.get('Origin') !== new URL(request.url).origin) return new Response(null,{status:403,headers});
+  const fields = await request.formData().catch(()=>null);
+  const password = fields?.get('password');
+  if (fields?.get('username') === 'admin' && typeof password === 'string' && password.length <= 256) {
+    const credentials = 'admin:'+password;
     const key = await crypto.subtle.importKey('raw', encoder.encode(credentials), 'PBKDF2', false, ['deriveBits']);
     const bits = await crypto.subtle.deriveBits({name:'PBKDF2', hash:'SHA-256', salt, iterations:100000}, key, 256);
     const hash = Array.from(new Uint8Array(bits), byte => byte.toString(16).padStart(2,'0')).join('');
@@ -92,9 +85,9 @@ export default async function requireLogin(request, context) {
       const expiry = String(Math.floor(Date.now()/1000)+lifetime);
       const bytes = await crypto.subtle.sign('HMAC',await signingKey(),encoder.encode(expiry));
       const signature = Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join('');
-      return new Response(null,{status:204,headers:{...headers,'X-Quan-Game':'1','Set-Cookie':cookieName+'='+expiry+'.'+signature+'; Path=/; Max-Age='+lifetime+'; Secure; HttpOnly; SameSite=Lax'}});
+      return new Response(null,{status:303,headers:{...headers,Location:'/?vao-quan=1','Set-Cookie':cookieName+'='+expiry+'.'+signature+'; Path=/; Max-Age='+lifetime+'; Secure; HttpOnly; SameSite=Lax'}});
     }
   }
-  return new Response(null, {status:401, headers});
+  return new Response(loginPage('Sai tài khoản hoặc mật khẩu.'), {status:401, headers});
 }
 export const config = { path:'/*' };
