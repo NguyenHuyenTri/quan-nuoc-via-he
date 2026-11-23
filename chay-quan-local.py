@@ -64,18 +64,16 @@ HOST, PORT = "127.0.0.1", 21315
 
 
 def synthesize_voice(text):
+    model = ROOT / "vi_VN-vais1000-medium.onnx"
+    if not model.is_file() or not model.with_suffix(".onnx.json").is_file():
+        return None
     python = ["py", "-3.12"] if os.name == "nt" and sys.version_info[:2] != (3, 12) else [sys.executable]
     with TemporaryDirectory() as directory:
-        output = Path(directory) / "voice.mp3"
-        try:
-            online = run([*python, "-m", "edge_tts", "--voice", "vi-VN-NamMinhNeural",
-                          f"--text={text}", "--write-media", str(output)],
-                         stdout=DEVNULL, timeout=12)
-            if online.returncode == 0 and output.is_file() and output.stat().st_size:
-                return output.read_bytes(), "audio/mpeg"
-        except (OSError, TimeoutExpired):
-            pass
-
+        output = Path(directory) / "voice.wav"
+        result = run([*python, "-m", "piper", "-m", str(model),
+                      "-f", str(output), "--", text], stdout=DEVNULL, timeout=12)
+        if result.returncode == 0 and output.is_file() and output.stat().st_size:
+            return output.read_bytes(), "audio/wav"
         return None
 
 
