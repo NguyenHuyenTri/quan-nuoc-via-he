@@ -28,7 +28,7 @@ form.onsubmit=async event=>{
 };
 </script></html>`;
 
-const lifetime = 3 * 60 * 60;
+const lifetime = 24 * 60 * 60;
 const cookieName = '__Host-quan_session';
 
 async function signingKey() {
