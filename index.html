@@ -1836,17 +1836,21 @@ function startBackupDancers(show){
   show.backupDancers=dancers;
   const layer=group(0,0);
   show.backupLayer=layer;
-  layer.setAttribute('aria-label','Mười nhân viên nữ nhảy phụ họa');
+  layer.setAttribute('aria-label','Sáu nhân viên nữ nhảy phụ họa');
   layers.walking.prepend(layer);
   for(const side of [-1,1]){
-    for(let i=0;i<5;i++){
-      const actor=character(colors[i%colors.length],{gender:'female'});
+    for(let i=0;i<3;i++){
+      const actor=character(side<0?'#885cbd':'#367c9b',{gender:'female'});
       actor.setAttribute('data-backup-dancer','');
+      const outfit=actor.querySelector('.actor-body');
+      line(outfit,'M-11 -30L10 -17','#ffe0a5',2.5);
+      line(outfit,'M-14 -11H14','#ffe0a5',1.5);
+      ellipse(outfit,-7,-51,4,3,'#ffe0a5');
       // Enter through the open apron below the speakers before turning upstage.
       const entry={x:side<0?-35:835,y:24};
       const wingX=400+side*202;
-      const spot={x:400+side*(202-i*19),y:i%2?-51:-105};
-      const dancer={actor,ready:false};
+      const spot={x:400+side*(198-i*44),y:-153-i*13};
+      const dancer={actor,ready:false,wing:side};
       dancers.push(dancer);
       positionActor(actor,entry);
       layer.append(actor);
@@ -1873,10 +1877,12 @@ function animateDance(show){
     for(const [index,member] of [...performers,...dancers].entries()){
       if(!member.ready)continue;
       const actor=member.actor,body=actor.querySelector('.actor-body');
-      const side=Math.sin(beat*Math.PI+index*.25);
-      const hop=phase===2?Math.max(0,pulse)*(show.vip?19:10):Math.max(0,pulse)*(show.vip?7:3);
+      const backup=Boolean(member.wing);
+      const sway=Math.sin(beat*Math.PI);
+      const side=backup?sway*member.wing:Math.sin(beat*Math.PI+index*.25);
+      const hop=backup?Math.max(0,pulse)*4:phase===2?Math.max(0,pulse)*(show.vip?19:10):Math.max(0,pulse)*(show.vip?7:3);
       const cycle=((beat+index*.2)%8+8)%8;
-      const spinning=show.vip?cycle>=4:cycle>=6;
+      const spinning=!backup&&(show.vip?cycle>=4:cycle>=6);
       const spinProgress=spinning?(cycle-6)/2:0;
       const turn=show.vip?(spinning?(cycle-4)/4*720:0):spinProgress*360;
       const orbit=spinning?Math.sin(spinProgress*Math.PI*2)*5:0;
@@ -1884,7 +1890,7 @@ function animateDance(show){
       body.style.transform='translate('+(side*(phase===2?10:7)+orbit)+'px,'+(-hop)
         +'px) rotate('+side*5+'deg) rotateY('+turn+'deg)';
       actor.toggleAttribute('data-dance-spin',spinning);
-      const angles=spinning?[65,-65,side*12,-side*12]:phase===0?[side*44,-side*44,side*27,-side*27]
+      const angles=backup?[45+side*32,-45+side*32,sway*18,-sway*18]:spinning?[65,-65,side*12,-side*12]:phase===0?[side*44,-side*44,side*27,-side*27]
         :phase===1?[30+pulse*60,-30-pulse*60,side*18,-side*18]
         :[75+side*35,-75-side*35,side*44,-side*44];
       ['.actor-arm-left','.actor-arm-right','.actor-foot-left','.actor-foot-right'].forEach((selector,i)=>{
