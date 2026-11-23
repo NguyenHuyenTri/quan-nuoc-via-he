@@ -1671,7 +1671,7 @@ function giftMixLevel(coins){
 const flowerMixCoins=[0,60,300,1000,3000];
 function raiseShowMix(show,member){
   show.giftCoins=Math.max(show.giftCoins,member.giftCoins,flowerMixCoins[flowerVipLevel(member.flowers)]);
-  if(member.flowers>100n||member.giftCount>100)startBackupDancers(show);
+  if(member.backupFlowers>=100n||member.backupGifts>=100)startBackupDancers(show);
 }
 
 function playDanceBeat(show){
@@ -1863,7 +1863,8 @@ function addPerformer(show,gift,seat){
   }
   actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
   positionActor(actor,route[0]);
-  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier,giftCoins:gift.coins??0,flowers:gift.flowers??0n,giftCount:gift.gifts??0};
+  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier,giftCoins:gift.coins??0,flowers:gift.flowers??0n,
+    backupFlowers:gift.backupFlowers??0n,backupGifts:gift.backupGifts??0};
   if(!seat&&member.guestRequest&&!queue.length){
     if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
     member.returnSeat=seats.find(s=>!s.person&&!s.reservedFor);
@@ -2007,11 +2008,18 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   const id=key(name);
   if(fromLive)touchGuest(id);
   const performing=activeShow?.members.get(id);
-  if(performing&&tier==='vip'){
+  const giftCount=tier==='vip'&&!stageTest?count:0;
+  if(performing&&!performing.returning&&tier==='vip'){
     performing.giftCoins+=stageTest?(flowers?0:60):unitCoins*count;
     performing.flowers+=flowers;
-    if(!stageTest)performing.giftCount+=count;
-    if(performing.ready)raiseShowMix(activeShow,performing);
+    if(performing.ready){
+      performing.backupFlowers+=flowers;
+      performing.backupGifts+=giftCount;
+      raiseShowMix(activeShow,performing);
+    }else{
+      if(flowers>performing.backupFlowers)performing.backupFlowers=flowers;
+      performing.backupGifts=Math.max(performing.backupGifts,giftCount);
+    }
   }
   if(tier==='vip'&&!stageTest){
     const label=typeof giftName==='string'?giftName.trim().slice(0,30):'';
@@ -2068,6 +2076,8 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
       existing.gifts+=count;
       existing.coins=(existing.coins??0)+giftCoins;
       existing.flowers=(existing.flowers??0n)+flowers;
+      if(flowers>existing.backupFlowers)existing.backupFlowers=flowers;
+      existing.backupGifts=Math.max(existing.backupGifts,giftCount);
     }
     sortStageQueue();
     updateShowQueue();
@@ -2082,7 +2092,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   const seat=seated(name,true),viewer=passers.get(id);
   stageQueue.push({id,name:seat?.person.name??viewer?.name??name,
     avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,
-    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,coins:giftCoins,flowers,order:stageOrder++});
+    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,coins:giftCoins,flowers,backupFlowers:flowers,backupGifts:giftCount,order:stageOrder++});
   sortStageQueue();
   updateShowQueue();
   status(name+(stageTest?' đăng ký lượt thử VIP.':tier==='free'?' đăng ký tiết mục miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
