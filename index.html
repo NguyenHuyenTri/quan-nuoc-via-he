@@ -1623,6 +1623,57 @@ const extraStageTracks={
       verses:["Quán chưa đóng cửa, đèn còn sáng!","Ly cạn rồi thì vỗ tay thêm một lượt!","Hẹn nhau ngày mai, sau nhịp cuối này!"]}
   ]
 };
+const songFlowers=new Map();
+const namedSongs=new Map();
+for(const [genre,base] of Object.entries(stageTracks)){
+  for(const track of [base,...extraStageTracks[genre]]){
+    namedSongs.set(normalize(track.title),{genre,track:{...base,...track}});
+  }
+}
+const missingKey='quan-missing-song-titles-v1';
+const missingPanel=document.createElement('details');
+const missingSummary=document.createElement('summary');
+const missingList=document.createElement('ul');
+missingPanel.append(missingSummary,missingList);
+get('events').after(missingPanel);
+const songGuide=document.createElement('details');
+const songSummary=document.createElement('summary');
+songSummary.textContent='Trên 10 hoa · Gõ tên bài để hát';
+const songTitles=document.createElement('p');
+songTitles.textContent=[...namedSongs.values()].map(song=>song.track.title).join(' · ');
+songGuide.append(songSummary,songTitles);
+get('comment-form').after(songGuide);
+let missingSongs=new Map();
+try{missingSongs=new Map(JSON.parse(localStorage.getItem(missingKey)||'[]'));}catch{}
+function drawMissing(){
+  missingSummary.textContent='Bài khách đề nghị bổ sung ('+missingSongs.size+')';
+  missingList.replaceChildren();
+  for(const title of missingSongs.values()){
+    const item=document.createElement('li');item.textContent=title;missingList.append(item);
+  }
+}
+drawMissing();
+function requestNamedSong(name,title,avatar,gender){
+  const id=key(name),song=namedSongs.get(normalize(title));
+  function note(message){showLiveNotice(message);status(message);}
+  if(onStage(id)){note('Chỉ đổi bài khi còn trong hàng chờ.');return;}
+  if((songFlowers.get(id)||0n)<=10n){note(shortGuestName(name)+' cần tặng trên 10 hoa để chọn bài.');return;}
+  if(!song){
+    missingSongs.set(normalize(title),title);
+    drawMissing();
+    try{localStorage.setItem(missingKey,JSON.stringify([...missingSongs]));}catch{}
+    note('Quán chưa có “'+title+'”. Bạn vẫn còn lượt, chọn bài khác nhé!');return;
+  }
+  let item=stageQueue.find(entry=>entry.id===id);
+  if(!item){
+    if(stageQueue.length>=maxStageQueue){note('Hàng chờ đầy. Bạn vẫn còn lượt chọn bài.');return;}
+    item={id,name,avatar,gender,origin:roadSnapshot(id),gifts:0,coins:0,backupGifts:0,order:stageOrder++};
+    stageQueue.push(item);
+  }
+  Object.assign(item,{tier:'vip',previewTrack:song.genre,song,flowers:songFlowers.get(id),backupFlowers:songFlowers.get(id)});
+  note(shortGuestName(name)+' chọn “'+song.track.title+'”.');
+  sortStageQueue();updateShowQueue();advanceStage();
+}
 const nextTrackIndex={chill:0,rap:0,rock:0};
 function nextStageTrack(genre){
   const base=stageTracks[genre];
@@ -1634,7 +1685,7 @@ function stageWaitHint(show,item,now=performance.now()){
   const seat=seated(item.name,true);
   if(seat&&seat.person.state!=='seated')return 'Đang đợi khách tới ghế';
   if(!show||show.ending)return 'Sắp tới lượt';
-  const switching=show.genre!==(item.previewTrack??'rock');
+  const switching=show.namedSong||item.song||show.genre!==(item.previewTrack??'rock');
   const members=[...show.members.values()];
   if(!switching&&members.length<stageSlots.length)return 'Sắp tới lượt';
   const deadlines=members.map(member=>member.ready?member.endsAt:undefined);
@@ -2203,6 +2254,7 @@ function addPerformer(show,gift,seat){
 }
 async function returnPerformer(show,member){
   if(member.returning)return;
+  if(show.namedSong)songFlowers.delete(member.person.id);
   member.returning=true;
   member.ready=false;
   updateShowQueue();
@@ -2306,6 +2358,13 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
   }
   const id=key(name);
+  if(tier==='vip'&&!stageTest){
+    songFlowers.set(id,(songFlowers.get(id)||0n)+BigInt(unitCoins)*BigInt(count));
+  }
+  const pendingSong=stageQueue.find(item=>item.id===id&&item.song);
+  if(pendingSong&&tier==='vip'&&!stageTest){
+    pendingSong.flowers=songFlowers.get(id);pendingSong.backupFlowers=pendingSong.flowers;
+  }
   if(fromLive)touchGuest(id);
   const performing=activeShow?.members.get(id);
   const giftCount=tier==='vip'&&!stageTest?count:0;
@@ -2368,6 +2427,9 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     tell(short+' đã mở lượt biểu diễn VIP!',false);
   }
   if(performing)return;
+  if(tier==='vip'&&!stageTest&&(songFlowers.get(id)||0n)>10n){
+    showLiveNotice(shortGuestName(name)+' có thể gõ tên bài muốn hát.');return;
+  }
   const giftCoins=tier==='vip'?(stageTest?(flowers?0:60):unitCoins*count):0;
   const existing=stageQueue.find(item=>item.id===id);
   if(existing){
@@ -2411,12 +2473,15 @@ function advanceStage(){
   if(show&&(show.ending||show.members.size>=stageSlots.length))return;
   while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
     const gift=stageQueue[0];
+    if(activeShow&&(activeShow.namedSong||gift.song))return;
     if(activeShow&&(activeShow.members.has(gift.id)
       ||activeShow.genre!==(gift.previewTrack??'rock')))return;
     const seat=seated(gift.name,true);
     if(seat&&seat.person.state!=='seated')return;
     stageQueue.shift();updateShowQueue();
-    addPerformer(activeShow??openShow(false,false,gift.previewTrack??'rock',gift.tier),gift,seat);
+    const next=activeShow??openShow(false,false,gift.previewTrack??'rock',gift.tier);
+    if(gift.song){next.track=gift.song.track;next.namedSong=true;}
+    addPerformer(next,gift,seat);
   }
 }
 function fitBoardText(element,value,width){
@@ -2546,6 +2611,14 @@ function submit(name,value,avatar,gender,live=false){
     if((!occupied||occupied.person.sample)&&!onStage(key(name)))join(name,avatar,gender);
     const flowers=BigInt(testGift[1]);
     showTestFlowers(name,flowers);
+    const id=key(name);
+    songFlowers.set(id,(songFlowers.get(id)||0n)+flowers);
+    const queued=stageQueue.find(item=>item.id===id);
+    if(queued?.song){queued.flowers=songFlowers.get(id);queued.backupFlowers=queued.flowers;}
+    if(!onStage(id)){
+      if(songFlowers.get(id)>10n)showLiveNotice(shortGuestName(name)+' · Gõ tên bài muốn hát');
+      return;
+    }
     const level=flowerVipLevel(flowers);
     if(level||onStage(key(name))||stageQueue.some(item=>item.id===key(name)&&item.tier==='vip')){
       receiveGift({name,avatarUrl:avatar,gender,stageTest:true,flowers},'rock');
@@ -2569,13 +2642,18 @@ function submit(name,value,avatar,gender,live=false){
   if(cmd==='vo tay')return reactToShow(name,'applause');
   if(cmd==='tha tim')return reactToShow(name,'heart');
   if(cmd==='xin bai nhay')return requestTrack(name,'rock');
-  if(cmd==='xin bai'||cmd.startsWith('xin bai '))return requestTrack(name,cmd.slice(8));
+  if(/^xin bai (rap|rock|chill)$/.test(cmd)||cmd==='xin bai')return requestTrack(name,cmd.slice(8));
   if(cmd==='len hat'||cmd==='len hat mot bai'){announce('lên hát · cần quà sân khấu');status('Lượt hát dành cho khách tặng quà LIVE.');return;}
+  const title=value.trim().replace(/^(?:hát|hat|xin bài|xin bai)\s+/iu,'').slice(0,80).trim();
+  if(title&&(title!==value.trim()||namedSongs.has(normalize(title))||normalize(title)==='chau len ba'||(songFlowers.get(id)||0n)>10n)){
+    return requestNamedSong(name,title,avatar,gender);
+  }
   if(live){replyToGuest(name,cmd);return;}
   if(seated(name))status(name+': '+value.trim().slice(0,80));
   else status('Gõ VÀO BÀN để lấy ghế, quán sẽ tự mang nước ra.');
 }
 function reset(showSamples=true){
+  songFlowers.clear();
   parkOwner();
   get('stage-fireworks').replaceChildren();
   testHearts.clear();
