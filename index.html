@@ -118,7 +118,7 @@
 </g>
 <g id="counter-front" transform="translate(588 425) scale(1.12 1.06)">
 <rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
-<g id="prep-station" aria-label="Chủ quán Trí pha chế"></g>
+<g id="prep-station" aria-label="Nhân viên pha chế"></g>
 <g id="beer-counter-staff" aria-label="Nhân viên giới thiệu bia"></g>
 <g transform="translate(0 -10)">
 <path d="M-6 15h166l13 42H-19z" fill="url(#roof)" stroke="#eea26a" stroke-width="2"/>
@@ -1022,9 +1022,22 @@ const staffLayer=node('g',{id:'staff-foreground'});
 sceneRoot.append(get('counter-front'),staffLayer,get('counter-dialogue'),get('beer-counter-dialogue'));
 const prep=character('#81c6b3',{host:true,gender:'male'});
 prep.setAttribute('transform','translate(86 130)');
-get('prep-station').append(prep,node('text',{x:92,y:55,'text-anchor':'middle',
-  fill:'#ffe0a5',stroke:'#162e2a','stroke-width':2,'paint-order':'stroke',
-  'font-size':14,'font-weight':800},'Chủ quán Trí'));
+get('prep-station').append(prep);
+const owner=character('#8d263a',{gender:'male'});
+owner.setAttribute('aria-label','Trí, ông chủ Quán Nước Vỉa Hè');
+owner.setAttribute('transform','translate(625 625) scale(1.12)');
+const ownerOutfit=owner.querySelector('.actor-body');
+ownerOutfit.append(node('path',{d:'M-14 -30Q0 -35 14 -30L15 -10H-15Z',
+  fill:'#8d263a',stroke:'#eac27b','stroke-width':1.4}));
+line(ownerOutfit,'M-6 -31L0 -21 6 -31M0 -21V-11','#eac27b',1.7);
+ellipse(ownerOutfit,8,-22,2,2,'#ffd485');
+ownerOutfit.append(node('path',{d:'M-12 -49L-9 -60H9L12 -49Z',fill:'#222c36'}));
+ellipse(ownerOutfit,0,-49,17,3,'#222c36');
+line(ownerOutfit,'M-10 -51H10','#eac27b',2);
+owner.append(node('text',{x:0,y:-83,'text-anchor':'middle',
+  fill:'#ffe0a5',stroke:'#162e2a','stroke-width':3,'paint-order':'stroke',
+  'font-size':15,'font-weight':800},'TRÍ · ÔNG CHỦ'));
+sceneRoot.append(owner);
 const beerStaff=character('#9f88ce',{host:true,gender:'female'});
 beerStaff.setAttribute('transform','translate(35 130)');
 get('beer-counter-staff').append(beerStaff);
@@ -2654,6 +2667,7 @@ window.addEventListener('quannuoc:comment',event=>{
   submit(detail.name,detail.comment,avatarUrl(detail.avatarUrl),normalizeGender(detail.gender),true);
 });
 const idleVoiceLines=[
+  'Chào cả nhà! Tôi là Trí, ông chủ Quán Nước Vỉa Hè. Mời mọi người ghé quán chơi nha!',
   'Mời cả nhà ghé quầy! Quán có bia Huda, Tiger, Larue và bia hơi mát lạnh nha!',
   'Bạn mới tới thì gõ vào bàn hoặc ghé để Trí kéo ghế nhé!',
   'Bàn mình có ai muốn làm một ly bia hơi không? Quầy cũng có Huda, Tiger và Larue nha!',
