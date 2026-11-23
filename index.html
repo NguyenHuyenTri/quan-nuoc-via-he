@@ -1661,9 +1661,15 @@ function playStageSound(show){
   });
 }
 
+function giftMixLevel(coins){
+  if(coins>=1000)return 3;
+  if(coins>=300)return 2;
+  return coins>0?1:0;
+}
+
 function playDanceBeat(show){
   const bus=audio.createGain();
-  const volume=show.vip?.55:.38;
+  const volume=.42;
   bus.gain.value=volume;
   bus.connect(audio.destination);
   const oscillators=new Set();
@@ -1696,19 +1702,27 @@ function playDanceBeat(show){
   const riff=show.track.melody;
   scheduleMusic(show,show.track.step,.15,(n,when)=>{
     const beat=Math.floor(n/2);
+    const mix=giftMixLevel(show.giftCoins);
     if(n%2===0){
       tone(when,145,.15,.5,'sine',43);
       tone(when,440*2**((bass[beat%bass.length]-69)/12),.2,.13,'triangle');
       if(beat%2===1)hit(when,.22,1300);
     }
     hit(when,.07,7000);
-    if(show.vip&&n%8>=6)hit(when+.125,.11,4800);
+    if(mix>=1&&n%8>=6)hit(when+.1,.11,4800);
+    if(mix>=2&&n%8===7)tone(when+.07,108,.11,.18,'sine',46);
+    if(mix>=3&&n%16===0)hit(when,.14,3100);
     if(n%2===0){
       const root=440*2**((bass[beat%bass.length]-69)/12);
-      tone(when,root*2,.16,show.vip?.075:.045,'sawtooth');
-      tone(when,root*3,.15,show.vip?.05:.025,'sawtooth');
+      tone(when,root*2,.16,mix?.075:.045,'sawtooth');
+      tone(when,root*3,.15,mix?.05:.025,'sawtooth');
+      if(mix>=2)tone(when,root*2.997,.14,.032,'triangle');
     }
-    if(n%4===1||n%4===3)tone(when,440*2**((riff[Math.floor(n/4)%riff.length]-69)/12),.13,.07,'triangle');
+    if(n%4===1||n%4===3){
+      const lead=440*2**((riff[Math.floor(n/4)%riff.length]-69)/12);
+      tone(when,lead,.13,.07,'triangle');
+      if(mix>=3)tone(when+.035,lead*2,.11,.032,'triangle');
+    }
   });
 }
 function animateDance(show){
@@ -1776,7 +1790,9 @@ function stageTick(show){
     cheerStage();
   }
   const genre=show.genre;
-  fitBoardText(get('stage-track'),'ĐANG PHÁT · '+genre.toUpperCase()+' · '+show.track.title,480);
+  const mix=genre==='rock'?giftMixLevel(show.giftCoins):0;
+  const mixLabel=['',' · VIP',' · TRỐNG DỒN',' · CAO TRÀO'][mix];
+  fitBoardText(get('stage-track'),'ĐANG PHÁT · '+genre.toUpperCase()+' · '+show.track.title+mixLabel,480);
 }
 function stageRoute(seat,spot,origin=entry){
   const aisle=seat?.aisleX??309;
@@ -1805,7 +1821,7 @@ function addPerformer(show,gift,seat){
   }
   actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
   positionActor(actor,route[0]);
-  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier};
+  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier,giftCoins:gift.coins??0};
   if(!seat&&member.guestRequest&&!queue.length){
     if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
     member.returnSeat=seats.find(s=>!s.person&&!s.reservedFor);
@@ -1826,6 +1842,7 @@ function addPerformer(show,gift,seat){
   member.arrival=walk(actor,route,1450,show.epoch,true).then(ok=>{
     if(!ok||activeShow!==show||show.ending)return;
     member.ready=true;
+    show.giftCoins=Math.max(show.giftCoins,member.giftCoins);
     updateShowQueue();
     const now=performance.now();
     member.endsAt=now+(gift.tier==='vip'?vipShowDuration:regularShowDuration);
@@ -1905,7 +1922,7 @@ function openShow(idle,rap=false,previewTrack,tier){
   const track=nextStageTrack(kind);
   nextTrackIndex[kind]=(nextTrackIndex[kind]+1)%(extraStageTracks[kind].length+1);
   const show={genre:kind,idle,free:tier==='free',vip:tier==='vip',preview:Boolean(previewTrack),rap:kind==='rap',track,request,epoch,members:new Map(),
-    endsAt:null,ending:false,verseIndex:0,nextVerse:0,applause:0,hearts:0};
+    endsAt:null,ending:false,verseIndex:0,nextVerse:0,applause:0,hearts:0,giftCoins:0};
   reactionTimes.clear();
   activeShow=show;updateShowQueue();
   return show;
@@ -1991,13 +2008,20 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
     if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));if(giftEffect){lastGiftEffect=now;party();ding([523,659,784,1047]);}tell('Cả quán hô nào! '+short+' bao cả quán!',false);return;}
     tell(short+' đã mở lượt biểu diễn VIP!',false);
   }
-  if(onStage(id))return;
+  const giftCoins=tier==='vip'?(stageTest?60:unitCoins*count):0;
+  const performing=activeShow?.members.get(id);
+  if(performing){
+    performing.giftCoins+=giftCoins;
+    if(performing.ready)activeShow.giftCoins=Math.max(activeShow.giftCoins,performing.giftCoins);
+    return;
+  }
   const existing=stageQueue.find(item=>item.id===id);
   if(existing){
     if(previewTrack)existing.previewTrack=previewTrack;
     if(tier==='vip'){
       existing.tier='vip';
       existing.gifts+=count;
+      existing.coins=(existing.coins??0)+giftCoins;
     }
     sortStageQueue();
     updateShowQueue();
@@ -2012,7 +2036,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
   const seat=seated(name,true),viewer=passers.get(id);
   stageQueue.push({id,name:seat?.person.name??viewer?.name??name,
     avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,
-    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,order:stageOrder++});
+    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,coins:giftCoins,order:stageOrder++});
   sortStageQueue();
   updateShowQueue();
   status(name+(stageTest?' đăng ký lượt thử VIP.':tier==='free'?' đăng ký tiết mục miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
