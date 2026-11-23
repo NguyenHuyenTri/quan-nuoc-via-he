@@ -16,7 +16,7 @@
 <main>
 <header class="top"><div><div class="eyebrow">LIVE TƯƠNG TÁC · BẢN CHƠI THỬ</div><h1>Quán Nước Vỉa Hè</h1><p class="subtitle">Ghé quán, kéo ghế, gọi một ly.</p></div><span class="badge">● QUÁN ĐANG MỞ</span></header>
 <div class="action-banner" aria-label="Thông báo hành động">
-  <small>CHỦ QUÁN</small>
+  <small>CHỦ QUÁN TRÍ</small>
   <span id="announcement" role="status">Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!</span>
 </div>
 <div class="layout">
@@ -118,7 +118,7 @@
 </g>
 <g id="counter-front" transform="translate(588 425) scale(1.12 1.06)">
 <rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
-<g id="prep-station" aria-label="Nhân viên pha chế"></g>
+<g id="prep-station" aria-label="Chủ quán Trí pha chế"></g>
 <g id="beer-counter-staff" aria-label="Nhân viên giới thiệu bia"></g>
 <g transform="translate(0 -10)">
 <path d="M-6 15h166l13 42H-19z" fill="url(#roof)" stroke="#eea26a" stroke-width="2"/>
@@ -655,7 +655,7 @@ function celebrateStarGift(name,coins,flower){
 }
 function hourEvent(){
   const i=hourSerial++%3;
-  if(i===2){requestTrack('Chủ quán','chill');armIdle();tell('Đêm nhạc sống bắt đầu. Mời cả quán chọn bài!');}
+  if(i===2){requestTrack('Chủ quán Trí','chill');armIdle();tell('Đêm nhạc sống bắt đầu. Mời cả quán chọn bài!');}
   else{if(i===1)party(true);
     const walkers=[...passers.values()].filter(v=>v.sample).slice(0,3);
     for(const v of walkers)join(v.name,v.avatar,v.gender);
@@ -1020,9 +1020,11 @@ document.addEventListener('keydown',()=>{primeAudio();},{once:true});
 const sceneRoot=get('counter-front').parentNode;
 const staffLayer=node('g',{id:'staff-foreground'});
 sceneRoot.append(get('counter-front'),staffLayer,get('counter-dialogue'),get('beer-counter-dialogue'));
-const prep=character('#81c6b3',{host:true});
+const prep=character('#81c6b3',{host:true,gender:'male'});
 prep.setAttribute('transform','translate(86 130)');
-get('prep-station').append(prep);
+get('prep-station').append(prep,node('text',{x:92,y:55,'text-anchor':'middle',
+  fill:'#ffe0a5',stroke:'#162e2a','stroke-width':2,'paint-order':'stroke',
+  'font-size':14,'font-weight':800},'Chủ quán Trí'));
 const beerStaff=character('#9f88ce',{host:true,gender:'female'});
 beerStaff.setAttribute('transform','translate(35 130)');
 get('beer-counter-staff').append(beerStaff);
@@ -1060,7 +1062,7 @@ function seedSampleGuests(){
   const available=sideGuestNames.filter(name=>!passers.has(key(name))
     &&!seats.some(seat=>seat.person?.id===key(name)));
   const pickName=()=>available.splice(Math.floor(Math.random()*available.length),1)[0];
-  const center=['Trí','Đào','Mai',rapperName];
+  const center=['','','Mai',rapperName];
   for(const seat of seats){
     if(seat.person)continue;
     const name=seat.tableX===tableCenters[0]?center[seat.index]:seat.index<2?pickName():'';
