@@ -852,7 +852,7 @@ function markVip(actor){
 const walkingRuns=new WeakMap();
 function positionActor(actor,{x,y}){
   actor.walkPosition={x,y};
-  const scale=actor.hasAttribute('data-server')?diningScale:1;
+  const scale=actor.hasAttribute('data-server')?diningScale:actor.walkScale??1;
   actor.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+') scale('+scale.toFixed(4)+')');
 }
 function walk(actor,route,ms,session,keepDuration=false){
@@ -1019,7 +1019,9 @@ prep.setAttribute('transform','translate(86 130)');
 get('prep-station').append(prep);
 const owner=character('#8d263a',{gender:'male'});
 owner.setAttribute('aria-label','Trí, ông chủ Quán Nước Vỉa Hè');
-owner.setAttribute('transform','translate(145 625) scale(1.12)');
+const ownerHome={x:145,y:625};
+owner.walkScale=1.12;
+positionActor(owner,ownerHome);
 const ownerOutfit=owner.querySelector('.actor-body');
 ownerOutfit.append(node('path',{d:'M-14 -30Q0 -35 14 -30L15 -10H-15Z',
   fill:'#8d263a',stroke:'#eac27b','stroke-width':1.4}));
@@ -1035,6 +1037,18 @@ sceneRoot.insertBefore(owner,pedestrianLayer);
 const ownerMouth=node('ellipse',{cx:0,cy:-37,rx:2.5,ry:1,fill:'#542627',
   style:'transform-box:fill-box;transform-origin:center'});
 ownerOutfit.append(ownerMouth);
+const ownerArms=ownerOutfit.querySelectorAll('.actor-regular-limbs')[1];
+ownerArms.firstElementChild.setAttribute('d','M-11-28 -17-17');
+const ownerWaveArm=node('path',{d:'M11-27 18-18',fill:'none',stroke:'#eab285',
+  'stroke-width':4,'stroke-linecap':'round',style:'transform-origin:11px -27px'});
+ownerOutfit.append(ownerWaveArm);
+let ownerWave=null;
+function waveToGuests(){
+  if(reduce.matches||!ownerWaveArm.animate)return;
+  ownerWave?.cancel();
+  ownerWave=ownerWaveArm.animate(
+    [0,-98,-64,-105,-69,0].map(angle=>({transform:'rotate('+angle+'deg)'})),{duration:1100});
+}
 const ownerBubble=group(65,452);
 ownerBubble.setAttribute('visibility','hidden');
 ownerBubble.setAttribute('pointer-events','none');
@@ -1055,9 +1069,12 @@ function showOwnerSpeech(message){
   const visible=lines.slice(0,3);
   if(lines.length>3)visible[2]+='…';
   const height=30+visible.length*19;
-  ownerBubble.setAttribute('transform','translate(65 '+(521-height)+')');
+  const x=owner.walkPosition.x;
+  const bubbleX=Math.max(16,Math.min(454,x-80));
+  const tailX=x-bubbleX;
+  ownerBubble.setAttribute('transform','translate('+bubbleX+' '+(owner.walkPosition.y-104-height)+')');
   ownerBubbleShape.setAttribute('height',height);
-  ownerBubbleTail.setAttribute('d','M65 '+(height-5)+'l16 17 15-17Z');
+  ownerBubbleTail.setAttribute('d','M'+(tailX-15)+' '+(height-5)+'l15 17 15-17Z');
   ownerBubbleText.replaceChildren();
   visible.forEach((line,index)=>{
     const label=node('text',{x:13,y:40+index*19,fill:'#fff2cf','font-size':17});
@@ -1686,6 +1703,7 @@ for(const placeholder of document.querySelectorAll('[data-stage-speaker]')){
 }
 const speakerParts=document.querySelectorAll('#quang-canh .speaker-cone, #speaker-pulses .speaker-pulse');
 function setStage(active){
+  if(active)parkOwner();
   const beat=active&&activeShow?activeShow.track.step*2+'s':'';
   for(const part of speakerParts)part.style.animationDuration=beat;
   get('quang-canh').classList.toggle('stage-performing',active);
@@ -2526,6 +2544,7 @@ function submit(name,value,avatar,gender,live=false){
   else status('Gõ VÀO BÀN để lấy ghế, quán sẽ tự mang nước ra.');
 }
 function reset(showSamples=true){
+  parkOwner();
   get('stage-fireworks').replaceChildren();
   testHearts.clear();
   clearGiftAnnouncements();
@@ -2718,6 +2737,26 @@ window.addEventListener('quannuoc:comment',event=>{
   if(typeof detail?.name!=='string'||!detail.name.trim()||typeof detail.comment!=='string')return;
   submit(detail.name,detail.comment,avatarUrl(detail.avatarUrl),normalizeGender(detail.gender),true);
 });
+const ownerStops=[{x:265,y:613},{x:425,y:623},{x:532,y:611},{x:320,y:602},ownerHome];
+let ownerStopIndex=0,ownerPatrolling=false;
+function parkOwner(){
+  walkingRuns.delete(owner);
+  ownerWave?.cancel();
+  owner.stepLegs.setAttribute('d','M-7 -14 -9 0M7 -14 9 0');
+  positionActor(owner,ownerHome);
+}
+function patrolRoadside(){
+  if(activeShow||stageQueue.length||currentSpeech||ownerPatrolling||reduce.matches)return;
+  const destination=ownerStops[ownerStopIndex];
+  ownerStopIndex=(ownerStopIndex+1)%ownerStops.length;
+  ownerPatrolling=true;
+  walk(owner,[owner.walkPosition,destination],1600,null).then(arrived=>{
+    ownerPatrolling=false;
+    if(arrived&&!activeShow&&!stageQueue.length)waveToGuests();
+  });
+}
+setInterval(patrolRoadside,5000);
+
 const idleVoiceLines=[
   'Chào cả nhà, tôi là Trí Chủ Quán! Gõ vào bàn hoặc ghé, Trí kéo ghế mời bạn ngồi nha!',
   'Trí mời cả nhà ghé quầy bia! Có Huda, Tiger, Larue và bia hơi mát lạnh nha!',
@@ -2732,8 +2771,17 @@ function speakWhileStageIdle(){
   const now=performance.now();
   if(!voiceOn||activeShow||stageQueue.length||currentSpeech||giftAnnouncements.length||
     now<nextSpeechAt||now-lastIdleVoiceAt<12000)return;
-  const line=idleVoiceLines[idleVoiceIndex];
+  if(ownerPatrolling)return;
+  const passer=[...passers.values()].find(guest=>{
+    const point=guest.actor.walkPosition;
+    return point&&point.x>=0&&point.x<=800&&Math.abs(point.x-owner.walkPosition.x)<120;
+  });
+  const nearby=passer&&idleVoiceIndex>0&&idleVoiceIndex%2===1;
+  const line=nearby
+    ?shortGuestName(passer.name)+' ơi, ghé quán làm một cốc bia không? Có Huda, Tiger, Larue và bia hơi nha!'
+    :idleVoiceLines[idleVoiceIndex];
   if(speakVietnamese(line,1.06)===null)return;
+  waveToGuests();
   idleVoiceIndex=(idleVoiceIndex+1)%idleVoiceLines.length;
   lastIdleVoiceAt=now;
 }
