@@ -31,7 +31,8 @@ class CafeHandler(SimpleHTTPRequestHandler):
         text = parse_qs(request.query).get("text", [""])[0].strip()
         if not text or len(text) > 300 or "\x00" in text:
             return self.send_error(400)
-        if not MODEL.is_file() or not MODEL.with_suffix(".onnx.json").is_file():
+        model = select_voice_model(ROOT)
+        if model is None:
             return self.send_error(503, "Vietnamese Piper model missing")
         if not VOICE_SLOT.acquire(blocking=False):
             return self.send_error(429)
@@ -39,7 +40,7 @@ class CafeHandler(SimpleHTTPRequestHandler):
             with TemporaryDirectory() as directory:
                 output = Path(directory) / "voice.wav"
                 python = ["py", "-3.12"] if os.name == "nt" and sys.version_info[:2] != (3, 12) else [sys.executable]
-                result = run([*python, "-m", "piper", "-m", str(MODEL),
+                result = run([*python, "-m", "piper", "-m", str(model),
                               "-f", str(output), "--", text],
                              stdout=DEVNULL, timeout=12)
                 if result.returncode or not output.is_file():
@@ -66,9 +67,17 @@ class CafeHandler(SimpleHTTPRequestHandler):
 
 
 ROOT = Path(__file__).resolve().parent
-MODEL = ROOT / "vi_VN-vais1000-medium.onnx"
+VOICE_MODELS = ("vi_VN-vivos-x_low.onnx", "vi_VN-vais1000-medium.onnx")
 VOICE_SLOT = BoundedSemaphore(1)
 HOST, PORT = "127.0.0.1", 21315
+
+
+def select_voice_model(directory):
+    for name in VOICE_MODELS:
+        model = directory / name
+        if model.is_file() and model.with_suffix(".onnx.json").is_file():
+            return model
+    return None
 
 
 def main():
