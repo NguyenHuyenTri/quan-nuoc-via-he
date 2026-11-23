@@ -2653,10 +2653,25 @@ window.addEventListener('quannuoc:comment',event=>{
   if(typeof detail?.name!=='string'||!detail.name.trim()||typeof detail.comment!=='string')return;
   submit(detail.name,detail.comment,avatarUrl(detail.avatarUrl),normalizeGender(detail.gender),true);
 });
-setInterval(()=>{
-  if(!voiceOn||currentSpeech||giftAnnouncements.length||performance.now()<nextSpeechAt)return;
-  speakVietnamese('Mời cả nhà ghé quầy! Quán có bia Huda, Tiger, Larue và bia hơi mát lạnh nha!',1.06);
-},45000);
+const idleVoiceLines=[
+  'Mời cả nhà ghé quầy! Quán có bia Huda, Tiger, Larue và bia hơi mát lạnh nha!',
+  'Bạn mới tới thì gõ vào bàn hoặc ghé để Trí kéo ghế nhé!',
+  'Bàn mình có ai muốn làm một ly bia hơi không? Quầy cũng có Huda, Tiger và Larue nha!',
+  'Ngồi vào bàn rồi, bạn có thể gõ rock, chill hoặc rap để lên sân khấu!',
+  'Mời cả nhà qua quầy bia. Huda, Tiger, Larue hay bia hơi, bạn thích loại nào?',
+  'Bàn nào có nước rồi thì gõ cụng ly để nâng ly với nhau nha!'
+];
+let idleVoiceIndex=0,lastIdleVoiceAt=performance.now();
+function speakWhileStageIdle(){
+  const now=performance.now();
+  if(!voiceOn||activeShow||stageQueue.length||currentSpeech||giftAnnouncements.length||
+    now<nextSpeechAt||now-lastIdleVoiceAt<12000)return;
+  const line=idleVoiceLines[idleVoiceIndex];
+  if(speakVietnamese(line,1.06)===null)return;
+  idleVoiceIndex=(idleVoiceIndex+1)%idleVoiceLines.length;
+  lastIdleVoiceAt=now;
+}
+setInterval(speakWhileStageIdle,2000);
 let lastHour=Math.floor(Date.now()/3600000);
 setInterval(()=>{const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHour=h;hourEvent();}board();},5000);
 
