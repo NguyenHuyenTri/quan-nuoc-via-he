@@ -611,4 +611,8 @@ body.show-mode {
   html:has(meta[name="cafe-piper"]) body:not(.show-mode) #comment-form {
     display:grid;
   }
+
+  html:has(meta[name="cafe-piper"]) body:not(.show-mode) #preview-viewer {
+    display:block;
+  }
 }
