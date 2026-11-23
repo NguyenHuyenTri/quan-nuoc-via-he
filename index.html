@@ -188,7 +188,7 @@
 <label>Khách thử <input id="gift-name" value="Nguyễn Huyền Trí" maxlength="80"></label>
 <div class="gift-list"><button data-level="small">🌹 Hoa hồng / TikTok · Mời nước (+1)</button><button data-level="medium">🥤 Quà vừa · Chọn món hoặc bài (+10)</button><button data-level="large">🏮 Quà lớn · Bao cả quán (+30)</button><button data-level="solo">🎙 Quà cực lớn · Lên sân khấu (+60)</button></div>
 <label>Chọn cho quà vừa <select id="gift-choice"><option value="tra da">Trà đá</option><option value="ca phe">Cà phê</option><option value="mia lau">Mía lau</option><option value="rap">Rap bên ly đá</option><option value="chill">Đêm chill vỉa hè</option><option value="rock">Rock vỉa hè</option></select></label>
-<div class="grid-buttons"><button id="test-visit">Thử khách ghé</button><button id="test-hour">Thử sự kiện giờ</button><button id="voice-toggle" aria-pressed="false">Bật giọng chủ quán</button></div></section>
+<div class="grid-buttons"><button id="test-visit">Thử khách ghé</button><button id="test-hour">Thử sự kiện giờ</button><button id="voice-toggle" aria-pressed="true">Tắt giọng chủ quán</button></div></section>
 <section class="gift-menu"><h2>Thử kết nối TikTok LIVE</h2><button type="button" id="live-connect">Kết nối TikFinity</button><p id="live-status" role="status">Mở TikFinity Desktop và kết nối phòng LIVE trên cùng máy.</p></section>
 <div id="essential-controls" class="grid-buttons"></div>
 <fieldset class="track-picker">
@@ -450,7 +450,7 @@ let ledger={};
 try {ledger=JSON.parse(localStorage.getItem('cafe-ledger-v1'))||{};}catch{}
 const regulars=new Map(ledger.regulars||[]);
 let day=ledger.day, daily=new Map(ledger.daily||[]);
-let voiceOn=false, hourSerial=0;
+let voiceOn=true, hourSerial=0;
 const visits=new Map(),owed=new Map(),choices=new Map();
 const weights={small:1,medium:10,large:30,solo:60};
 function saveLedger(){try{localStorage.setItem('cafe-ledger-v1',JSON.stringify({regulars:[...regulars],day,daily:[...daily]}));}catch{}}
@@ -2313,6 +2313,16 @@ get('live-demo').addEventListener('click',async()=>{
 document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();receiveGift({name:get('gift-name').value,giftTier:b.dataset.level,choice:get('gift-choice').value});});
 get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
 get('test-hour').onclick=hourEvent;
+function startDefaultVoice(event){
+  if(event.type==='keydown'&&(event.altKey||event.ctrlKey||event.metaKey||event.repeat))return;
+  document.removeEventListener('click',startDefaultVoice,true);
+  document.removeEventListener('keydown',startDefaultVoice,true);
+  if(!voiceOn||event.target.closest?.('#voice-toggle'))return;
+  if(!piperAudio)window.speechSynthesis?.resume();
+  speakVietnamese('Quán mở cửa rồi!',1,true);
+}
+document.addEventListener('click',startDefaultVoice,true);
+document.addEventListener('keydown',startDefaultVoice,true);
 get('voice-toggle').onclick=()=>{
   const button=get('voice-toggle');
   voiceOn=!voiceOn;
