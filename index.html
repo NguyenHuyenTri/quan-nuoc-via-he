@@ -546,28 +546,29 @@ function reachGoals(total){
     tell(message+'. Mốc kế '+formatCoins(following)+' xu: '+goalReward(following).title+'.');
   },2200);
 }
-function dailyFlowers(entry){
-  return BigInt(entry?.flowers ?? entry?.coins ?? 0);
+function dailyGiftCount(entry){
+  // Older mixed totals included coin values. Only test-only totals are exact.
+  return BigInt(entry?.giftCount ?? (entry?.coins ? 0 : entry?.flowers) ?? 0);
 }
-function recordDailyFlowers(name,flowers,coins=0){
+function recordDailyGifts(name,flowers,coins=0){
   today();
   const id=key(name),previous=daily.get(id);
-  daily.set(id,{...previous,name,flowers:String(dailyFlowers(previous)+flowers),
+  daily.set(id,{...previous,name,giftCount:String(dailyGiftCount(previous)+flowers),
     coins:(previous?.coins||0)+coins});
   saveLedger();
 }
 function board(){
   today();
-  const ranked=[...daily].filter(([,v])=>dailyFlowers(v)>0n).sort((a,b)=>{
-    const left=dailyFlowers(a[1]),right=dailyFlowers(b[1]);
+  const ranked=[...daily].filter(([,v])=>dailyGiftCount(v)>0n).sort((a,b)=>{
+    const left=dailyGiftCount(a[1]),right=dailyGiftCount(b[1]);
     return left===right?0:left>right?-1:1;
   });
-  const flowers=ranked.reduce((sum,[,v])=>sum+dailyFlowers(v),0n);
-  const total=ranked.reduce((sum,[,v])=>sum+v.coins,0),target=nextGoal(total);
+  const flowers=ranked.reduce((sum,[,v])=>sum+dailyGiftCount(v),0n);
+  const total=[...daily.values()].reduce((sum,v)=>sum+(v.coins||0),0),target=nextGoal(total);
   fitBoardText(get('goal-note'),formatCoins(total)+' / '+formatCoins(target)+' xu',225);
   get('goal-fill').setAttribute('width',225*total/target);
   const top=ranked.slice(0,3);
-  fitBoardText(get('vip-list'),'🌹 '+formatCoins(flowers)+' hoa hôm nay · VIP · '+(top.map(([,v],i)=>(i+1)+'. '+shortGuestName(v.name)+' '+formatCoins(dailyFlowers(v))+' hoa').join('   ')||'Chưa có quà'),490);
+  fitBoardText(get('vip-list'),'Quà hôm nay: '+formatCoins(flowers)+' · '+(top.map(([,v],i)=>(i+1)+'. '+shortGuestName(v.name)+' '+formatCoins(dailyGiftCount(v))+' quà').join('   ')||'Chưa có quà'),490);
   seats.forEach(seat=>{
     if(!seat.stool)return;
     const rank=top.findIndex(([id])=>id===seat.person?.id);
@@ -2439,7 +2440,7 @@ function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitC
       join(name,avatarUrl(photo),normalizeGender(gender));
     }
     const before=board(), amount=Number.isFinite(count)?Math.max(1,Math.floor(count)):1;
-    recordDailyFlowers(name,BigInt(unitCoins)*BigInt(amount),unitCoins*amount);
+    recordDailyGifts(name,BigInt(amount),unitCoins*amount);
     const total=board();loyalty(name,1);
     if(total>=nextGoal(before))reachGoals(total);
     const now=performance.now();
@@ -2645,7 +2646,7 @@ function submit(name,value,avatar,gender,live=false){
     const occupied=seated(name,true);
     if((!occupied||occupied.person.sample)&&!onStage(key(name)))join(name,avatar,gender);
     const flowers=BigInt(testGift[1]);
-    recordDailyFlowers(name,flowers);
+    recordDailyGifts(name,flowers);
     board();
     showTestFlowers(name,flowers);
     const id=key(name);
