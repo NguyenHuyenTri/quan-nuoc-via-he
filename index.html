@@ -1028,11 +1028,13 @@ function syncStageAudio(){
   const running=audio?.state==='running';
   const button=get('enable-audio');
   button.textContent=running?'Nhạc đã bật':'Bật nhạc cho quán';
-  button.disabled=running;
+  button.disabled=false;
+  if(running)button.textContent='Thử âm thanh';
   if(running&&activeShow?.endsAt&&!activeShow.ending)playStageSound(activeShow);
 }
 async function primeAudio(){
   const AudioEngine=window.AudioContext||window.webkitAudioContext;
+  if(audio?.state==='closed'){stopStageSound();audio=null;}
   if(!audio&&AudioEngine){
     if(navigator.audioSession){
       try{navigator.audioSession.type='playback';}catch{}
@@ -1045,8 +1047,11 @@ async function primeAudio(){
   }
   syncStageAudio();
 }
-document.addEventListener('pointerdown',()=>{primeAudio();},{once:true});
-document.addEventListener('keydown',()=>{primeAudio();},{once:true});
+function resumeGameAudio(){
+  if(audio?.state!=='running')void primeAudio();
+}
+document.addEventListener('click',resumeGameAudio,true);
+document.addEventListener('keydown',resumeGameAudio,true);
 const sceneRoot=get('counter-front').parentNode;
 const staffLayer=node('g',{id:'staff-foreground'});
 sceneRoot.insertBefore(get('counter-front'),pedestrianLayer);
@@ -1828,6 +1833,7 @@ function speakWithPiper(text,rate,ownerSpeaking){
   const finish=(failed=false)=>{
     if(currentSpeech!==request)return;
     stopHostSpeech();
+    if(failed)piperGreetingRequested=false;
     if(failed)status('Không phát được giọng Piper. Kiểm tra Python 3.12 và model vais1000 trong thư mục game.');
   };
   piperAudio.onplaying=()=>{if(ownerSpeaking&&currentSpeech===request)showOwnerSpeech(text);};
@@ -1894,7 +1900,7 @@ function speakVietnamese(text,rate,manual=false,ownerSpeaking=true){
   };
   utterance.onend=finish;
   utterance.onerror=event=>{
-    if(currentSpeech===utterance&&event.error==='not-allowed')browserVoiceStarted=false;
+    if(currentSpeech===utterance)browserVoiceStarted=false;
     if(finish()&&event.error!=='canceled'&&event.error!=='interrupted'){
       status('Trình duyệt báo lỗi giọng chủ quán: '+event.error);
     }
@@ -2745,7 +2751,10 @@ get('show-mode').addEventListener('click',()=>{primeAudio();setShowMode(true);})
 document.addEventListener('click',event=>{
   if(document.body.classList.contains('show-mode')&&!event.target.closest('.scene,#show-mode'))setShowMode(false);
 });
-get('enable-audio').addEventListener('click',primeAudio);
+get('enable-audio').addEventListener('click',async()=>{
+  await primeAudio();
+  if(audio?.state==='running')ding();
+});
 get('demo-gift').addEventListener('click',()=>{
   receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value,stageTest:true},'rock');
 });
@@ -2856,6 +2865,14 @@ get('live-demo').addEventListener('click',async()=>{
 document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();submit(get('gift-name').value,'tặng '+weights[b.dataset.level],'','');});
 get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
 get('test-hour').onclick=hourEvent;
+let openingVoiceAttempted=false;
+if(!piperAudio){
+  const synth=window.speechSynthesis;
+  synth?.getVoices();
+  synth?.addEventListener?.('voiceschanged',()=>{
+    if(openingVoiceAttempted&&voiceOn&&!browserVoiceStarted&&!currentSpeech&&synth.getVoices().some(v=>/^vi(?:[-_]|$)/i.test(v.lang)))requestOpeningVoice();
+  });
+}
 function startDefaultVoice(event){
   if(event.type==='keydown'&&(event.altKey||event.ctrlKey||event.metaKey||event.repeat))return;
   if(!voiceOn||event.target.closest?.('#voice-toggle')||currentSpeech)return;
@@ -2863,6 +2880,7 @@ function startDefaultVoice(event){
   requestOpeningVoice();
 }
 function requestOpeningVoice(){
+  openingVoiceAttempted=true;
   if(!piperAudio){
     browserVoiceStarted=true;
     window.speechSynthesis?.resume();
