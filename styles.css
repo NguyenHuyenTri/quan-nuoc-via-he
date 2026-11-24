@@ -581,7 +581,7 @@ body.show-mode {
 #live-demo,#demo,#preview-viewer,#demo-dance {display:none;}
 
 
-.controls > div:first-child, #comment-form, .controls [aria-label="Lệnh nhanh"] {display:none;}
+ .controls [aria-label="Lệnh nhanh"] {display:none;}
 
 
 [data-vip] [data-guest-label] {filter:drop-shadow(0 0 2px var(--vip-color,#ffe36d));}
@@ -594,30 +594,30 @@ body.show-mode {
 }
 
 @media (min-width:781px) {
-  html:has(meta[name="cafe-piper"]) body:not(.show-mode) main {
+  body:not(.show-mode) main {
     max-width:1120px;
   }
 
-  html:has(meta[name="cafe-piper"]) body:not(.show-mode) .layout {
+  body:not(.show-mode) .layout {
     grid-template-columns:minmax(0, 1fr) minmax(300px, 380px);
   }
 
-  html:has(meta[name="cafe-piper"]) body:not(.show-mode) .scene {
+  body:not(.show-mode) .scene {
     position:sticky;
     top:12px;
     justify-self:center;
     width:min(100%, max(320px, calc((100dvh - 90px) * 800 / 1422)));
   }
 
-  html:has(meta[name="cafe-piper"]) body:not(.show-mode) .controls > div:first-child {
+  body:not(.show-mode) .controls > div:first-child {
     display:block;
   }
 
-  html:has(meta[name="cafe-piper"]) body:not(.show-mode) #comment-form {
+  body:not(.show-mode) #comment-form {
     display:grid;
   }
 
-  html:has(meta[name="cafe-piper"]) body:not(.show-mode) #preview-viewer {
+  body:not(.show-mode) #preview-viewer {
     display:block;
   }
 }
