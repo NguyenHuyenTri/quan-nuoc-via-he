@@ -1,0 +1,8 @@
+{
+  "name": "Quán Nước Vỉa Hè",
+  "description": "Quán Nước Vỉa Hè · Thang quà LIVE — trò chơi tương tác livestream khung dọc 9:16 với sân khấu phòng trà ngoài trời, bàn nước vỉa hè và giọng đọc chủ quán tự động.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

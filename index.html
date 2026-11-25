@@ -1,0 +1,3792 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Quán Nước Vỉa Hè · Thang quà LIVE</title>
+<meta name="description" content="Quán Nước Vỉa Hè · Thang quà LIVE — trò chơi tương tác livestream với sân khấu Đêm Bia Hơi ngoài trời và bàn nước vỉa hè.">
+<meta property="og:title" content="Quán Nước Vỉa Hè">
+<meta property="og:description" content="Quán Nước Vỉa Hè · Thang quà LIVE — trò chơi tương tác livestream với sân khấu Đêm Bia Hơi ngoài trời và bàn nước vỉa hè.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body data-game-state="TITLE_MENU">
+<main class="game-shell">
+<section class="scene-stage" aria-label="Sân khấu và bàn nước ngoài trời">
+<svg id="quang-canh" viewBox="0 0 800 1422" role="img" aria-label="Sân khấu Đêm Bia Hơi ngoài trời phía trên, sân ngồi sáu bàn bốn ghế và phố đi bộ trước quầy">
+<defs>
+<clipPath id="avatar-crop"><circle r="15"/></clipPath>
+<linearGradient id="yard" x2="0" y2="1"><stop stop-color="#224338"/><stop offset=".55" stop-color="#1b352c"/><stop offset="1" stop-color="#152821"/></linearGradient>
+<linearGradient id="patio-deck" x2="0" y2="1"><stop stop-color="#284c3f"/><stop offset="1" stop-color="#1d382f"/></linearGradient>
+<linearGradient id="patio-stone" x2="0" y2="1"><stop stop-color="#3c5045"/><stop offset="1" stop-color="#2a3a32"/></linearGradient>
+<pattern id="patio-tiles" width="64" height="64" patternUnits="userSpaceOnUse">
+  <rect width="64" height="64" fill="none" stroke="#5e7f6d" stroke-opacity=".18" stroke-width="1.2"/>
+  <path d="M0 32H64M32 0V64" stroke="#5e7f6d" stroke-opacity=".1" stroke-width="1"/>
+</pattern>
+<g id="patio-plant">
+  <ellipse cx="0" cy="14" rx="18" ry="6" fill="#10211a" opacity=".55"/>
+  <path d="M-11 2h22l-3 12H-8Z" fill="#a85b3f" stroke="#d98964" stroke-width="1.6"/>
+  <ellipse cx="0" cy="2" rx="12" ry="3.6" fill="#6b3b29"/>
+  <path d="M0 0C-15 -10 -20 -24 -8 -30C-2 -24 0 -11 0 0Z" fill="#3a7b56"/>
+  <path d="M0 0C15 -10 20 -24 8 -30C2 -24 0 -11 0 0Z" fill="#4b9468"/>
+  <path d="M0 0C-5 -16 -3 -31 0 -35C3 -31 5 -16 0 0Z" fill="#5da877"/>
+</g>
+<linearGradient id="roof" x2="1" y2="1"><stop stop-color="#c26b42"/><stop offset="1" stop-color="#9b4c35"/></linearGradient>
+<radialGradient id="lamp"><stop stop-color="#ffd988" stop-opacity=".34"/><stop offset="1" stop-color="#ffd988" stop-opacity="0"/></radialGradient>
+<pattern id="floor" width="90" height="45" patternUnits="userSpaceOnUse"><path d="M0 45 90 0M-90 45 0 0M90 45 180 0" stroke="#79927a" opacity=".17" fill="none"/></pattern>
+</defs>
+<defs>
+  <linearGradient id="stage-sky" x2="0" y2="1"><stop stop-color="#122237"/><stop offset=".62" stop-color="#263b4b"/><stop offset="1" stop-color="#29483c"/></linearGradient>
+  <linearGradient id="stage-wood" x2="0" y2="1"><stop stop-color="#966141"/><stop offset="1" stop-color="#59392c"/></linearGradient>
+  <radialGradient id="stage-glow"><stop stop-color="#ffd28b" stop-opacity=".44"/><stop offset="1" stop-color="#ffd28b" stop-opacity="0"/></radialGradient>
+  <radialGradient id="follow-spotlight" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#fff6d4" stop-opacity=".68"/>
+    <stop offset="38%" stop-color="#ffd578" stop-opacity=".36"/>
+    <stop offset="74%" stop-color="#ff9f43" stop-opacity=".13"/>
+    <stop offset="100%" stop-color="#ff9f43" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="follow-spotlight-vip" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#fff8de" stop-opacity=".75"/>
+    <stop offset="36%" stop-color="#ffd16b" stop-opacity=".42"/>
+    <stop offset="72%" stop-color="#f096e8" stop-opacity=".16"/>
+    <stop offset="100%" stop-color="#f096e8" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="spotlight-cone-grad" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="#fff2ba" stop-opacity=".38"/>
+    <stop offset="55%" stop-color="#ffd782" stop-opacity=".18"/>
+    <stop offset="100%" stop-color="#ffd782" stop-opacity=".04"/>
+  </linearGradient>
+  <pattern id="speaker-grille" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#68747c" opacity=".45"/></pattern>
+  <g id="speaker-stack">
+    <rect width="105" height="231" rx="10" fill="#161d25" stroke="#7c7776" stroke-width="3"/>
+    <rect x="9" y="9" width="87" height="213" rx="6" fill="url(#speaker-grille)" stroke="#373b40"/>
+    <rect x="31" y="18" width="43" height="17" rx="4" fill="#303744" stroke="#67757d"/>
+    <circle class="speaker-cone" cx="52" cy="76" r="32" fill="#222b34" stroke="#58616b" stroke-width="3"/>
+    <circle cx="52" cy="76" r="13" fill="#151d25" stroke="#48535d"/>
+    <circle class="speaker-cone" cx="52" cy="158" r="36" fill="#222b34" stroke="#58616b" stroke-width="3"/>
+    <circle cx="52" cy="158" r="16" fill="#151d25" stroke="#48535d"/>
+    <rect x="39" y="207" width="26" height="4" rx="2" fill="#efaa64"/>
+    <rect x="-12" y="236" width="129" height="99" rx="9" fill="#171e27" stroke="#756969" stroke-width="3"/>
+    <circle class="speaker-cone" cx="52" cy="285" r="37" fill="#242e38" stroke="#4f5a63" stroke-width="3"/>
+    <circle cx="52" cy="285" r="17" fill="#141b23"/>
+    <rect x="-3" y="245" width="111" height="81" rx="6" fill="url(#speaker-grille)"/>
+  </g>
+</defs>
+<rect width="800" height="1422" fill="#29483c"/>
+<rect width="800" height="848" fill="url(#stage-sky)"/>
+<g id="sky-celestial">
+  <circle cx="640" cy="105" r="36" fill="#efd9af" opacity=".84"/>
+  <g fill="#e9d1a4" opacity=".72"><circle cx="83" cy="97" r="2"/><circle cx="171" cy="135" r="2"/><circle cx="246" cy="69" r="2.6"/><circle cx="464" cy="115" r="2"/><circle cx="544" cy="68" r="1.8"/><circle cx="735" cy="149" r="2.5"/></g>
+</g>
+<path d="M0 275 130 166 207 240 327 143 462 253 585 157 800 280V470H0Z" fill="#304c59"/>
+<path d="M0 328 132 254 240 315 397 225 532 310 679 218 800 312V535H0Z" fill="#213f47"/>
+<ellipse cx="400" cy="410" rx="326" ry="275" fill="url(#stage-glow)"/>
+<path d="M0 160 Q400 261 800 156" stroke="#0d2029" stroke-width="4" fill="none"/>
+<g fill="#ffdb8e"><circle cx="53" cy="174" r="5"/><circle cx="116" cy="187" r="5"/><circle cx="184" cy="198" r="5"/><circle cx="252" cy="206" r="5"/><circle cx="322" cy="210" r="5"/><circle cx="400" cy="211" r="5"/><circle cx="475" cy="209" r="5"/><circle cx="550" cy="203" r="5"/><circle cx="620" cy="193" r="5"/><circle cx="686" cy="182" r="5"/><circle cx="753" cy="167" r="5"/></g>
+<path d="M173 299H627V552H173Z" fill="#422f37" stroke="#9c7460" stroke-width="4"/>
+<path d="M174 314 127 290l65-56h416l65 56-46 24Z" fill="#623d39" stroke="#d6a474" stroke-width="4" stroke-linejoin="round"/>
+<path d="M195 316V556M605 316V556" stroke="#b18664" stroke-width="9"/>
+<path d="M205 334H595M205 360H595M205 386H595M205 412H595M205 438H595M205 464H595M205 490H595M205 516H595" stroke="#72544c" stroke-width="2" opacity=".56"/>
+<rect x="255" y="273" width="290" height="65" rx="13" fill="#252938" stroke="#e8a96e" stroke-width="3"/>
+<text x="400" y="300" text-anchor="middle" fill="#ffe0ad" font-size="22" font-weight="800" letter-spacing="3">SÂN KHẤU NGOÀI TRỜI</text>
+<text x="400" y="322" text-anchor="middle" fill="#ffd27a" font-size="14" font-weight="800" letter-spacing="4">ĐÊM BIA HƠI</text>
+<g id="stage-beams" opacity=".28">
+  <path class="stage-beam beam-left" d="M251 348H281L484 553H210Z" fill="#ffe4a5"/>
+  <path class="stage-beam beam-right" d="M520 348H550L592 553H315Z" fill="#e8b2f3"/>
+  <path class="stage-beam beam-center" d="M395 345H405L518 558H282Z" fill="#8ddff5"/>
+</g>
+
+<circle cx="266" cy="347" r="10" fill="#ffda8a"/><circle cx="535" cy="347" r="10" fill="#efc4f6"/>
+<path d="M155 545H645L688 602H112Z" fill="url(#stage-wood)" stroke="#e0a874" stroke-width="4" stroke-linejoin="round"/>
+<path d="M112 602H688V628H112Z" fill="#573e34" stroke="#a97855" stroke-width="3"/>
+<path d="M361 649h78l16 41H345z" fill="#41483e"/>
+<path d="M354 629h92l13 18H341zM341 647h118v9H341z" fill="#80573f" stroke="#bc8c61" stroke-width="2"/>
+<path d="M147 566H653M129 584H671" stroke="#e5b177" opacity=".44" stroke-width="2"/>
+<g id="stage-footlights" fill="#ffd18a" aria-hidden="true">
+  <circle cx="184" cy="592" r="4"/><circle cx="224" cy="592" r="4"/><circle cx="264" cy="592" r="4"/>
+  <circle cx="304" cy="592" r="4"/><circle cx="344" cy="592" r="4"/><circle cx="384" cy="592" r="4"/>
+  <circle cx="424" cy="592" r="4"/><circle cx="464" cy="592" r="4"/><circle cx="504" cy="592" r="4"/>
+  <circle cx="544" cy="592" r="4"/><circle cx="584" cy="592" r="4"/><circle cx="624" cy="592" r="4"/>
+</g>
+<use href="#speaker-stack" transform="translate(43 267)" data-stage-speaker/>
+<use href="#speaker-stack" transform="translate(652 267)" data-stage-speaker/>
+<g id="speaker-pulses" fill="none" stroke="#efb675" stroke-width="2.5" aria-hidden="true">
+  <circle class="speaker-pulse" cx="95" cy="343" r="20"/>
+  <circle class="speaker-pulse" cx="95" cy="425" r="24"/>
+  <circle class="speaker-pulse" cx="704" cy="343" r="20"/>
+  <circle class="speaker-pulse" cx="704" cy="425" r="24"/>
+  <circle class="speaker-pulse" cx="95" cy="552" r="29"/>
+  <circle class="speaker-pulse" cx="704" cy="552" r="29"/>
+</g>
+<path d="M232 568l30-25 40 10-12 30h-58ZM510 583l-12-30 40-10 30 25v15Z" fill="#222a33" stroke="#78818a" stroke-width="3"/>
+<path d="M402 535v54m-15 0h30" fill="none" stroke="#dfd1c6" stroke-width="4" stroke-linecap="round"/>
+<path d="M402 535l-12-7" stroke="#eee0cf" stroke-width="8" stroke-linecap="round"/>
+<g id="stage-spotlight" aria-hidden="true" pointer-events="none">
+  <polygon id="spotlight-cone" points="384,344 416,344 474,580 326,580" fill="url(#spotlight-cone-grad)"/>
+  <g id="spotlight-target" transform="translate(400 580)">
+    <g class="spotlight-pulse">
+      <ellipse class="spotlight-aura" cx="0" cy="-48" rx="112" ry="132" fill="url(#follow-spotlight)"/>
+      <ellipse class="spotlight-pool" cx="0" cy="0" rx="94" ry="26" fill="url(#follow-spotlight)"/>
+      <ellipse class="spotlight-rim" cx="0" cy="0" rx="64" ry="16" fill="none" stroke="#ffe599" stroke-opacity=".46" stroke-width="2"/>
+    </g>
+  </g>
+</g>
+<g id="stage-notes" visibility="hidden" fill="#ffd393" font-size="35" font-weight="800" aria-hidden="true"><text x="340" y="450">♪</text><text x="452" y="431">♫</text><text x="490" y="474">♪</text></g>
+<g id="stage-caption" visibility="hidden" aria-hidden="true">
+  <rect x="139" y="178" width="522" height="60" rx="13" fill="#14232c" fill-opacity=".94" stroke="#deaf75"/>
+  <text id="stage-track" x="160" y="203" fill="#fff1c8" font-size="22" font-weight="800"></text>
+  <text id="stage-names" x="160" y="226" fill="#ffe29c" font-size="18"></text>
+</g>
+<g transform="translate(0 690)">
+<rect width="800" height="732" fill="url(#yard)"/>
+<rect x="22" y="24" width="756" height="568" rx="22" fill="url(#patio-deck)" stroke="#5b816d" stroke-opacity=".45" stroke-width="2.5"/>
+<rect x="26" y="28" width="748" height="560" rx="19" fill="url(#patio-tiles)"/>
+<rect x="34" y="36" width="732" height="544" rx="14" fill="none" stroke="#ffd28a" stroke-opacity=".11" stroke-width="1.5"/>
+<ellipse id="yard-lamp-glow" cx="400" cy="245" rx="345" ry="230" fill="url(#lamp)"/>
+<g id="yard-string-lights" aria-hidden="true" pointer-events="none">
+  <path d="M26 42 Q212 72 400 42 Q588 72 774 42" fill="none" stroke="#182a23" stroke-width="3"/>
+  <g fill="#ffe194">
+    <circle cx="72" cy="50" r="4.5"/><circle cx="136" cy="57" r="4.5"/><circle cx="204" cy="59" r="4.5"/>
+    <circle cx="272" cy="56" r="4.5"/><circle cx="338" cy="49" r="4.5"/><circle cx="400" cy="42" r="5"/>
+    <circle cx="464" cy="49" r="4.5"/><circle cx="530" cy="56" r="4.5"/><circle cx="598" cy="59" r="4.5"/>
+    <circle cx="664" cy="57" r="4.5"/><circle cx="728" cy="50" r="4.5"/>
+  </g>
+  <g fill="#ffd988" opacity=".22">
+    <circle cx="72" cy="50" r="14"/><circle cx="204" cy="59" r="14"/><circle cx="400" cy="42" r="16"/>
+    <circle cx="598" cy="59" r="14"/><circle cx="728" cy="50" r="14"/>
+  </g>
+</g>
+<g id="yard-greenery" aria-hidden="true" pointer-events="none">
+  <use href="#patio-plant" transform="translate(46 150) scale(1.05)"/>
+  <use href="#patio-plant" transform="translate(46 318) scale(1.08)"/>
+  <use href="#patio-plant" transform="translate(46 486) scale(1.05)"/>
+  <use href="#patio-plant" transform="translate(754 150) scale(1.05)"/>
+  <use href="#patio-plant" transform="translate(754 318) scale(1.08)"/>
+  <rect x="24" y="420" width="10" height="162" rx="4" fill="#634535" opacity=".7"/>
+  <rect x="766" y="420" width="10" height="162" rx="4" fill="#634535" opacity=".7"/>
+</g>
+<g aria-hidden="true" fill="none">
+  <rect y="592" width="800" height="14" fill="url(#patio-stone)"/>
+  <path d="M0 592H800" stroke="#7d9685" stroke-opacity=".55" stroke-width="2"/>
+  <path d="M60 592v14M160 592v14M260 592v14M360 592v14M460 592v14M560 592v14M660 592v14M740 592v14" stroke="#223029" stroke-width="1.5" opacity=".55"/>
+  <rect y="606" width="800" height="114" fill="#464d47"/>
+  <path d="M0 606H800M0 720H800" stroke="#28312b" stroke-width="5"/>
+  <path d="M0 616H800M0 710H800" stroke="#9ea18f" stroke-opacity=".65" stroke-width="2"/>
+  <path d="M0 663H800" stroke="#bdb69c" stroke-opacity=".55" stroke-width="2.5" stroke-dasharray="26 14"/>
+</g>
+<g id="counter-front" transform="translate(588 425) scale(1.12 1.06)">
+<rect x="4" y="45" width="146" height="94" rx="8" fill="#263c30" stroke="#826448" stroke-width="3"/>
+<g id="prep-station" aria-label="Nhân viên pha chế"></g>
+<g transform="translate(0 -10)">
+<path d="M-6 15h166l13 42H-19z" fill="url(#roof)" stroke="#eea26a" stroke-width="2"/>
+<path d="M20 16 13 55m40-39-4 39m37-39v39m32-39 4 39m29-39 8 39" stroke="#ffc584" opacity=".65" stroke-width="3"/>
+<rect x="34" y="21" width="86" height="22" rx="6" fill="#182d26" stroke="#ffd27a" stroke-width="1.5"/>
+<text x="77" y="36" text-anchor="middle" fill="#ffe29c" font-size="13" font-weight="800" letter-spacing="1.2">BIA HƠI</text>
+</g>
+<rect x="-1" y="84" width="158" height="15" rx="4" fill="#cb955f"/>
+<rect x="9" y="99" width="136" height="40" rx="4" fill="#8f6247"/>
+<path d="M30 104v30m24-30v30m24-30v30m24-30v30m24-30v30" stroke="#5a4338" opacity=".55" stroke-width="2"/>
+<path d="M24 66h17l-2 18H26zM52 63h18l-2 21H54z" fill="#f0bc71" opacity=".8"/>
+</g>
+<g id="counter-dialogue" aria-hidden="true" transform="translate(396 386)">
+  <path d="M262 60l24 20 4-20" fill="#162e2a" stroke="#d2ad77" stroke-width="2" stroke-linejoin="round"/>
+  <rect width="383" height="63" rx="14" fill="#162e2a" stroke="#d2ad77" stroke-width="2"/>
+  <text x="18" y="22" fill="#ffd391" font-size="13.5" font-weight="800">NHÂN VIÊN NHẮC KHÉO</text>
+  <text id="counter-line" x="18" y="46" fill="#fff2cf" font-size="18.5" font-weight="750">vào bàn</text>
+</g>
+<g id="back-seats"></g><g id="back-people"></g>
+<defs><g id="square-table" transform="translate(400 312) scale(.4) translate(-400 -312)">
+<path d="M282 308H518L554 398H246Z" fill="#0f211a" opacity=".52"/>
+<path d="M310 267L305 320M490 267l5 53M266 359l-6 44M534 359l6 44" stroke="#5e4131" stroke-width="11" stroke-linecap="round"/>
+<path d="M303 259H497L541 349V366H259V349Z" fill="#82533a" stroke="#dca970" stroke-width="3" stroke-linejoin="round"/>
+<path d="M303 255H497L541 349H259Z" fill="#c48a5c" stroke="#f6c686" stroke-width="3" stroke-linejoin="round"/>
+<path d="M292 279H508M280 304H520M268 329H532" fill="none" stroke="#8e5b40" stroke-width="2.2" opacity=".58"/>
+<ellipse cx="400" cy="303" rx="28" ry="12" fill="#f2e4c7" stroke="#c89b62" stroke-width="2"/>
+<ellipse cx="400" cy="301" rx="16" ry="6.5" fill="#e0b26b" opacity=".88"/>
+</g>
+</defs>
+<g id="tables"></g>
+<g id="front-seats"></g><g id="front-people"></g><g id="drinks"></g><g id="toast-effects" aria-hidden="true"></g><g id="service-dialogue" aria-hidden="true"></g><g id="audience-dialogue" aria-hidden="true"></g><g id="walking" data-depth-sorted=""></g><g id="pedestrians" aria-hidden="true"></g>
+</g>
+<g id="stage-reactions" aria-hidden="true"></g>
+<g id="party-fx" pointer-events="none"></g>
+<g id="stage-fireworks" pointer-events="none" aria-hidden="true"></g>
+<g id="gift-fireworks" pointer-events="none" aria-hidden="true"></g>
+<g id="live-board" transform="translate(14 632)"><rect width="772" height="62" rx="12" fill="#102820" stroke="#c89e62" stroke-width="1.5"/><text id="goal-note" x="16" y="23" font-size="15.5"></text><rect x="16" y="31" width="185" height="6" rx="3" fill="#324e40"/><rect id="goal-fill" x="16" y="31" height="6" rx="3" fill="#edc76d"/><line x1="214" y1="11" x2="214" y2="38" stroke="#395747" stroke-width="1.5"/><text id="vip-list" x="228" y="25" font-size="15.5"></text><text id="host-note" x="16" y="52" font-size="14.5">Hoa hồng mời nước · Quà vừa chọn món hoặc bài · Quà lớn bao quán · Quà cực lớn lên sân khấu</text></g>
+<g id="live-stage-notice" visibility="hidden" pointer-events="none">
+  <rect x="64" y="114" width="672" height="52" rx="14" fill="#101d29" fill-opacity=".96" stroke="#ffd085"/>
+  <text id="live-stage-message" x="400" y="147" text-anchor="middle" fill="#fff1c8" font-size="24" font-weight="750"></text>
+</g>
+<g id="star-gift" pointer-events="none"></g>
+<g id="stage-queue-led" visibility="hidden" pointer-events="none"><rect x="20" y="180" width="360" height="112" rx="10" fill="#102125" fill-opacity=".96" stroke="#e6bb70"/><text x="33" y="201" fill="#ffe29c" font-size="16">HÀNG CHỜ</text><text id="queue-led-0" x="33" y="222" fill="#fff5d6" font-size="15"></text><text id="queue-led-1" x="33" y="241" fill="#fff5d6" font-size="15"></text><text id="queue-led-2" x="33" y="260" fill="#fff5d6" font-size="15"></text><text id="queue-led-3" x="33" y="279" fill="#fff5d6" font-size="15"></text></g>
+<g id="tiktok-safe-guide" visibility="hidden" pointer-events="none" aria-hidden="true">
+  <rect x="12" y="10" width="776" height="98" rx="12" fill="#ef4444" fill-opacity=".14" stroke="#fca5a5" stroke-width="2" stroke-dasharray="10 6"/>
+  <text x="400" y="64" text-anchor="middle" fill="#fecaca" font-size="18" font-weight="700">Vùng che TikTok LIVE (Tên phòng · Top · Người xem)</text>
+  <rect x="12" y="114" width="776" height="964" rx="14" fill="none" stroke="#d0e97b" stroke-width="2.5" stroke-dasharray="14 8"/>
+  <text x="400" y="138" text-anchor="middle" fill="#d0e97b" font-size="15" font-weight="700">KHUNG AN TOÀN TIKTOK 9:16 (Sân khấu · Bàn khách · Trí Chủ Quán)</text>
+  <rect x="692" y="840" width="96" height="456" rx="12" fill="#ef4444" fill-opacity=".14" stroke="#fca5a5" stroke-width="2" stroke-dasharray="10 6"/>
+  <text x="740" y="1068" text-anchor="middle" fill="#fecaca" font-size="15" font-weight="700" transform="rotate(-90 740 1068)">Nút Tim · Chia sẻ · Quà</text>
+  <rect x="12" y="1084" width="670" height="222" rx="12" fill="#ef4444" fill-opacity=".14" stroke="#fca5a5" stroke-width="2" stroke-dasharray="10 6"/>
+  <text x="347" y="1202" text-anchor="middle" fill="#fecaca" font-size="18" font-weight="700">Vùng bình luận TikTok LIVE trôi lên</text>
+  <rect x="12" y="1314" width="776" height="98" rx="12" fill="#ef4444" fill-opacity=".14" stroke="#fca5a5" stroke-width="2" stroke-dasharray="10 6"/>
+  <text x="400" y="1368" text-anchor="middle" fill="#fecaca" font-size="17" font-weight="700">Thanh nhập bình luận &amp; Hộp quà dưới đáy</text>
+</g>
+</svg>
+<button type="button" id="exit-show-mode" class="exit-show-mode">Thoát khung phát · Esc</button>
+</section>
+
+<!-- Left Studio Rail: Live Metrics, Announcement & Quick Viewer Simulator -->
+<aside class="studio-rail hud-rail-left" aria-label="Thông tin quán và giả lập bình luận">
+  <div class="rail-section hud-metrics">
+    <div class="hud-brand-row">
+      <span class="hud-brand-title">Quán Nước Vỉa Hè</span>
+      <span class="hud-format-note">TikTok LIVE 9:16</span>
+    </div>
+    <div class="hud-stat-line">
+      <strong id="seat-count" class="tabular-nums">4 ghế trống · 8 khách mẫu</strong>
+      <span class="hud-sep" aria-hidden="true">·</span>
+      <strong id="hud-coins" class="tabular-nums">0 xu</strong>
+      <span class="hud-sep hud-sep-queue" aria-hidden="true">·</span>
+      <span id="show-queue">Sân khấu đang chờ</span>
+    </div>
+    <div id="announcement" class="hud-announcement" role="status">Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!</div>
+  </div>
+
+  <div class="rail-section quick-bar" aria-label="Giả lập bình luận người xem">
+    <span class="rail-heading">Giả lập bình luận người xem</span>
+    <form id="quick-comment-form" class="quick-comment-form">
+      <input id="quick-comment-input" maxlength="80" placeholder="Gõ: vào bàn, rock, tặng 10…" autocomplete="off" aria-label="Gửi bình luận nhanh">
+      <button type="submit" class="primary">Gửi</button>
+    </form>
+    <div class="quick-commands">
+      <button type="button" data-command="VÀO BÀN">1 · Vào bàn</button>
+      <button type="button" data-command="CỤNG LY">2 · Cụng ly</button>
+      <button type="button" data-command="VỖ TAY">3 · Vỗ tay</button>
+      <button type="button" data-command="THẢ TIM">4 · Thả tim</button>
+      <button type="button" data-command="CHILL">Chill</button>
+      <button type="button" data-command="RAP">Rap</button>
+      <button type="button" data-command="ROCK">Rock</button>
+      <button type="button" id="quick-gift-10" class="accent-amber">🌹 Tặng 10 hoa</button>
+    </div>
+  </div>
+
+  <div class="rail-section rail-tips">
+    <span class="rail-heading">Từ khóa tương tác cho khán giả</span>
+    <div><strong>Vào quán:</strong> vào bàn · ghé · nước</div>
+    <div><strong>Cụng ly &amp; cổ vũ:</strong> cụng ly · vỗ tay · thả tim</div>
+    <div><strong>Sân khấu:</strong> chill · rap · rock · tặng 10 / 60</div>
+  </div>
+</aside>
+
+<!-- Right Studio Rail: TikTok Broadcast Mode, Audio, Live Voice & Simulator Drawer -->
+<aside class="studio-rail hud-rail-right" aria-label="Điều khiển phát LIVE">
+  <div class="rail-section">
+    <span class="rail-heading">Khung phát TikTok LIVE</span>
+    <div class="hud-actions">
+      <button type="button" id="show-mode" class="primary span-2">📺 Khung phát 9:16 sạch HUD</button>
+      <button type="button" id="safe-zone-toggle" class="span-2 btn-mobile-hide" aria-pressed="false">📐 Khung an toàn TikTok</button>
+      <button type="button" id="hud-demo">▶ Demo LIVE</button>
+      <button type="button" id="pause-toggle">⏸ Tạm dừng</button>
+      <button type="button" id="hud-sound-toggle" aria-pressed="true">🔊 Âm thanh</button>
+      <button type="button" id="hud-voice-btn" aria-pressed="true">🗣️ Giọng đọc</button>
+      <button type="button" id="drawer-toggle" class="span-2" aria-expanded="false">☰ Bảng khách &amp; TikFinity</button>
+      <button type="button" id="hud-reset-gifts" class="span-2 accent-amber">🔄 Reset số đếm quà hôm nay</button>
+    </div>
+  </div>
+
+  <div class="rail-section rail-live-section">
+    <span class="rail-heading">Trạng thái TikFinity</span>
+    <p id="rail-live-status" class="rail-live-note">Đang chờ kết nối TikFinity Desktop…</p>
+  </div>
+</aside>
+
+<!-- Title Screen -->
+<div id="game-title-screen" class="title-screen" role="dialog" aria-modal="true" aria-labelledby="title-heading">
+  <div class="title-card">
+    <div class="title-lockup">
+      <svg class="title-emblem" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+        <circle cx="40" cy="40" r="37" fill="#1b352c" stroke="#ffd085" stroke-width="2"/>
+        <path d="M40 12v8M26 26c0-5 28-5 28 0l-3 18c0 6-22 6-22 0z" fill="#c26b42" stroke="#ffd085" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M32 25v19M40 24v21M48 25v19" stroke="#ffe7a6" stroke-width="1.4" opacity="0.7"/>
+        <path d="M31 54h18l-2 13H33z" fill="#e6b65d" stroke="#fff0c8" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M44 51l5-8" stroke="#d0e97b" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      <div class="title-kicker">Khung Dọc 9:16 · Tương Tác TikTok LIVE</div>
+      <h1 id="title-heading">Quán Nước Vỉa Hè</h1>
+    </div>
+    <p class="title-desc">
+      Game tương tác livestream khung dọc 9:16: khán giả gõ bình luận để kéo ghế, cụng ly, lên sân khấu Chill · Rap · Rock với giọng đọc chủ quán tự động chào khách và cảm ơn quà tặng.
+    </p>
+    <div class="title-cta-row">
+      <button type="button" id="title-start-demo" class="primary">▶ Xem Demo Tự Động</button>
+      <button type="button" id="title-play">Mở Bàn Điều Khiển LIVE</button>
+    </div>
+    <p class="title-hints">
+      Enter Xem Demo · Space Bắt đầu · 1–4 Lệnh nhanh · C / R / K Chọn nhạc · V Giọng đọc · Esc Tạm dừng
+    </p>
+  </div>
+</div>
+
+<!-- Pause / Session Summary Modal -->
+<div id="game-pause-modal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="pause-heading">
+  <div class="pause-modal">
+    <h2 id="pause-heading">Tạm dừng · Tổng kết quán</h2>
+    <div class="pause-stats">
+      <div class="pause-stat"><span>Ghế &amp; Khách</span><strong id="pause-seats" class="tabular-nums">—</strong></div>
+      <div class="pause-stat"><span>Doanh thu xu</span><strong id="pause-coins" class="tabular-nums">0 xu</strong></div>
+      <div class="pause-stat"><span>Sân khấu</span><strong id="pause-stage">—</strong></div>
+      <div class="pause-stat"><span>Hoạt động mới</span><strong id="pause-last-event">—</strong></div>
+    </div>
+    <div class="pause-actions">
+      <button type="button" id="resume-game" class="primary">Tiếp tục</button>
+      <button type="button" id="pause-demo">▶ Chạy lại Demo</button>
+      <button type="button" id="pause-reset">Dọn bàn &amp; Chơi lại</button>
+    </div>
+  </div>
+</div>
+
+<!-- Slide-Over Controls Drawer (Full Simulator & TikFinity) -->
+<aside id="controls-drawer" class="controls-drawer" hidden aria-label="Bảng khách, quà và giả lập bình luận">
+<div class="drawer-header">
+  <h2>Bảng khách &amp; Giả lập LIVE</h2>
+  <button type="button" id="drawer-close" aria-label="Đóng bảng điều khiển">Đóng</button>
+</div>
+<div class="controls">
+<div><p class="hint">Gõ “vào bàn” hoặc “ghé” để vào quán. Khi đã ngồi, gõ rock, chill hoặc rap để lên sân khấu.</p></div>
+<div class="grid-buttons">
+<button type="button" id="live-demo" class="primary">▶ Chạy thử một buổi LIVE</button>
+<button type="button" id="demo">Xem một lượt phục vụ</button>
+<button type="button" data-show-mode="true">📺 Khung phát 9:16</button>
+</div>
+<form id="comment-form">
+<label>Tên khách<input id="guest" value="Trí" autocomplete="off" required></label>
+<label>Link ảnh đại diện (tuỳ chọn)<input id="guest-avatar" type="url" inputmode="url" placeholder="https://…" autocomplete="off"></label>
+<label>Kiểu nhân vật
+<select id="guest-gender">
+  <option value="">Mặc định</option>
+  <option value="male">Nam</option>
+  <option value="female">Nữ</option>
+</select>
+</label>
+<button type="button" id="preview-viewer">Thử khách ghé LIVE</button>
+<label for="comment">Bình luận</label>
+<div class="sendline"><input id="comment" maxlength="80" placeholder="Ví dụ: vào bàn" required autocomplete="off"><button type="submit" class="primary">Gửi</button></div>
+<fieldset class="named-song-picker" data-name-field="guest"><legend>Chọn bài để hát · từ 11 hoa</legend><label>Bài hát<select class="song-title"></select></label><button type="button" class="choose-song">Đăng ký bài</button><p class="song-status hint" role="status"></p></fieldset>
+<div class="counter-hint">
+  <p><strong>Nhân viên nhắc khéo</strong><span id="counter-comment-tip">vào bàn</span></p>
+</div>
+</form>
+<div class="grid-buttons" aria-label="Lệnh nhanh">
+<button type="button" data-command="VÀO BÀN">Vào bàn</button><button type="button" data-command="CỤNG LY">Cụng ly</button><button type="button" data-command="VỖ TAY">Vỗ tay</button><button type="button" data-command="THẢ TIM">Thả tim</button><button type="button" id="enable-audio">Bật nhạc cho quán</button><button type="button" id="demo-gift" class="sing-button">🎁 Thử quà VIP</button>
+</div>
+
+<div class="grid-buttons" aria-label="Thử mở rộng quán">
+  <button type="button" id="test-add-guests">Thêm 1 khách</button>
+</div>
+<section class="gift-menu"><h2>Thang quà của quán</h2>
+<p class="hint">Các nút dùng chung số hoa với lệnh “tặng”. Mốc 10 hoa mở lượt VIP, 50 hoa có múa phụ họa, 100 hoa có pháo hoa.</p>
+<label>Khách thử <input id="gift-name" value="Nguyễn Huyền Trí" maxlength="80"></label>
+<div class="gift-list"><button data-level="small">🌹 Tặng 1 hoa</button><button data-level="medium">🌹 Tặng 10 hoa</button><button data-level="large">🌹 Tặng 30 hoa</button><button data-level="solo">🌹 Tặng 60 hoa</button></div>
+<fieldset class="named-song-picker" data-name-field="gift-name"><legend>Chọn bài để hát · từ 11 hoa</legend><label>Bài hát<select class="song-title"></select></label><button type="button" class="choose-song">Đăng ký bài</button><p class="song-status hint" role="status"></p></fieldset>
+<div class="grid-buttons"><button id="test-visit">Thử khách ghé</button><button id="test-hour">Thử sự kiện giờ</button><button id="voice-toggle" aria-pressed="true">Tắt giọng chủ quán</button></div></section>
+<section class="gift-menu"><h2>Thử kết nối TikTok LIVE</h2><button type="button" id="live-connect">Kết nối TikFinity</button><p id="live-status" role="status">Mở TikFinity Desktop và kết nối phòng LIVE trên cùng máy.</p></section>
+<div id="essential-controls" class="grid-buttons"></div>
+<fieldset class="track-picker">
+  <legend>Chọn nhạc · rap / chill / rock</legend>
+  <button type="button" data-command="CHILL">Chill</button>
+  <button type="button" data-command="RAP">Rap</button>
+  <button type="button" data-command="ROCK">Rock</button>
+  <button type="button" id="demo-dance">Nhảy miễn phí · 30 giây</button>
+</fieldset>
+
+<div id="queue" class="queue"></div>
+<div class="event-header"><h2>Chuyện trong quán</h2><button type="button" id="reset">Dọn bàn</button></div>
+<ul id="events" class="events" aria-label="Hoạt động gần nhất"></ul>
+</div>
+</aside>
+</main>
+
+<script>
+(() => {
+const NS='http://www.w3.org/2000/svg';
+document.getElementById('essential-controls').append(document.getElementById('enable-audio'),document.getElementById('demo-gift'));
+const get=id=>document.getElementById(id);
+const pcTestLayout=matchMedia('(min-width:781px)');
+const testingBesideScene=()=>Boolean(document.querySelector('meta[name="cafe-piper"]'))&&pcTestLayout.matches;
+const layers={back:get('back-seats'),front:get('front-seats'),backPeople:get('back-people'),frontPeople:get('front-people'),drinks:get('drinks'),walking:get('walking')};
+const points=[
+  {x:370,y:279,back:true,drink:[381,298]},
+  {x:430,y:279,back:true,drink:[419,298]},
+  {x:430,y:375,back:false,drink:[412,323]},
+  {x:370,y:375,back:false,drink:[388,323]}
+];
+const tableCenters=[400,140,660,270,530,790];
+let diningScale=1;
+const vipStorageKey='quannuoc-vip-v1';
+let savedVip={profiles:[],events:[]};
+try{
+  const stored=JSON.parse(localStorage.getItem(vipStorageKey)||'null');
+  if(stored&&Array.isArray(stored.profiles)&&Array.isArray(stored.events))savedVip=stored;
+}catch{}
+const vipProfiles=new Map(savedVip.profiles.filter(profile=>profile&&typeof profile.key==='string'
+  &&typeof profile.name==='string'&&Number.isInteger(profile.level)&&profile.level>=1)
+  .map(profile=>[profile.key,profile]));
+const vipGuests=new Set(vipProfiles.keys());
+function saveVipProfiles(){
+  try{
+    localStorage.setItem(vipStorageKey,JSON.stringify({profiles:[...vipProfiles.values()],
+      events:[...seenGifts]}));
+  }catch{status('Trình duyệt chưa cho phép lưu VIP. Dấu VIP vẫn có trong lượt mở này.');}
+}
+const liveNames=new Map();
+function connectLiveTest(){
+  const button=get('live-connect'),note=get('live-status'),railNote=get('rail-live-status');
+  const setStatusNote=msg=>{note.textContent=msg;if(railNote)railNote.textContent=msg;};
+  let socket=null,timer=null,enabled=false,delay=2000;
+  try{enabled=localStorage.getItem('cafe-live-enabled')!=='off';}catch{enabled=true;}
+  button.textContent=enabled?'Ngắt kết nối':'Kết nối TikFinity';
+  if(enabled)connect();
+  button.onclick=()=>{
+    enabled=!enabled;
+    try{localStorage.setItem('cafe-live-enabled',enabled?'on':'off');}catch{}
+    button.textContent=enabled?'Ngắt kết nối':'Kết nối TikFinity';
+    if(enabled){connect();return;}
+    clearTimeout(timer);
+    const previous=socket;socket=null;
+    previous?.close();
+    setStatusNote('Bạn đã ngắt kết nối.');
+  };
+  function connect(){
+    if(!enabled||socket)return;
+    let connection;
+    const lan=document.querySelector('meta[name="cafe-lan-comments"]');
+    try{connection=lan?new EventSource('./comments'):new WebSocket('ws://localhost:21213/');}
+    catch{enabled=false;button.textContent='Kết nối TikFinity';setStatusNote('Trình duyệt chưa cho mở kết nối TikFinity trên máy này.');return;}
+    socket=connection;
+    setStatusNote('Đang tìm TikFinity Desktop trên máy này…');
+    connection.onopen=()=>{if(socket===connection){delay=2000;setStatusNote('Đã nối TikFinity · đang chờ bình luận từ LIVE.');}};
+    const disconnected=()=>{
+      if(socket!==connection||!enabled)return;
+      socket=null;
+      connection.close();
+      showLiveNotice('TikFinity mất kết nối · Đang thử lại',true);
+      setStatusNote('Mất kết nối với TikFinity Desktop · thử lại sau '+delay/1000+' giây.');
+      timer=setTimeout(connect,delay);
+      delay=Math.min(15000,delay*2);
+    };
+    if(lan){
+      connection.onerror=disconnected;
+      connection.addEventListener('offline',disconnected);
+    }else connection.onclose=disconnected;
+    connection.onmessage=({data:raw})=>{
+      if(socket!==connection||!enabled)return;
+      let packet;
+      try{packet=JSON.parse(raw);}catch{return;}
+      const data=packet?.data;
+      if(!data||!['chat','member','gift','like','leave'].includes(packet.event))return;
+      const handle=data.uniqueId||data.user?.uniqueId;
+      if(typeof handle!=='string'||!handle.trim())return;
+      const name='@'+handle.trim(),nick=data.nickname||data.user?.nickname||data.user?.nickName;
+      if(typeof nick==='string'&&nick.trim())liveNames.set(key(name),nick.trim());
+      const detail={name,avatarUrl:data.profilePictureUrl||data.user?.profilePictureUrl};
+      if(packet.event==='leave'){guestDeparted(name);return;}
+      touchGuest(key(name));
+      if(packet.event==='chat'){
+        if(typeof data.comment!=='string')return;
+        detail.comment=data.comment;
+        window.dispatchEvent(new CustomEvent('quannuoc:comment',{detail}));
+        setStatusNote('Bình luận vừa nhận · '+name+' · '+data.comment.slice(0,100));
+      }else if(packet.event==='like'){
+        addTestHearts(name,Number(data.likeCount??1));
+      }else if(packet.event==='gift'){
+        const gift=data.gift??{};
+        const streak=Number(data.giftType??gift.giftType??gift.gift_type)===1;
+        if(streak&&![true,1,'1','true'].includes(data.repeatEnd??data.isCompleted))return;
+        const unitCoins=Number(data.diamondCount??gift.diamondCount??gift.diamond_count??data.extendedGiftInfo?.diamond_count);
+        const count=Number(data.repeatCount??1);
+        if(!Number.isSafeInteger(unitCoins)||unitCoins<1||!Number.isSafeInteger(count)||count<1||!Number.isSafeInteger(unitCoins*count)){
+          setStatusNote('Quà thiếu giá trị xu hoặc số lượng hợp lệ.');
+          return;
+        }
+        const rawId=data.msgId??data.common?.msgId;
+        const eventId=rawId==null?undefined:String(rawId);
+        receiveGift({...detail,eventId,count,unitCoins,giftName:data.giftName??gift.giftName??gift.name},undefined,'vip',true);
+      }else window.dispatchEvent(new CustomEvent('quannuoc:viewer',{detail}));
+    };
+  };
+}
+
+function shortGuestName(value){
+  const nick=liveNames.get(key(value))||vipProfiles.get(key(value))?.nickname;
+  if(nick)return nick;
+  if(value.startsWith('@'))return value;
+  const words=value.normalize('NFC').replace(/[^\p{L}\p{M}\p{N}\s]/gu,'')
+    .trim().replace(/\s+/g,' ').split(' ').filter(Boolean);
+  if(words.length<=1)return words[0]||'Khách';
+  return words.slice(0,-1).map(word=>Array.from(word)[0].toLocaleUpperCase('vi')).join('.')+' '+words.at(-1);
+}
+const tableDeliveries=new Map();
+const seats=[];
+function diningLayout(count){
+  if(count<=6)return {columns:3,x0:175,dx:225,y0:158,dy:164,scale:.85};
+  if(count<=12)return {columns:4,x0:128,dx:181,y0:136,dy:126,scale:.76};
+  return {columns:6,x0:80,dx:128,y0:88,dy:80,scale:.62};
+}
+function currentWalkwayY(){
+  const layout=diningLayout(tableCenters.length);
+  const rows=Math.max(1,Math.ceil(tableCenters.length/layout.columns));
+  const lastRowY=layout.y0+(rows-1)*layout.dy;
+  return Math.min(470,Math.max(426,Math.round(lastRowY+65*layout.scale+20)));
+}
+function tablePosition(tableX){
+  const index=tableCenters.indexOf(tableX);
+  const layout=diningLayout(tableCenters.length);
+  const row=Math.floor(index/layout.columns),column=index%layout.columns;
+  return {x:layout.x0+column*layout.dx,y:layout.y0+row*layout.dy,scale:layout.scale};
+}
+
+function refreshDining(){
+  get('tables').replaceChildren();
+  diningScale=tablePosition(tableCenters[0]).scale;
+  const counterScale=Math.min(.76,diningScale);
+  const counterX=780-192*counterScale,counterY=580-155*counterScale;
+  get('counter-front').setAttribute('transform','translate('+counterX+' '+counterY+') scale('+(1.12*counterScale)+' '+(1.06*counterScale)+')');
+  serverHome.x=counterX-40*counterScale;serverHome.y=580+25*counterScale;
+  pickup.x=counterX+76*counterScale;pickup.y=580+5*counterScale;
+  for(const actor of document.querySelectorAll('[data-server]')){
+    if(actor.walkPosition)positionActor(actor,running?actor.walkPosition:serverHome);
+  }
+  for(const tableX of tableCenters){
+    const table=tablePosition(tableX);
+    const crew=document.querySelector('[data-table-porters="'+tableX+'"]');
+    if(crew?.firstElementChild)crew.firstElementChild.setAttribute('transform','scale('+table.scale+')');
+    get('tables').append(node('use',{href:'#square-table',
+      transform:'translate('+table.x+' '+table.y+') scale('+table.scale+') translate(-400 -312)',
+      'data-dining-table':tableX,visibility:tableDeliveries.has(tableX)?'hidden':'visible'}));
+    for(const seat of seats.filter(item=>item.tableX===tableX)){
+      const point=points[seat.index];
+      seat.scale=table.scale;
+      seat.x=table.x+(point.x-400)*table.scale;
+      seat.y=table.y+(point.y-312)*table.scale;
+      seat.drink=[table.x+(point.drink[0]-400)*table.scale,table.y+(point.drink[1]-312)*table.scale];
+      seat.aisleX=table.x+(point.x<400?-91:91)*table.scale;
+      if(seat.stool)seat.stool.parentNode.setAttribute('transform','translate('+seat.x+' '+seat.y+') scale('+seat.scale+')');
+      if(seat.person?.state==='seated')seat.person.actor.setAttribute('transform','translate('+seat.x+' '+seat.y+') scale('+seat.scale+')');
+      if(seat.person?.cup)seat.person.cup.setAttribute('transform','translate('+seat.drink.join(' ')+') scale('+seat.scale+')');
+      if(seat.person?.stageMarker)seat.person.stageMarker.setAttribute('transform','translate('+seat.x+' '+seat.y+')');
+    }
+  }
+}
+function addDiningTable(){
+  if(tableCenters.length>=30)return false;
+  const tableX=1000+tableCenters.length;
+  tableCenters.push(tableX);
+  const added=points.map((point,index)=>({tableX,index,person:null,back:point.back}));
+  seats.push(...added);
+  tableDeliveries.set(tableX,null);
+  refreshDining();
+  added.forEach(chair);
+  added.forEach(seat=>seat.stool.parentNode.setAttribute('visibility','hidden'));
+  const arrival=deliverTable(tableX);
+  tableDeliveries.set(tableX,arrival);
+  added.forEach(seat=>seat.tableReady=arrival);
+  return true;
+}
+async function deliverTable(tableX){
+  const session=epoch;
+  const team=group(0,0);
+  team.setAttribute('data-table-porters',tableX);
+  team.setAttribute('data-session-actor','');
+  const carried=group(0,0);
+  const left=character('#d5ad6d',{host:true});
+  const right=character('#8abfaa',{host:true});
+  left.setAttribute('transform','translate(-65 0)');
+  right.setAttribute('transform','translate(65 0)');
+  left.setAttribute('aria-label','Nhân viên khiêng bàn bên trái');
+  right.setAttribute('aria-label','Nhân viên khiêng bàn bên phải');
+  carried.append(left,right,node('use',{href:'#square-table',transform:'translate(-400 -295)'}));
+  team.append(carried);
+  const start={x:548,y:610};
+  const tableDest=()=>({x:tablePosition(tableX).x,y:tablePosition(tableX).y+10});
+  layers.walking.append(team);
+  positionActor(team,start);
+  try{
+    const table=tablePosition(tableX);
+    carried.setAttribute('transform','scale('+table.scale+')');
+    status('Hai nhân viên đang mang thêm bàn ra cho khách!');
+    const arrived=await walk(team,[start,()=>({x:548,y:currentWalkwayY()}),
+      ()=>({x:tablePosition(tableX).x,y:currentWalkwayY()}),tableDest],1700,session,true);
+    if(!arrived||session!==epoch)return;
+    positionActor(team,tableDest());
+    await sleep(260);
+    if(session!==epoch)return;
+    tableDeliveries.delete(tableX);
+    refreshDining();
+    for(const seat of seats.filter(item=>item.tableX===tableX)){
+      seat.stool.parentNode.removeAttribute('visibility');
+    }
+    carried.querySelector('use')?.remove();
+    await walk(team,[tableDest,()=>({x:tablePosition(tableX).x,y:currentWalkwayY()}),
+      ()=>({x:548,y:currentWalkwayY()}),start],1200,session,true);
+  }finally{
+    team.remove();
+    if(session===epoch)tableDeliveries.delete(tableX);
+  }
+}
+for(const tableX of tableCenters){
+  points.forEach((point,index)=>seats.push({tableX,index,person:null,back:point.back}));
+}
+const colors=['#f1b55d','#7dbe9b','#ef9878','#9db1eb'];
+const drinks={
+'tra da':{name:'trà đá',color:'#e6b65d',price:5000},'ca phe':{name:'cà phê',color:'#916244',price:15000},'nuoc mia':{name:'nước mía',color:'#cfcd68',price:10000}};
+const counterLaneX=530;
+const entry={x:24,y:655}, serverHome={x:548,y:610}, pickup={x:664,y:585};
+function roadApproach(origin,aisle){
+  const getAisle=typeof aisle==='function'?aisle:()=>aisle;
+  return [origin,()=>({x:getAisle(),y:origin.y}),()=>({x:getAisle(),y:currentWalkwayY()})];
+}
+function guestRoute(seat,origin=entry){
+  return [...roadApproach(origin,()=>seat.aisleX),()=>({x:seat.aisleX,y:seat.y}),()=>({x:seat.x,y:seat.y})];
+}
+const queue=[],orders=[],bills=[],stageQueue=[],trackQueue=[];
+const seenGifts=new Set(savedVip.events.filter(value=>typeof value==='string').slice(-300));
+let seatTimer=null;
+let running=false,epoch=0,audio=null;
+const rapperName='Hái Thứ Hiêu';
+let activeShow=null,idleTimer=null,lastIdleSinger=null,lastIdleFromRoad=false;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)');
+const normalize=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/gi,'d').toLowerCase().trim().replace(/\s+/g,' ');
+const key=s=>s.normalize('NFC').trim().replace(/\s+/g,' ').toLocaleLowerCase('vi');
+const cafeDay=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Ho_Chi_Minh'}).format(new Date());
+let ledger={};
+try {ledger=JSON.parse(localStorage.getItem('cafe-ledger-v1'))||{};}catch{}
+const regulars=new Map(ledger.regulars||[]);
+let day=ledger.day, daily=new Map(ledger.daily||[]);
+let voiceOn=true, hourSerial=0;
+const visits=new Map(),owed=new Map(),choices=new Map();
+const weights={small:1,medium:10,large:30,solo:60};
+function saveLedger(){try{localStorage.setItem('cafe-ledger-v1',JSON.stringify({regulars:[...regulars],day,daily:[...daily]}));}catch{}}
+function today(){const now=cafeDay();if(now!==day){day=now;daily.clear();saveLedger();}}
+function loyalty(name,points){
+  const id=key(name),n=(regulars.get(id)||0)+points;regulars.set(id,n);saveLedger();
+  document.querySelectorAll('[data-guest-key]').forEach(a=>{if(a.dataset.guestKey===id)badge(a,n);});
+}
+function badge(actor,n){
+  if(n<3)return;
+  let b=actor.querySelector('.loyalty');
+  if(!b){b=node('text',{class:'loyalty',x:0,y:19,'text-anchor':'middle',fill:'#fff4b7',stroke:'#19382e','stroke-width':3,'paint-order':'stroke','font-size':14});actor.append(b);}
+  b.textContent=n>=10?'★ Khách ruột':'✦ Khách quen';
+}
+function tell(message,voice=true){
+  get('host-note').textContent=message;fitBoardText(get('host-note'),message,740);status(message);
+  if(voice&&voiceOn)speakVietnamese(message,1.06);
+}
+function visitor(detail){
+  const name=detail?.name?.trim();if(!name)return;
+  passBy({name,avatar:avatarUrl(detail.avatarUrl),gender:normalizeGender(detail.gender)});
+  const id=key(name),now=Date.now();
+  if(now-(visits.get(id)||0)<=60000)return;
+  visits.set(id,now);
+  loyalty(name,1);
+  const guest=shortGuestName(name);
+  const message='Chào '+guest+' đã ghé LIVE! Vào làm một cốc bia hơi chứ, '+guest+'? Ở đây có bia hơi, Tiger và Huda nhé!';
+  tell(message,false);
+  if(voiceOn){
+    viewerGreetings.push({message,expiresAt:performance.now()+20000});
+    playViewerGreeting();
+  }
+}
+const viewerGreetings=[];
+function playViewerGreeting(){
+  const now=performance.now();
+  while(viewerGreetings[0]?.expiresAt<=now)viewerGreetings.shift();
+  if(!voiceOn){
+    viewerGreetings.length=0;
+    return;
+  }
+  if(!hostVoiceUnlocked||masterMuted||currentSpeech||giftAnnouncements.length||ownerPatrolling||!viewerGreetings.length)return;
+  const {message}=viewerGreetings.shift();
+  if(speakVietnamese(message,1.06,true)!==null)waveToGuests();
+}
+const formatCoins=n=>n.toLocaleString('vi-VN');
+function nextGoal(total){
+  for(const target of [100n,500n,1000n,5000n,10000n]){
+    if(total<target)return target;
+  }
+  return (total/10000n+1n)*10000n;
+}
+const goalRewards={
+  100:{genre:'rock',title:'Tiết mục Rock đặc biệt'},
+  500:{genre:'chill',title:'Đêm Chill và trà đá',treat:true},
+  1000:{genre:'rap',title:'Đêm Rap và trà đá',treat:true},
+  5000:{genre:'rock',title:'Đại nhạc hội và trà đá',treat:true},
+  10000:{genre:'chill',title:'Đêm nhạc hội và trà đá',treat:true}
+};
+function goalReward(target){
+  return goalRewards[target]??{
+    title:'Đêm nhạc hội và trà đá',treat:true,
+    genre:['rock','rap','chill'][Number((target/10000n-1n)%3n)]
+  };
+}
+let goalNoticeTimer,pendingGoalTrack;
+function reachGoals(total){
+  const following=nextGoal(total);
+  const reached=total>=10000n?total/10000n*10000n:
+    [5000n,1000n,500n,100n].find(target=>target<=total);
+  if(!reached)return;
+  const reward=goalReward(reached);
+  party();
+  if(reward.treat){
+    seats.filter(seat=>seat.person?.state==='seated').forEach(seat=>offer(seat.person.name,drinks['tra da']));
+    ding([523,659,784,1047]);
+  }
+  pendingGoalTrack=reward.genre;
+  armIdle();
+  clearTimeout(goalNoticeTimer);
+  const session=epoch;
+  goalNoticeTimer=setTimeout(()=>{
+    if(session!==epoch)return;
+    const message='Vượt mốc '+formatCoins(reached)+' xu · '+reward.title;
+    showLiveNotice('🏆 '+message,true);
+    tell(message+'. Mốc kế '+formatCoins(following)+' xu: '+goalReward(following).title+'.');
+  },2200);
+}
+function dailyGiftCount(entry){
+  // Older mixed totals included coin values. Only test-only totals are exact.
+  return BigInt(entry?.giftCount ?? (entry?.coins ? 0 : entry?.flowers) ?? 0);
+}
+function recordDailyGifts(name,flowers,coins){
+  today();
+  const id=key(name),previous=daily.get(id);
+  daily.set(id,{...previous,name,giftCount:String(dailyGiftCount(previous)+flowers),
+    coins:String(BigInt(previous?.coins||0)+BigInt(coins))});
+  saveLedger();
+}
+function board(){
+  today();
+  const ranked=[...daily].filter(([,v])=>dailyGiftCount(v)>0n).sort((a,b)=>{
+    const left=dailyGiftCount(a[1]),right=dailyGiftCount(b[1]);
+    return left===right?0:left>right?-1:1;
+  });
+  const flowers=ranked.reduce((sum,[,v])=>sum+dailyGiftCount(v),0n);
+  const total=[...daily.values()].reduce((sum,v)=>sum+BigInt(v.coins||0),0n),target=nextGoal(total);
+  fitBoardText(get('goal-note'),formatCoins(total)+' / '+formatCoins(target)+' xu',185);
+  get('goal-fill').setAttribute('width',Number(185000n*total/target)/1000);
+  const top=ranked.slice(0,3);
+  fitBoardText(get('vip-list'),'Quà hôm nay: '+formatCoins(flowers)+' · '+(top.map(([,v],i)=>(i+1)+'. '+shortGuestName(v.name)+' '+formatCoins(dailyGiftCount(v))+' quà').join('   ')||'Chưa có quà'),528);
+  seats.forEach(seat=>{
+    if(!seat.stool)return;
+    const rank=top.findIndex(([id])=>id===seat.person?.id);
+    seat.stool.classList.toggle('seat-star',rank>=0);
+    let cushion=seat.stool.querySelector('.vip-cushion');
+    if(rank<0){cushion?.remove();return;}
+    if(!cushion){cushion=node('rect',{class:'vip-cushion',x:-23,y:-13,width:46,height:18,rx:6,stroke:'#ffe79a','stroke-width':3});seat.stool.append(cushion);}
+    cushion.setAttribute('fill',['#a83e53','#526785','#815481'][rank]);
+  });
+  [...get('tables').children].forEach((table,i)=>table.classList.toggle('seat-star',seats.some(s=>s.tableX===tableCenters[i]&&s.person&&top.some(([id])=>id===s.person.id))));
+  const hudCoins=get('hud-coins');
+  if(hudCoins)hudCoins.textContent=formatCoins(total)+' xu';
+  const pauseCoins=get('pause-coins');
+  if(pauseCoins)pauseCoins.textContent=formatCoins(total)+' xu';
+  return total;
+}
+function chooseReward(name,choice,voice=true){
+  if(Object.hasOwn(stageTracks,choice)){requestTrack(name,choice);tell(shortGuestName(name)+' chọn bài '+nextStageTrack(choice).title,voice);return true;}
+  const drink=choice==='mia lau'?{name:'mía lau',color:'#edd58a'}:Object.hasOwn(drinks,choice)?drinks[choice]:null;
+  if(!drink)return false;
+  offer(name,drink);tell('Mời '+shortGuestName(name)+' một ly '+drink.name+'!',voice);return true;
+}
+function offer(name,drink){
+  const id=key(name),seat=seated(name,true);
+  if(!seat||seat.person.state!=='seated'){
+    owed.set(id,drink);
+    if(!seat&&!onStage(id)&&!queue.some(p=>p.id===id))join(name,'','');
+    return;
+  }
+  const actor=seat.person.actor;
+  actor.querySelector('.treat')?.remove();
+  const glass=cup(drink);glass.classList.add('treat');glass.setAttribute('transform','translate(16 -34) scale(.8)');actor.append(glass);
+}
+function party(rain=false){
+  const layer=group(0,0);get('party-fx').replaceChildren(layer);
+  for(let i=0;i<(rain?40:25);i++){
+    const x=Math.random()*760+20,y=rain?Math.random()*690:100+Math.random()*220;
+    const e=node('text',{x,y,'font-size':rain?20:26,fill:rain?'#bcddff':'#ffe887'},rain?'╱':i%4?'✦':'🏮');
+    layer.append(e);if(!reduce.matches)e.animate([{transform:'translateY(0)',opacity:1},{transform:'translateY('+(rain?130:-65)+'px)',opacity:.1}],{duration:1100+i*20,iterations:4});
+  }
+  if(!rain){for(const [cx,cy] of [[175,160],[600,188],[395,118]]){
+      for(let j=0;j<14;j++){const a=j*Math.PI/7,x=Math.cos(a)*62,y=Math.sin(a)*62;
+        const spark=node('circle',{cx,cy,r:3,fill:['#ffca66','#f598c2','#99e2c4'][j%3]});layer.append(spark);
+        if(!reduce.matches)spark.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+x+'px,'+y+'px)',opacity:0}],{duration:1500,iterations:4});
+      }
+    }}
+  setTimeout(()=>layer.remove(),7000);
+}
+function spawnFireworkBurst(layer,x,y,color,count=24,size=96,rocketHeight=150){
+  const shot=group(x,y);
+  layer.append(shot);
+  if(reduce.matches){
+    shot.append(node('text',{x:0,y:0,'text-anchor':'middle',fill:color,'font-size':30},'🎆'));
+    setTimeout(()=>shot.remove(),2600);
+    return;
+  }
+  const rocket=node('path',{d:'M0 0v28',stroke:color,'stroke-width':3.2,'stroke-linecap':'round'});
+  shot.append(rocket);
+  rocket.animate([{transform:'translateY('+rocketHeight+'px)',opacity:0},
+    {opacity:1,offset:.3},{transform:'translateY(0)',opacity:0}],{duration:360,fill:'both'});
+  for(let i=0;i<count;i++){
+    const angle=i*2*Math.PI/count+(x%11)*.05;
+    const radius=size*(i%2===0?1:.62)*(1-(i%3)*.06);
+    const dx=Math.cos(angle)*radius,dy=Math.sin(angle)*radius;
+    const spark=node('line',{x1:0,y1:0,x2:dx*.22,y2:dy*.22,
+      stroke:i%4===0?'#fff5cc':color,'stroke-width':i%4===0?5:3.2,'stroke-linecap':'round'});
+    shot.append(spark);
+    spark.animate([{transform:'translate(0,0)',opacity:0},{opacity:1,offset:.14},
+      {transform:'translate('+dx.toFixed(1)+'px,'+(dy+16).toFixed(1)+'px)',opacity:0}],
+      {delay:340,duration:1050+(i%3)*140,easing:'cubic-bezier(.16,.66,.32,1)',fill:'both'});
+  }
+  setTimeout(()=>shot.remove(),1800);
+}
+function launchGiftFireworks(intensity=1){
+  const hostLayer=get('gift-fireworks');
+  if(!hostLayer)return;
+  while(hostLayer.children.length>=4)hostLayer.firstElementChild.remove();
+  const layer=group(0,0);
+  hostLayer.append(layer);
+  const palette=['#ffd76a','#ff85b3','#7be7ff','#b8ff9a','#d4a8ff'];
+  const spots=[[142,162],[658,158],[254,142],[546,144],[190,214],[610,212],[338,136],[462,138]];
+  const salvoCount=intensity>=4?7:intensity===3?5:intensity===2?3:2;
+  const sparkCount=intensity>=3?26:20;
+  const burstSize=intensity>=3?112:88;
+  for(let i=0;i<salvoCount;i++){
+    const [bx,by]=spots[(i+(Math.floor(Math.random()*spots.length)))%spots.length];
+    const color=palette[i%palette.length];
+    setTimeout(()=>{
+      if(!layer.isConnected)return;
+      spawnFireworkBurst(layer,bx+(i%2?10:-10),by,color,sparkCount,burstSize,145);
+    },i*240);
+  }
+  if(intensity>=2)ding(intensity>=3?[659,784,988,1318]:[784,1047]);
+  else ding([880,1175]);
+  setTimeout(()=>layer.remove(),salvoCount*240+1900);
+}
+function thankGuestSparkle(name,label='💖 Cảm ơn!'){
+  const hostLayer=get('gift-fireworks');
+  if(!hostLayer)return;
+  const id=key(name);
+  const member=activeShow?.members.get(id);
+  const seat=seated(name,true);
+  const passer=passers.get(id);
+  let x=400,y=620;
+  if(member?.actor?.walkPosition){
+    x=member.actor.walkPosition.x;
+    y=member.actor.walkPosition.y+690-86;
+  }else if(seat){
+    if(seat.person.state==='seated'){
+      x=seat.x;
+      y=seat.y+690-84*seat.scale;
+    }else if(seat.person.actor?.walkPosition){
+      x=seat.person.actor.walkPosition.x;
+      y=seat.person.actor.walkPosition.y+690-84;
+    }
+  }else if(passer?.actor?.walkPosition){
+    x=passer.actor.walkPosition.x;
+    y=passer.actor.walkPosition.y+690-84;
+  }
+  x=Math.max(96,Math.min(704,x));
+  y=Math.max(176,Math.min(1320,y));
+  const badge=group(x,y);
+  const inner=node('g',{class:'gift-thanks-float'});
+  const box=node('rect',{x:-76,y:-24,width:152,height:26,rx:9,fill:'#1b1428','fill-opacity':'.92',stroke:'#ffd76a','stroke-width':1.8});
+  const text=node('text',{x:0,y:-7,'text-anchor':'middle',fill:'#ffe99a','font-size':13.5,'font-weight':800},label);
+  inner.append(box,text);
+  badge.append(inner);
+  hostLayer.append(badge);
+  fitBoardText(text,label,138);
+  setTimeout(()=>badge.remove(),2700);
+}
+function launchStageFireworks(){
+  const layer=group(0,0);
+  const stage=get('stage-fireworks');
+  const previous=stage.lastElementChild;
+  const restarting=Boolean(previous);
+  stage.append(layer);
+  if(previous)setTimeout(()=>previous.remove(),1950);
+  const palette=['#ffd36d','#ff8fb7','#81e8ff','#b7ffa0','#c9a4ff'];
+  const centers=[[168,179],[632,173],[284,157],[516,183],[400,166]];
+  if(reduce.matches){
+    for(const [x,y] of centers)layer.append(node('text',{x,y,fill:'#ffd36d','font-size':38},'✦'));
+    setTimeout(()=>layer.remove(),8000);
+    return;
+  }
+  const start=performance.now();
+  let wave=0;
+  function launch(){
+    if(!layer.isConnected||stage.lastElementChild!==layer)return;
+    const elapsed=performance.now()-start;
+    if(elapsed>=20000){
+      setTimeout(()=>layer.remove(),1950);
+      return;
+    }
+    const finale=elapsed>=15000;
+    const [x,y]=centers[wave%centers.length];
+    const color=palette[wave%palette.length];
+    if(finale||(restarting&&wave===0)){
+      burst(163,184,color,32,154);
+      burst(400,166,palette[(wave+1)%palette.length],36,164);
+      burst(637,184,palette[(wave+2)%palette.length],32,154);
+    }else{
+      burst(x,y,color,32,148);
+      if(wave%3===2)burst(800-x,y+34,palette[(wave+2)%palette.length],20,105);
+    }
+    wave++;
+    setTimeout(launch,finale?620:830+(wave%3)*110);
+  }
+  function burst(x,y,color,count,size){
+    const shot=group(x,y);
+    layer.append(shot);
+    const rocket=node('path',{d:'M0 0v32',stroke:color,'stroke-width':3,'stroke-linecap':'round'});
+    shot.append(rocket);
+    rocket.animate([{transform:'translateY(185px)',opacity:0},
+      {opacity:1,offset:.3},{transform:'translateY(0)',opacity:0}],{duration:420,fill:'both'});
+    for(let i=0;i<count;i++){
+      const angle=i*2*Math.PI/count+(x%13)*.04;
+      const radius=3*size*(i%2===0?1:.63)*(1-(i%4)*.018);
+      const dx=Math.cos(angle)*radius,dy=Math.sin(angle)*radius;
+      const spark=node('line',{x1:0,y1:0,x2:dx*.19,y2:dy*.19,
+        stroke:i%4===0?'#fff3ca':color,'stroke-width':i%4===0?6:3.6,'stroke-linecap':'round'});
+      shot.append(spark);
+      spark.animate([{transform:'translate(0,0)',opacity:0},{opacity:1,offset:.13},
+        {transform:'translate('+dx+'px,'+(dy+18)+'px)',opacity:0}],
+        {delay:405,duration:1200+(i%3)*130,easing:'cubic-bezier(.16,.66,.32,1)',fill:'both'});
+    }
+    setTimeout(()=>shot.remove(),1950);
+  }
+  launch();
+}
+
+function celebrateStarGift(name,coins,flower){
+  const layer=get('star-gift');
+  layer.replaceChildren();
+  const title=node('text',{x:400,y:256,'text-anchor':'middle',fill:'#ffe496',stroke:'#362740','stroke-width':5,'paint-order':'stroke','font-size':24,'font-weight':800});
+  layer.append(title);
+  fitBoardText(title,flower?'🌹 '+shortGuestName(name)+' · '+coins+' hoa'+(flowerVipLevel(coins)?' · VIP '+flowerVipLevel(coins):''):'✦ '+shortGuestName(name)+' · '+formatCoins(coins)+' xu ✦',540);
+  for(let i=0;i<22;i++){
+    const x=60+(i*137)%685,y=185+(i*73)%330;
+    const star=node('text',{x,y,fill:i%2?'#ffe496':'#ccb7ff','font-size':16+i%14},flower||'✦');
+    layer.append(star);
+    if(!reduce.matches)star.animate([{opacity:0,transform:'translateY(-40px)'},{opacity:1,offset:.4},{opacity:0,transform:'translateY(70px)'}],{duration:1700+i*35,iterations:3});
+  }
+  setTimeout(()=>{if(title.parentNode===layer)layer.replaceChildren();},7500);
+}
+function hourEvent(){
+  const i=hourSerial++%3;
+  if(i===2){requestTrack('Chủ quán Trí','chill');armIdle();tell('Đêm nhạc sống bắt đầu. Mời cả quán chọn bài!');}
+  else{if(i===1)party(false);
+    const walkers=[...passers.values()].filter(v=>v.sample).slice(0,3);
+    for(const v of walkers)join(v.name,v.avatar,v.gender);
+    tell(i?'Giờ vàng bia hơi! Khách đi đường ghé quán làm một cốc.':'Giờ cao điểm! Khách đi ngang ghé vào quán.');}
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,reduce.matches?Math.min(ms,90):ms));
+function node(tag,attrs={},text){
+  const el=document.createElementNS(NS,tag);
+  for(const [name,value] of Object.entries(attrs))el.setAttribute(name,value);
+  if(text!==undefined)el.textContent=text;
+  return el;
+}
+function group(x,y){return node('g',{transform:'translate('+x+' '+y+')'});}
+function rect(g,x,y,w,h,r,fill,stroke){
+  g.append(node('rect',{x,y,width:w,height:h,rx:r,fill,...(stroke?{stroke,'stroke-width':2}:{})}));
+}
+function line(g,d,stroke,w){g.append(node('path',{d,fill:'none',stroke,'stroke-width':w,'stroke-linecap':'round','stroke-linejoin':'round'}));}
+function ellipse(g,x,y,rx,ry,fill){g.append(node('ellipse',{cx:x,cy:y,rx,ry,fill}));}
+function status(message){
+  get('announcement').textContent=message;
+  const li=document.createElement('li');li.textContent=message;
+  const list=get('events');list.prepend(li);
+  if(list.children.length>16)list.lastElementChild.remove();
+}
+function info(){
+  const samples=seats.filter(s=>s.person?.sample).length;
+  const free=seats.filter(s=>!s.person&&!s.reservedFor).length;
+  get('quang-canh').classList.toggle('busy-cafe',seats.length-free>=36);
+  const availability=free?free+' ghế trống':'Quán đã đầy';
+  const summary=availability+(samples?' · '+samples+' khách mẫu':'');
+  get('seat-count').textContent=summary;
+  const pauseSeats=get('pause-seats');
+  if(pauseSeats)pauseSeats.textContent=summary;
+  get('queue').textContent=queue.length?'Chờ ghế ('+queue.length+') · '+queue.map(x=>x.name).join(', '):'';
+  updateShowQueue();
+}
+const counterTips=['Gõ VÀO BÀN hoặc GHÉ để vào quán.','Đã ngồi? Gõ ROCK, CHILL hoặc RAP để lên sân khấu.'];
+let counterTip=0,counterTimer=null;
+function counterTalk(message){
+  const line=get('counter-line');
+  line.textContent=message;
+  get('counter-comment-tip').textContent=message;
+  line.removeAttribute('textLength');
+  if(line.getComputedTextLength()>348){
+    line.setAttribute('textLength',348);
+    line.setAttribute('lengthAdjust','spacingAndGlyphs');
+  }
+  clearTimeout(counterTimer);
+  counterTimer=setTimeout(nextCounterTip,5600);
+}
+function nextCounterTip(){
+  counterTalk(counterTips[counterTip]);
+  counterTip=(counterTip+1)%counterTips.length;
+}
+function chair(s){
+  const seatRoot=group(s.x,s.y), g=group(0,0);
+  seatRoot.setAttribute('transform','translate('+s.x+' '+s.y+') scale('+s.scale+')');
+  s.stool=g;seatRoot.append(g);
+  ellipse(g,0,13,31,11,'#152a22');
+  line(g,'M-20 2 -26 16 M20 2 26 16 M-10 5 -11 16 M10 5 11 16','#9b5242',4);
+  rect(g,-24,-14,48,23,5,'#bd6950','#e78d68');
+  line(g,'M-19 -10H19','#f2a276',2);
+  layers[s.back?'back':'front'].append(seatRoot);
+}
+function cup(drink){
+  const g=group(0,0);
+  ellipse(g,0,6,9,4,'#876049');
+  g.append(node('path',{d:'M-8 -14H8L6 5Q0 9-6 5Z',fill:drink.color,stroke:'#fff0c8','stroke-width':1.5}));
+  ellipse(g,0,-14,8,3,'#f6e5af');
+  line(g,'M4 -16 9 -23','#f3d18b',1.6);
+  return g;
+}
+function normalizeGender(value){
+  if(typeof value!=='string')return '';
+  const gender=normalize(value);
+  if(gender==='male'||gender==='nam')return 'male';
+  if(gender==='female'||gender==='nu')return 'female';
+  return '';
+}
+function character(color,{host=false,sitting=false,carry=[],name='',avatar='',gender='',labelX=0}={}){
+  const actor=group(0,0);
+  ellipse(actor,0,1,17,5,'#16291f');
+  actor.setAttribute('data-character-style',gender||'neutral');
+  const stance=node('g',{transform:'scale(1 1.5)'});
+  const g=node('g',{class:'actor-body'});
+  if(sitting)g.setAttribute('transform','translate(0 6)');
+  stance.append(g);actor.append(stance);
+  const legs=node('g',{class:'actor-regular-limbs'});
+  line(legs,sitting?'M-8 -14 -18 -10 -18 1M8 -14 18 -10 18 1':'M-7-14 -9 0M7-14 9 0','#344943',5);
+  if(sitting)line(legs,'M-18 1 -24 1M18 1 24 1','#25322f',4);
+  if(!sitting)actor.stepLegs=legs.firstElementChild;
+  g.append(legs);
+  rect(g,-14,-33,28,24,8,color);
+  if(host)rect(g,-8,-30,16,18,4,'#f7dc9c');
+  const arms=node('g',{class:'actor-regular-limbs'});
+  line(arms,'M-11-28 -17-17M11-27 18-18','#eab285',4);
+  g.append(arms);
+  if(gender==='female'){
+    g.append(node('path',{d:'M9 -51Q18 -49 16 -36L12 -32Q11 -41 7 -44Z',fill:'#403830'}));
+    g.append(node('path',{d:'M-11 -21H11L17 -8H-17Z',fill:color,stroke:'#f6cf9b','stroke-width':1}));
+  }else if(gender==='male'){
+    line(g,'M-8 -32 -2 -25 0 -30 3 -25 8 -32','#ffe3ad',1.8);
+  }
+  ellipse(g,0,-43,10,11,'#f1c29b');
+  g.append(node('path',{d:'M-10-45Q-8-57 3-55Q12-52 10-45L7-48-8-45Z',fill:'#403830'}));
+  if(host)line(g,'M-10-51Q0-59 10-51M-12-50H12','#e8bc6f',3);
+  ellipse(g,-3,-42,1,1,'#4b3c2f');ellipse(g,4,-42,1,1,'#4b3c2f');
+  if(avatar){
+    const head=node('g',{transform:'translate(0 -45) scale(1 .667)'});
+    const photo=node('image',{href:avatar,x:-15,y:-15,width:30,height:30,
+      'clip-path':'url(#avatar-crop)',preserveAspectRatio:'xMidYMid slice'});
+    head.append(photo,node('circle',{r:15,fill:'none',stroke:'#fff0c8','stroke-width':1.5}));
+    photo.addEventListener('error',()=>head.remove(),{once:true});
+    g.append(head);
+  }
+  if(!host&&!sitting){
+    const moves=node('g',{class:'actor-stage-limbs'});
+    const leftArm=group(-12,-28),rightArm=group(12,-28);
+    leftArm.setAttribute('class','actor-arm-left');
+    rightArm.setAttribute('class','actor-arm-right');
+    line(leftArm,'M0 0 -7 3 -13 -4','#eab285',4.5);
+    line(rightArm,'M0 0 7 -2 4 -10','#eab285',4.5);
+    moves.append(leftArm,rightArm);
+    const leftFoot=group(-7,-13),rightFoot=group(7,-13);
+    leftFoot.setAttribute('class','actor-foot-left');
+    rightFoot.setAttribute('class','actor-foot-right');
+    line(leftFoot,'M0 0 -3 9 -9 12','#344943',5);
+    line(rightFoot,'M0 0 3 9 9 12','#344943',5);
+    moves.append(leftFoot,rightFoot);
+    const microphone=node('g',{class:'actor-microphone'});
+    line(microphone,'M16 -37 9 -43','#344943',3);
+    ellipse(microphone,8,-44,3.5,3,'#fff0c8');
+    g.append(moves,microphone);
+  }
+  if(carry.length){
+    const tray=group(10,-18);
+    tray.setAttribute('data-tray-size',carry.length);
+    const width=10+carry.length*10;
+    ellipse(tray,width/2,0,width/2+2,4,'#d1af79');
+    line(tray,'M1 1H'+(width-1),'#684938',2);
+    carry.forEach((drink,index)=>{
+      const glass=cup(drink);
+      glass.setAttribute('transform','translate('+(7+index*10)+' -2) scale(.48 .38)');
+      tray.append(glass);
+    });
+    g.append(tray);
+  }
+  if(name){
+    const label=shortGuestName(name);
+    actor.setAttribute('data-guest-key',key(name));
+    actor.setAttribute('aria-label',name);
+    if(label){
+      const lines=[];
+      let current='';
+      for(const word of label.split(' ')){
+        if(current&&Array.from(current+' '+word).length>14){
+          lines.push(current);current='';
+        }
+        const letters=Array.from(word);
+        while(letters.length>14){
+          if(current){lines.push(current);current='';}
+          lines.push(letters.splice(0,14).join(''));
+        }
+        const rest=letters.join('');
+        if(rest)current=current?current+' '+rest:rest;
+      }
+      if(current)lines.push(current);
+      const text=node('text',{'data-guest-label':'',x:labelX,y:-88-(lines.length-1)*19,
+        'text-anchor':'middle','font-size':17,'font-weight':800,
+        fill:'#fff0c8',stroke:'#182b25','stroke-width':3,'paint-order':'stroke'});
+      lines.forEach((line,index)=>text.append(node('tspan',{x:labelX,dy:index?19:0},line)));
+      actor.append(text);
+    }
+  }
+  if(name)badge(actor,regulars.get(key(name))||0);
+  if(name&&vipGuests.has(key(name)))markVip(actor);
+  return actor;
+}
+function markVip(actor){
+  const profile=vipProfiles.get(actor.getAttribute('data-guest-key'));
+  const level=profile?.level??1;
+  const color=level>=3?'#76f5ff':level===2?'#ff9ce9':'#ffe36d';
+  actor.setAttribute('data-vip','');
+  actor.setAttribute('data-vip-level',level);
+  actor.style.setProperty('--vip-color',color);
+  const label=actor.querySelector('[data-guest-label]');
+  if(label){
+    label.setAttribute('fill',color);
+    label.setAttribute('font-size',19);
+    label.setAttribute('font-weight',950);
+    label.setAttribute('stroke','#3a2438');
+    label.setAttribute('stroke-width',4);
+  }
+  let logo=actor.querySelector('[data-vip-logo]');
+  if(!logo){
+    const y=label?Number(label.getAttribute('y'))-24:-112;
+    logo=node('text',{'data-vip-logo':'',x:0,y,'text-anchor':'middle',
+      stroke:'#362936','stroke-width':3,'paint-order':'stroke','font-size':14,'font-weight':900});
+    actor.append(logo);
+  }
+  logo.setAttribute('fill',color);
+  logo.textContent='♛ VIP '+level;
+}
+
+const walkingRuns=new WeakMap();
+function syncActorDepth(actor){
+  const parent=actor.parentNode;
+  if(!parent?.hasAttribute('data-depth-sorted'))return;
+  const y=actor.depthY??0;
+  let prev=actor.previousElementSibling;
+  while(prev&&(prev.depthY??0)>y)prev=prev.previousElementSibling;
+  if(prev!==actor.previousElementSibling){
+    parent.insertBefore(actor,prev?prev.nextElementSibling:parent.firstElementChild);
+    return;
+  }
+  let next=actor.nextElementSibling;
+  while(next&&(next.depthY??0)<y)next=next.nextElementSibling;
+  if(next!==actor.nextElementSibling){
+    parent.insertBefore(actor,next);
+  }
+}
+function positionActor(actor,{x,y},depthY=y){
+  actor.walkPosition={x,y};
+  actor.depthY=depthY;
+  const scale=actor.hasAttribute('data-server')?diningScale:actor.walkScale??1;
+  actor.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+') scale('+scale.toFixed(4)+')');
+  syncActorDepth(actor);
+}
+function walk(actor,route,ms,session,keepDuration=false){
+  const run={};
+  walkingRuns.set(actor,run);
+  if(reduce.matches&&!keepDuration)ms=100;
+  const resolvePoint=point=>typeof point==='function'?point():point;
+  return new Promise(resolve=>{
+    let begin,lastPaint=-Infinity;
+    function tick(now){
+      if(walkingRuns.get(actor)!==run){resolve(false);return;}
+      if(session===null?!actor.isConnected:session!==epoch){actor.remove();resolve(false);return;}
+      if(now-lastPaint<30){requestAnimationFrame(tick);return;}
+      lastPaint=now;begin??=now;
+      const progress=Math.min(1,(now-begin)/ms);
+      const section=Math.min(route.length-2,Math.floor(progress*(route.length-1)));
+      const f=progress*(route.length-1)-section,a=resolvePoint(route[section]),b=resolvePoint(route[section+1]);
+      const x=a.x+(b.x-a.x)*f,y=a.y+(b.y-a.y)*f;
+      const bounce=progress===1||reduce.matches?0:Math.abs(Math.sin((now-begin)/75))*4;
+      positionActor(actor,{x,y:y-bounce},y);
+      if(actor.stepLegs){
+        const stride=progress<1&&!reduce.matches?Math.round(Math.sin((now-begin)/63)*6):0;
+        actor.stepLegs.setAttribute('d','M-7 -14 '+(-9+stride)+' 0M7 -14 '+(9-stride)+' 0');
+      }
+      if(progress<1)requestAnimationFrame(tick);else resolve(true);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+const pedestrianLayer=get('pedestrians');
+const visitors=[
+  ['An','#f0a365','#413143'],['Linh','#84c8af','#4a3430'],['Minh','#87b7e8','#2a343b'],
+  ['Vy','#e99aaf','#4f312d'],['Nam','#d8bd72','#2e313a'],['Hà','#ac9bdb','#52392d'],
+  ['Phúc','#e8a976','#453729'],['Yến','#b1c69d','#3f3032'],
+  ['Tâm','#85bfd0','#34303c'],['Trang','#df9eb7','#554137']
+];
+function sampleAvatar(background,hair){
+  const portrait='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><rect width="40" height="40" fill="'+background+'"/>'
+    +'<path d="M6 40c1-12 27-12 28 0" fill="'+hair+'"/><circle cx="20" cy="19" r="10" fill="#f6c6a4"/>'
+    +'<path d="M10 19c-2-15 21-16 20 0l-5-5-8 3z" fill="'+hair+'"/>'
+    +'<path d="M16 21h.1m7 0h.1" stroke="#372b2b" stroke-width="2" stroke-linecap="round"/></svg>';
+  return 'data:image/svg+xml,'+encodeURIComponent(portrait);
+}
+function avatarUrl(value){
+  if(typeof value!=='string')return '';
+  try{
+    const url=new URL(value);
+    return url.protocol==='https:'&&!url.username&&!url.password?url.href:'';
+  }catch{return '';}
+}
+const passers=new Map();
+let visitorIndex=0;
+function passBy({name,avatar,gender='',color=colors[0],sample=false},startX){
+  const id=key(name);
+  if(seated(name,true)||onStage(id)||stageQueue.some(gift=>gift.id===id)||queue.some(guest=>guest.id===id))return;
+  const current=passers.get(id);
+  if(current){
+    if(sample||!current.sample)return;
+    current.actor.remove();
+    passers.delete(id);
+  }
+  const right=visitorIndex++%2===0;
+  const y=right?653:697;
+  const x=startX??(sample?(right?-50:850):(right?125:675));
+  const actor=character(color,{name,avatar,gender});
+  const passer={id,name,avatar,gender,color,sample,actor};
+  passers.set(id,passer);
+  layers.walking.append(actor);
+  positionActor(actor,{x,y});
+  if(!sample&&vipGuests.has(id)){
+    counterTalk('Chào '+shortGuestName(name)+' · VIP '+(vipProfiles.get(id)?.level??1)+' ghé quán!');
+  }
+  const finish=()=>{
+    if(passers.get(id)!==passer)return;
+    passers.delete(id);
+    actor.remove();
+  };
+  if(reduce.matches){
+    if(startX===undefined){
+      positionActor(actor,{x:405,y});
+      setTimeout(finish,5000);
+    }
+    return;
+  }
+  const destination=right?850:-50;
+  const duration=Math.abs(destination-x)*(right?10:11);
+  walk(actor,[{x,y},{x:destination,y}],duration,null,true).then(finish);
+}
+function roadSnapshot(id){
+  const passer=passers.get(id);
+  if(!passer)return null;
+  const {x,y}=passer.actor.walkPosition;
+  return {x:Math.max(24,Math.min(776,x)),y};
+}
+function takePasser(id){
+  const passer=passers.get(id);
+  if(!passer)return null;
+  const origin=roadSnapshot(id);
+  passers.delete(id);
+  walkingRuns.delete(passer.actor);
+  return {...passer,origin};
+}
+let sampleIndex=0;
+function samplePasser(startX){
+  const index=sampleIndex++%visitors.length;
+  const [name,color,hair]=visitors[index];
+  passBy({name,color,avatar:sampleAvatar(color,hair),gender:index%2?'female':'male',sample:true},startX);
+}
+samplePasser(570);
+samplePasser(315);
+samplePasser(265);
+samplePasser(690);
+setInterval(()=>{if(!reduce.matches)samplePasser();},1150);
+window.addEventListener('quannuoc:viewer',event=>{
+  const name=typeof event.detail?.name==='string'?event.detail.name.trim():'';
+  if(name)visitor(event.detail);
+});
+function wiggle(el,moves,ms){
+  if(reduce.matches||!el.animate)return;
+  el.animate(moves,{duration:ms,easing:'ease-in-out'});
+}
+function ding(frequencies=[988,1318]){
+  if(!audio||audio.state!=='running')return;
+  frequencies.forEach((freq,i)=>{
+    const at=audio.currentTime+i*.055;
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    osc.type='sine';osc.frequency.value=freq;
+    gain.gain.setValueAtTime(.0001,at);
+    gain.gain.exponentialRampToValueAtTime(.055,at+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,at+.22);
+    osc.onended=()=>{osc.disconnect();gain.disconnect();};
+    osc.connect(gain);gain.connect(audio.destination);osc.start(at);osc.stop(at+.25);
+  });
+}
+function syncStageAudio(){
+  const running=audio?.state==='running';
+  const button=get('enable-audio');
+  button.textContent=running?'Nhạc đã bật':'Bật nhạc cho quán';
+  button.disabled=false;
+  if(running)button.textContent='Thử âm thanh';
+  if(running&&activeShow?.endsAt&&!activeShow.ending)playStageSound(activeShow);
+}
+async function primeAudio(){
+  const AudioEngine=window.AudioContext||window.webkitAudioContext;
+  if(audio?.state==='closed'){stopStageSound();audio=null;}
+  if(!audio&&AudioEngine){
+    if(navigator.audioSession){
+      try{navigator.audioSession.type='playback';}catch{}
+    }
+    audio=new AudioEngine();
+    audio.addEventListener('statechange',syncStageAudio);
+  }
+  if(audio&&audio.state!=='running'&&audio.state!=='closed'){
+    try{await audio.resume();}catch{}
+  }
+  syncStageAudio();
+}
+function resumeGameAudio(){
+  if(audio?.state!=='running')void primeAudio();
+}
+document.addEventListener('click',resumeGameAudio,true);
+document.addEventListener('keydown',resumeGameAudio,true);
+const sceneRoot=get('counter-front').parentNode;
+const staffLayer=node('g',{id:'staff-foreground'});
+const serviceDialogueLayer=get('service-dialogue');
+sceneRoot.insertBefore(get('counter-front'),serviceDialogueLayer);
+sceneRoot.insertBefore(layers.walking,serviceDialogueLayer);
+sceneRoot.insertBefore(staffLayer,pedestrianLayer);
+sceneRoot.append(get('counter-dialogue'));
+const prep=character('#81c6b3',{host:true,gender:'male'});
+prep.setAttribute('transform','translate(86 130)');
+get('prep-station').append(prep);
+const owner=character('#8d263a',{gender:'male'});
+owner.setAttribute('aria-label','Trí, ông chủ Quán Nước Vỉa Hè');
+const ownerHome={x:155,y:582};
+owner.walkScale=1.12;
+const ownerOutfit=owner.querySelector('.actor-body');
+ownerOutfit.append(node('path',{d:'M-14 -30Q0 -35 14 -30L15 -10H-15Z',
+  fill:'#8d263a',stroke:'#eac27b','stroke-width':1.4}));
+line(ownerOutfit,'M-6 -31L0 -21 6 -31M0 -21V-11','#eac27b',1.7);
+ellipse(ownerOutfit,8,-22,2,2,'#ffd485');
+ownerOutfit.append(node('path',{d:'M-12 -49L-9 -60H9L12 -49Z',fill:'#222c36'}));
+ellipse(ownerOutfit,0,-49,17,3,'#222c36');
+line(ownerOutfit,'M-10 -51H10','#eac27b',2);
+owner.append(node('text',{x:0,y:-83,'text-anchor':'middle',
+  fill:'#ffe0a5',stroke:'#162e2a','stroke-width':3,'paint-order':'stroke',
+  'font-size':15,'font-weight':800},'Trí Chủ Quán'));
+layers.walking.append(owner);
+positionActor(owner,ownerHome);
+const ownerMouth=node('ellipse',{cx:0,cy:-37,rx:2.5,ry:1,fill:'#542627',
+  style:'transform-box:fill-box;transform-origin:center'});
+ownerOutfit.append(ownerMouth);
+const ownerArms=ownerOutfit.querySelectorAll('.actor-regular-limbs')[1];
+ownerArms.firstElementChild.setAttribute('d','M-11-28 -17-17');
+const ownerWaveArm=node('path',{d:'M11-27 18-18',fill:'none',stroke:'#eab285',
+  'stroke-width':4,'stroke-linecap':'round',style:'transform-origin:11px -27px'});
+ownerOutfit.append(ownerWaveArm);
+let ownerWave=null;
+function waveToGuests(){
+  if(reduce.matches||!ownerWaveArm.animate)return;
+  ownerWave?.cancel();
+  ownerWave=ownerWaveArm.animate(
+    [0,-98,-64,-105,-69,0].map(angle=>({transform:'rotate('+angle+'deg)'})),{duration:1100});
+}
+const ownerBubble=group(65,452);
+ownerBubble.setAttribute('visibility','hidden');
+ownerBubble.setAttribute('pointer-events','none');
+const ownerBubbleShape=node('rect',{width:330,height:70,rx:12,fill:'#162e2a',stroke:'#eac27b','stroke-width':2});
+const ownerBubbleTail=node('path',{fill:'#162e2a',stroke:'#eac27b','stroke-width':2});
+const ownerBubbleText=group(0,0);
+ownerBubble.append(ownerBubbleTail,ownerBubbleShape,
+  node('text',{x:13,y:20,fill:'#ffd391','font-size':15,'font-weight':800},'Trí Chủ Quán'),ownerBubbleText);
+sceneRoot.append(ownerBubble);
+let ownerMouthMotion=null;
+function showOwnerSpeech(message){
+  const lines=[];
+  for(const word of message.split(/\s+/)){
+    const last=lines.length-1;
+    if(last>=0&&lines[last].length+word.length+1<=38)lines[last]+=' '+word;
+    else lines.push(word);
+  }
+  const visible=lines.slice(0,3);
+  if(lines.length>3)visible[2]+='…';
+  const height=30+visible.length*19;
+  const x=owner.walkPosition.x;
+  const bubbleX=Math.max(16,Math.min(454,x-80));
+  const tailX=x-bubbleX;
+  ownerBubble.setAttribute('transform','translate('+bubbleX+' '+(owner.walkPosition.y-104-height)+')');
+  ownerBubbleShape.setAttribute('height',height);
+  ownerBubbleTail.setAttribute('d','M'+(tailX-15)+' '+(height-5)+'l15 17 15-17Z');
+  ownerBubbleText.replaceChildren();
+  visible.forEach((line,index)=>{
+    const label=node('text',{x:13,y:40+index*19,fill:'#fff2cf','font-size':17});
+    ownerBubbleText.append(label);
+    fitBoardText(label,line,304);
+  });
+  ownerBubble.setAttribute('visibility','visible');
+  ownerMouthMotion?.cancel();
+  if(!reduce.matches&&ownerMouth.animate){
+    ownerMouthMotion=ownerMouth.animate([{transform:'scaleY(1)'},{transform:'scaleY(2.7)'},{transform:'scaleY(1)'}],
+      {duration:340,iterations:Infinity});
+  }
+}
+function hideOwnerSpeech(){
+  ownerBubble.setAttribute('visibility','hidden');
+  ownerMouthMotion?.cancel();
+  ownerMouthMotion=null;
+}
+function serviceWorker(carry=[]){
+  const actor=character('#edba64',{host:true,carry});
+  actor.setAttribute('aria-label','Nhân viên bưng nước');
+  actor.setAttribute('data-server','');
+  actor.setAttribute('data-session-actor','');
+  actor.setAttribute('transform','scale('+diningScale+')');
+  layers.walking.append(actor);
+  return actor;
+}
+function serverIdle(){
+  const actor=serviceWorker();
+  positionActor(actor,serverHome);
+  return actor;
+}
+let host=serverIdle();
+refreshDining();
+seats.forEach(chair);
+function seated(name,includeSamples=false){
+  const id=key(name);
+  return seats.find(s=>s.person?.id===id&&(includeSamples||!s.person.sample));
+}
+function seatActor(seat,person){
+  const actor=character(person.color??colors[seat.index],{sitting:true,name:person.name,avatar:person.avatar,gender:person.gender,
+    labelX:seat.index===0||seat.index===3?-12:12});
+  actor.setAttribute('transform','translate('+seat.x+' '+seat.y+') scale('+seat.scale+')');
+  actor.setAttribute('data-seated-guest','');
+  (seat.back?layers.backPeople:layers.frontPeople).append(actor);
+  return actor;
+}
+const sideGuestNames=['Bảo','Chi','Dũng','Hân','Khánh','Lan','Ngọc','Quân'];
+function seedSampleGuests(){
+  if(activeShow||stageQueue.length||queue.length||seats.some(s=>s.person&&!s.person.sample))return;
+  const available=sideGuestNames.filter(name=>!passers.has(key(name))
+    &&!seats.some(seat=>seat.person?.id===key(name)));
+  const pickName=()=>available.splice(Math.floor(Math.random()*available.length),1)[0];
+  const center=['','','Mai',rapperName];
+  for(const seat of seats){
+    if(seat.person)continue;
+    const name=seat.tableX===tableCenters[0]?center[seat.index]:seat.index<2?pickName():'';
+    if(!name||passers.has(key(name)))continue;
+    const gender=seat.index===1||seat.index===2?'female':'male';
+    const person={id:key(name),name,gender,sample:true,state:'seated',seatedAt:performance.now(),cup:null,total:0};
+    person.actor=seatActor(seat,person);
+    person.actor.setAttribute('data-sample-guest','');
+    seat.person=person;
+  }
+  info();
+  serve();
+}
+function takeSeat(guest,seat,atSeat=false){
+  const session=epoch;
+  const passer=takePasser(guest.id);
+  const color=passer?.color??colors[seat.index];
+  const avatar=passer?.avatar||guest.avatar;
+  const gender=guest.gender||passer?.gender||'';
+  const actor=passer&&passer.gender===gender?passer.actor:character(color,{name:guest.name,avatar,gender});
+  if(passer&&actor!==passer.actor)passer.actor.remove();
+  actor.setAttribute('data-session-actor','');
+  const person={...guest,color,avatar,gender,priority:Boolean(guest.priority||vipGuests.has(guest.id)),state:'entering',actor,cup:null,total:0};
+  const origin=passer?.origin??guest.origin??entry;
+  const route=guestRoute(seat,origin);
+  tableToasts.delete(seat.tableX);
+  seat.person=person;info();
+  layers.walking.append(person.actor);
+  positionActor(person.actor,atSeat?{x:seat.x,y:seat.y}:origin);
+  status('Mời '+guest.name+' vào bàn!');
+  return (async()=>{
+    if(seat.tableReady){
+      person.actor.setAttribute('visibility','hidden');
+      await seat.tableReady;
+      if(session!==epoch||seat.person!==person)return;
+      person.actor.removeAttribute('visibility');
+    }
+    if(!atSeat&&!await walk(person.actor,route,1450,session))return;
+    if(seat.person!==person||person.state!=='entering')return;
+    wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(3px)'},{transform:'translateY(0)'}],380);
+    person.actor.remove();
+    person.actor=seatActor(seat,person);
+    const seatedBody=person.actor.querySelector('.actor-body');
+    wiggle(seatedBody,[{transform:'translate(0,-5px)'},{transform:'translate(0,7px)'},{transform:'translate(0,6px)'}],360);
+    person.state='seated';person.seatedAt=performance.now();
+    if(departedGuests.has(person.id)){void leave(person.name,true);return;}
+    if(owed.has(person.id)){offer(person.name,owed.get(person.id));owed.delete(person.id);}board();
+    counterTalk('Đã ngồi? Gõ ROCK, CHILL hoặc RAP để lên sân khấu.');
+    status(guest.name+' đã ngồi. Gõ rock, chill hoặc rap để lên sân khấu!');
+    serve();
+    advanceStage();advanceWaiting();
+  })();
+}
+function enqueueGuest(guest){
+  if(guest.priority){
+    const firstNonPriority=queue.findIndex(item=>!item.priority);
+    if(firstNonPriority>=0)queue.splice(firstNonPriority,0,guest);
+    else queue.push(guest);
+  }else{
+    queue.push(guest);
+  }
+}
+function join(name,avatar,gender,{priority=false}={}){
+  const id=key(name);
+  const rawOccupied=seated(name,true);
+  const occupied=rawOccupied&&!(rawOccupied.person.sample&&rawOccupied.person.state==='leaving')?rawOccupied:null;
+  if(occupied){
+    const person=occupied.person;
+    if(priority)person.priority=true;
+    if(person.sample&&person.state==='seated'){
+      person.sample=false;
+      person.seatedAt=performance.now();
+      person.actor.removeAttribute('data-sample-guest');
+      if((avatar&&avatar!==person.avatar)||(gender&&gender!==person.gender)){
+        person.avatar=avatar||person.avatar;
+        person.gender=gender||person.gender;
+        person.actor.remove();
+        person.actor=seatActor(occupied,person);
+        if(onStage(person.id))person.actor.setAttribute('visibility','hidden');
+      }
+      info();serve();
+    }
+    if(person.state==='seated'){
+      counterTalk('Đã ngồi? Gõ ROCK, CHILL hoặc RAP để lên sân khấu.');
+      status(person.name+' đã có ghế. Gõ rock, chill hoặc rap để lên sân khấu!');
+    }else{
+      status(person.name+(person.state==='leaving'?' đang rời bàn.':' đang đi vào bàn.'));
+    }
+    return;
+  }
+  const waitingIndex=queue.findIndex(p=>p.id===id);
+  if(waitingIndex>=0){
+    const existing=queue[waitingIndex];
+    if(avatar&&!existing.avatar)existing.avatar=avatar;
+    if(gender&&!existing.gender)existing.gender=gender;
+    if(priority&&!existing.priority){
+      existing.priority=true;
+      queue.splice(waitingIndex,1);
+      enqueueGuest(existing);
+      info();
+      status('Ưu tiên khách tặng quà '+existing.name+' lên đầu hàng chờ!');
+      advanceWaiting();
+    }else{
+      status(existing.name+' đang chờ ghế.');
+    }
+    return;
+  }
+  const performer=activeShow?.members.get(id);
+  if(performer){
+    if(priority){
+      performer.guestRequest=true;
+      performer.person.priority=true;
+      if(!performer.seat&&!performer.returnSeat){
+        if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
+        performer.returnSeat=seats.find(s=>!s.person&&!s.reservedFor);
+        if(performer.returnSeat)performer.returnSeat.reservedFor=id;
+        info();
+      }
+    }
+    status(name+' biểu diễn xong rồi vào bàn nhé!');
+    return;
+  }
+  const viewer=passers.get(id);
+  const guest={id,name:viewer?.name??name,avatar:viewer?.avatar||avatar,gender:gender||viewer?.gender,priority:Boolean(priority||vipGuests.has(id)),origin:roadSnapshot(id)};
+  if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
+  const free=seats.find(s=>!s.person&&!s.reservedFor);
+  if(free&&(!queue.length||guest.priority))return takeSeat(guest,free);
+  enqueueGuest(guest);info();
+  status((guest.priority?'Ưu tiên khách tặng quà · ':'Đã đủ 30 bàn · ')+guest.name+' chờ ghế số '+(queue.indexOf(guest)+1)+'.');
+  advanceWaiting();
+}
+function advanceWaiting(){
+  clearTimeout(seatTimer);seatTimer=null;
+  while(queue.length){
+    const free=seats.find(s=>!s.person&&!s.reservedFor);
+    if(!free){
+      const next=queue.findIndex(guest=>!onStage(guest.id));
+      const needsTurn=next>=0?queue[next]:queue[0];
+      if(!addDiningTable()){scheduleSeatTurn(Boolean(needsTurn?.priority));break;}
+      continue;
+    }
+    const head=queue[0];
+    if(head&&onStage(head.id)){
+      if(head.priority){
+        const member=activeShow?.members.get(head.id);
+        if(member&&!member.seat&&!member.returnSeat){
+          member.guestRequest=true;
+          member.returnSeat=free;
+          free.reservedFor=head.id;
+          queue.shift();
+          continue;
+        }
+      }
+      const next=queue.findIndex(guest=>!onStage(guest.id));
+      if(next<0)break;
+      takeSeat(queue.splice(next,1)[0],free);
+      continue;
+    }
+    takeSeat(queue.shift(),free);
+  }
+  info();
+}
+const guestActivity=new Map(),departedGuests=new Set();
+const minSeatTime=600000;
+function touchGuest(id){
+  departedGuests.delete(id);
+  guestActivity.delete(id);
+  guestActivity.set(id,performance.now());
+  if(guestActivity.size>2000)guestActivity.delete(guestActivity.keys().next().value);
+}
+function scheduleSeatTurn(priorityWaiting=false){
+  if(seats.some(seat=>seat.person?.state==='leaving'))return;
+  const candidates=seats.map(seat=>seat.person).filter(person=>person?.state==='seated'&&!onStage(person.id));
+  const sample=candidates.find(person=>person.sample);
+  if(sample){void leave(sample.name,true);return;}
+  if(priorityWaiting){
+    const nonVip=candidates.filter(person=>!person.priority&&!vipGuests.has(person.id))
+      .sort((a,b)=>(guestActivity.get(a.id)??a.seatedAt)-(guestActivity.get(b.id)??b.seatedAt));
+    if(nonVip.length){void leave(nonVip[0].name,true);return;}
+  }
+  const now=performance.now();
+  const eligible=candidates.filter(person=>now-person.seatedAt>=minSeatTime)
+    .sort((a,b)=>(guestActivity.get(a.id)??a.seatedAt)-(guestActivity.get(b.id)??b.seatedAt));
+  if(eligible.length){void leave(eligible[0].name,true);return;}
+  const next=Math.min(...candidates.map(person=>person.seatedAt+minSeatTime));
+  if(Number.isFinite(next))seatTimer=setTimeout(advanceWaiting,Math.max(1,next-now));
+}
+function guestDeparted(name){
+  const id=key(name);
+  departedGuests.add(id);
+  if(departedGuests.size>2000)departedGuests.delete(departedGuests.values().next().value);
+  const waiting=stageQueue.findIndex(item=>item.id===id);
+  if(waiting>=0)stageQueue.splice(waiting,1);
+  const seat=seated(name,true);
+  takePasser(id)?.actor.remove();
+  if(!onStage(id)&&(seat?.person.state==='seated'||queue.some(item=>item.id===id)))void leave(name,true);
+  updateShowQueue();
+  advanceStage();
+}
+async function leave(name,makeRoom=false){
+  const session=epoch, seat=seated(name,makeRoom);
+  if(!seat){
+    const i=queue.findIndex(p=>p.id===key(name));
+    if(i>=0){queue.splice(i,1);info();status(name+' đã rời hàng chờ.');advanceWaiting();}
+    else status(name+' chưa có ghế trong quán.');
+    return;
+  }
+  const person=seat.person;
+  if(person.state==='leaving')return;
+  if(onStage(person.id)){status(name+' đang trên sân khấu. Chờ tiết mục kết thúc nhé.');return;}
+  if(person.state==='entering'){status(name+' đang tới ghế. Chờ ngồi xuống rồi hãy rời bàn nhé.');return;}
+  tableToasts.delete(seat.tableX);
+  person.state='leaving';
+  const bill={seat,person,makeRoom};
+  if(makeRoom&&person.sample){
+    tableDialogue(seat.tableX,person.name,'Mình nhường bàn cho khách mới nha!');
+    await sleep(180);
+    if(session===epoch)await finishLeave(bill,false);
+  }else if(person.total&&Math.random()<.12){
+    tableDialogue(seat.tableX,person.name,oneOf(sneakLines));
+    await sleep(650);
+    if(session===epoch)await finishLeave(bill,true);
+  }else if(person.total){
+    tableDialogue(seat.tableX,person.name,'Bạn ơi, tính tiền giúp mình nha!');
+    bills.push(bill);serve();
+  }else await finishLeave(bill,false);
+}
+async function finishLeave({seat,person,makeRoom},sneaked){
+  const session=epoch,{name}=person;
+  person.cup?.remove();person.actor.remove();
+  wiggle(seat.stool,[{transform:'translateY(0)'},{transform:'translateY(7px)'},{transform:'translateY(0)'}],330);
+  const walker=character(person.color??colors[seat.index],{name,avatar:person.avatar,gender:person.gender});
+  walker.setAttribute('data-session-actor','');
+  layers.walking.append(walker);
+  positionActor(walker,{x:seat.x,y:seat.y});
+  if(!sneaked)status(makeRoom?name+' nhường ghế cho khách mới.':name+' đứng dậy nhường chỗ.');
+  if(!await walk(walker,guestRoute(seat).reverse(),sneaked?820:makeRoom?900:1330,session))return;
+  walker.remove();seat.person=null;info();
+  if(sneaked)tableDialogue(seat.tableX,'Nhân viên',oneOf(caughtLines));
+  advanceStage();
+  if(queue.length)advanceWaiting();
+  else if(!sneaked)status('Quán có chỗ trống. Mời khách mới!');
+  serve();
+}
+const askLines=['Uống gì nè? Để quán chọn giúp nha!','Chờ xíu, quán chọn ly mát lòng mát dạ!','Hôm nay để quán chọn món bất ngờ nha!'];
+const sneakLines=['Mình ra nghe điện thoại xíu…','Ủa, hình như xe mình tự nổ máy!','Mình ra coi ngoài đường có gì vui…'];
+const caughtLines=['Ơ kìa, người đi rồi mà hóa đơn còn chill!',
+  'Bạn ơi, tiền nước chưa biết tự đi về!',
+  'Quán giữ hóa đơn, bạn giữ tốc độ nha!'];
+const oneOf=list=>list[Math.floor(Math.random()*list.length)];
+function tableDialogue(tableX,speaker,message,audience=false){
+  const layer=get(audience?'audience-dialogue':'service-dialogue');
+  layer.querySelector('[data-dialogue-table="'+tableX+'"]')?.remove();
+  const table=tablePosition(tableX);
+  const bubbleX=Math.max(132,Math.min(668,table.x));
+  const bubble=group(bubbleX,audience?table.y+65:Math.max(36,table.y-92));
+  bubble.setAttribute('data-dialogue-table',tableX);
+  rect(bubble,-124,-34,248,59,12,'#162e2a','#d2ad77');
+  bubble.append(node('path',{d:audience?'M-8-33 1-43 12-33':'M-8 24 1 33 12 24',fill:'#162e2a',stroke:'#d2ad77','stroke-width':2}));
+  const label=node('text',{x:0,y:-12,fill:'#ffd391','font-size':13,'font-weight':800,'text-anchor':'middle'},speaker);
+  const line=node('text',{x:0,y:9,fill:'#fff2cf','font-size':15,'font-weight':750,'text-anchor':'middle'},message);
+  bubble.append(label,line);
+  layer.append(bubble);
+  for(const text of [label,line]){
+    if(text.getComputedTextLength()>225){
+      text.setAttribute('textLength',225);
+      text.setAttribute('lengthAdjust','spacingAndGlyphs');
+    }
+  }
+  if(!audience)status(speaker+' · '+message);
+  setTimeout(()=>bubble.remove(),audience?3200:4200);
+}
+function present(seat,person){
+  return seat.person===person&&person.state==='seated'&&!onStage(person.id);
+}
+function needsDrink(seat){
+  const person=seat.person;
+  return person?.state==='seated'&&!onStage(person.id)&&!person.cup&&!person.serving&&!orders.some(job=>job.person===person);
+}
+function tableServiceRoute(tableX,from){
+  const stop=()=>{
+    const table=tablePosition(tableX);
+    const x=table.x+(table.x>600?-78:78)*table.scale;
+    return {x,y:table.y+65*table.scale};
+  };
+  const laneEntry=()=>({x:stop().x,y:currentWalkwayY()});
+  return [from,()=>({x:from.x,y:624}),{x:counterLaneX,y:624},
+    ()=>({x:counterLaneX,y:currentWalkwayY()}),laneEntry,stop];
+}
+const drinkMenu=Object.values(drinks);
+function queueRandomDrink(seat){
+  orders.push({seat,person:seat.person,drink:oneOf(drinkMenu)});
+}
+async function serve(){
+  if(running)return;
+  for(let index=orders.length-1;index>=0;index--){
+    const {seat,person}=orders[index];
+    if(!present(seat,person))orders.splice(index,1);
+  }
+  let bill=bills.shift();
+  while(bill&&(bill.seat.person!==bill.person||bill.person.state!=='leaving'))bill=bills.shift();
+  const askSeat=seats.find(seat=>!seat.person?.sample&&needsDrink(seat))??seats.find(needsDrink);
+  const first=orders[0];
+  const batch=!bill&&first?orders.filter(job=>job.seat.tableX===first.seat.tableX):[];
+  for(const job of batch){
+    orders.splice(orders.indexOf(job),1);
+    job.person.serving=true;
+  }
+  if(!bill&&!batch.length&&!askSeat)return;
+  running=true;
+  const session=epoch;
+  const tableX=bill?.seat.tableX??batch[0]?.seat.tableX??askSeat.tableX;
+  const backlog=orders.length+seats.filter(needsDrink).length;
+  const speedScale=backlog>=24?.36:backlog>=12?.5:backlog>=6?.7:1;
+  const pace=ms=>Math.max(140,Math.round(ms*speedScale));
+  let from=serverHome;
+  try{
+    if(batch.length){
+      status('Quầy đang pha '+batch.length+' ly cho cùng một bàn…');
+      if(!await walk(host,[serverHome,pickup],pace(420),session))return;
+      const mixingCup=cup(batch[0].drink);
+      mixingCup.setAttribute('transform','translate(111 80) scale(.75)');
+      get('prep-station').append(mixingCup);
+      wiggle(mixingCup.firstElementChild,[{opacity:.4},{opacity:1}],pace(380));
+      await sleep(pace(460));
+      mixingCup.remove();
+      if(session!==epoch)return;
+      host.remove();
+      host=serviceWorker(batch.map(job=>job.drink));
+      positionActor(host,pickup);
+      from=pickup;
+    }
+    const route=tableServiceRoute(tableX,from);
+    if(!await walk(host,route,pace(1250),session))return;
+    if(bill){
+      const {person}=bill;
+      tableDialogue(tableX,'Nhân viên','Của bạn '+person.total.toLocaleString('vi-VN')+' ₫ nha!');
+      await sleep(pace(950));
+      if(session!==epoch)return;
+      tableDialogue(tableX,person.name,'Mình gửi đủ, hẹn gặp lại nha!');
+      ding();
+      await sleep(pace(750));
+      if(session!==epoch)return;
+      if(bill.seat.person===person&&person.state==='leaving')void finishLeave(bill,false);
+    }else if(batch.length){
+      batch.forEach(job=>{job.person.serving=false;});
+      const delivered=batch.filter(({seat,person})=>present(seat,person));
+      for(const {seat,person,drink} of delivered){
+        person.cup?.remove();
+        const glass=cup(drink);
+        glass.setAttribute('transform','translate('+seat.drink.join(' ')+') scale('+seat.scale+')');
+        layers.drinks.append(glass);
+        person.cup=glass;
+        person.total+=drink.price;
+      }
+      if(delivered.length){
+        tableDialogue(tableX,'Nhân viên',delivered.length+' ly tới rồi, mời cả bàn nha!');
+        ding();
+        await sleep(pace(650));
+        if(session!==epoch)return;
+      }
+      const stopPoint=typeof route.at(-1)==='function'?route.at(-1)():route.at(-1);
+      host.remove();
+      host=serviceWorker();
+      positionActor(host,stopPoint);
+    }else{
+      const candidates=seats.filter(seat=>seat.tableX===tableX&&needsDrink(seat));
+      if(candidates.length){
+        tableDialogue(tableX,'Nhân viên',oneOf(askLines));
+        await sleep(pace(1200));
+        if(session!==epoch)return;
+        seats.filter(seat=>seat.tableX===tableX&&needsDrink(seat)).forEach(queueRandomDrink);
+      }
+    }
+    const returnRoute=[route[5],route[4],route[3],route[2],serverHome];
+    await walk(host,returnRoute,pace(980),session);
+  }finally{
+    batch.forEach(job=>{job.person.serving=false;});
+    if(session===epoch){
+      running=false;
+      if(bills.length||orders.length||seats.some(needsDrink))queueMicrotask(serve);
+    }
+  }
+}
+const tableToasts=new Map();
+const cupMotions=new WeakMap();
+const toastLines=[
+  'Zô nè!', 'Cụng đi chớ!', 'Một, hai, ba, zô!',
+  'Cụng nhẹ thôi, ly còn trả quán!', 'Trà đá mà khí thế ghê!',
+  'Zô cho tan đá coi!', 'Cụng cái keng cho bàn bên nghe!'
+];
+let lastToastLine=-1;
+function randomToastLine(){
+  const choices=lastToastLine<0?toastLines.length:toastLines.length-1;
+  const pick=Math.floor(Math.random()*choices);
+  lastToastLine=lastToastLine>=0&&pick>=lastToastLine?pick+1:pick;
+  return toastLines[lastToastLine];
+}
+function moveToastCup(seat,target,started){
+  const el=seat.person.cup;
+  const motion={};
+  cupMotions.set(el,motion);
+  function frame(now){
+    if(!el.isConnected||cupMotions.get(el)!==motion)return;
+    const [x,y]=seat.drink;
+    const baseScale=seat.scale||1;
+    const ms=now-started;
+    if(ms>=950){
+      el.setAttribute('transform','translate('+x+' '+y+') scale('+baseScale+')');
+      cupMotions.delete(el);
+      return;
+    }
+    const lift=ms<420?Math.sin(Math.max(0,ms)/420*Math.PI/2):
+      Math.cos(Math.max(0,ms-540)/410*Math.PI/2);
+    const dx=(target.x-x)*lift, dy=(target.y-y)*lift;
+    const tilt=(target.x<x?-1:1)*14*lift;
+    el.setAttribute('transform','translate('+(x+dx)+' '+(y+dy)+') rotate('+tilt+') scale('+(baseScale*(1+.32*lift)).toFixed(4)+')');
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+function toastEffect(participants,tableX,quote){
+  const count=participants.length;
+  const x=participants.reduce((sum,seat)=>sum+seat.drink[0],0)/count;
+  const y=participants.reduce((sum,seat)=>sum+seat.drink[1],0)/count-24;
+  const effects=get('toast-effects');
+  const effect=group(0,0);
+  const impact=group(x,y-18);
+  const kind=quote?'group':'pair';
+  effect.setAttribute('data-toast-key',tableX+'-'+kind);
+  effect.setAttribute('visibility','hidden');
+  impact.setAttribute('class','toast-impact');
+  line(impact,'M0-30V-41M21-19l9-8M-21-19l-9-8M26 1h12M-26 1h-12','#ffdf90',3);
+  impact.append(node('text',{x:0,y:-9,class:'toast-clink'},'KENG!'));
+  effect.append(impact);
+  if(quote){
+    const table=tablePosition(tableX);
+    const bubble=group(table.x,Math.max(25,table.y-100));
+    rect(bubble,-118,-24,236,40,12,'#142a27','#ffd391');
+    bubble.append(node('path',{d:'M-9 15 0 25 10 15',fill:'#142a27',stroke:'#ffd391','stroke-width':2}));
+    bubble.append(node('text',{x:0,y:2,class:'toast-quote',
+      ...(quote.length>27?{textLength:212,lengthAdjust:'spacingAndGlyphs'}:{})},quote));
+    effect.append(bubble);
+  }
+  if(quote)effects.querySelector('[data-toast-key="'+tableX+'-pair"]')?.remove();
+  effects.querySelector('[data-toast-key="'+tableX+'-'+kind+'"]')?.remove();
+  effects.append(effect);
+  const bounds=impact.getBoundingClientRect();
+  if(!testingBesideScene()&&!document.body.classList.contains('show-mode')&&(bounds.top<0||bounds.bottom>window.innerHeight)){
+    impact.scrollIntoView({block:'center',behavior:reduce.matches?'instant':'smooth'});
+  }
+  const started=performance.now();
+  if(!reduce.matches){
+    participants.forEach(seat=>{
+      const side=seat.drink[0]<x?-1:1;
+      moveToastCup(seat,{x:x+side*8,y:y+(count>2?(seat.back?-5:5):0)},started);
+    });
+  }
+  setTimeout(()=>{
+    if(!effect.isConnected)return;
+    effect.setAttribute('visibility','visible');
+    ding([1568,2349,3136]);
+    if(quote&&voiceOn)speakVietnamese(quote,1.08);
+  },reduce.matches?0:420);
+  setTimeout(()=>effect.remove(),quote?2950:1050);
+}
+function cheers(name){
+  const seat=seated(name);
+  if(!seat?.person?.cup){status(name+' chờ nhân viên mang nước rồi mình cụng nhé!');return;}
+  const table=seats.filter(s=>s.tableX===seat.tableX&&s.person&&s.person.state!=='leaving'&&!onStage(s.person.id));
+  const neighbors=table.filter(s=>s!==seat&&s.person.cup);
+  if(!neighbors.length){status('Chờ thêm một khách cùng bàn có ly rồi cụng nhé!');return;}
+  const ready=tableToasts.get(seat.tableX)??new Set();
+  ready.add(seat.person);
+  tableToasts.set(seat.tableX,ready);
+  if(table.every(s=>s.person.cup&&ready.has(s.person))){
+    const quote=randomToastLine();
+    tableToasts.delete(seat.tableX);
+    toastEffect(table,seat.tableX,quote);
+    status('Cả bàn cùng cụng ly · '+quote);
+    return;
+  }
+  const other=neighbors.sort((a,b)=>Math.hypot(a.x-seat.x,a.y-seat.y)-Math.hypot(b.x-seat.x,b.y-seat.y))[0];
+  toastEffect([seat,other],seat.tableX);
+  status(name+' cụng ly với '+other.person.name+'! '+ready.size+'/'+table.length+' khách cùng bàn đã hô.');
+}
+const regularShowDuration=30000, vipShowDuration=60000;
+const maxStageQueue=10;
+let stageOrder=0;
+const stageSlots=[382,474,290,552,212];
+const stageVerses=[
+  'Một, hai, ba, sao nè!', 'Lên sân khấu, hát cùng nhau.',
+  'Cả quán mình vui đêm nay!', 'Nâng ly nào, đêm nay còn dài.',
+  'Đèn vàng lên, mình hát thêm câu.'
+];
+const rapVerses=[
+  'Yo, Hái Thứ Hiêu bước ra đây!',
+  'Bàn bên trái, bàn bên phải, đưa tay!',
+  'Đá trong ly kêu leng keng, beat lên!',
+  'Hết giờ làm rồi, mình cứ chill êm.',
+  'Gió lùa qua phố, đèn vàng vừa lên.',
+  'Vỉa hè nhỏ xíu, tiếng cười vang tên!',
+  'Có ai quên ví thì nhớ quay lại!',
+  'Tay nâng ly lên, mình hẹn ngày mai!'
+];
+const stageTracks={
+  chill:{title:'Đêm chill vỉa hè',motion:'sing',verses:stageVerses,step:.38,
+    melody:[60,64,67,69,67,64,62,65,69,72,69,65,64,67,71,74,72,67,64,60]},
+  rap:{title:'Rap bên ly đá',motion:'rap',verses:rapVerses,step:.28,
+    melody:[48,55,48,58,50,53,55,53,48,55,48,58,50,55,53,55]},
+  rock:{title:'Rock vỉa hè',motion:'dance',step:.26,
+    melody:[60,64,67,72,67,64,62,67,71,74,71,67,65,69,72,77],
+    verses:['Bàn bên trái, bàn bên phải, vỗ tay!',
+      'Ly đá kêu leng keng, cả quán cùng vui!',
+      'Đèn sáng lên rồi, mình hát thêm câu!',
+      'Cười lên nào, mai mình lại gặp!']}
+};
+const extraStageTracks={
+  chill:[
+    {title:'Đèn vàng trước hiên',step:.44,melody:[64,67,71,74,71,67,62,65,69,72,69,65,60,64,67,71],
+      verses:["Đèn vàng vừa lên trước hiên.","Có người ghé lại, ngồi yên nghe gió.","Đêm nghiêng bên một ly trà."]},
+    {title:'Mưa trên mái tôn',step:.31,melody:[69,72,76,74,72,67,64,67,65,69,72,74,71,67,64,62],
+      verses:["Mưa gõ ba tiếng trên mái tôn.","Bên trong quán, ly trà còn ấm.","Đợi mưa qua rồi mình về."]},
+    {title:'Cà phê sáng',step:0.41,melody:[72,76,79,81,79,76,74,77,81,84,81,77,76,74,72,67],
+      verses:["Cà phê nhỏ giọt, phố vừa thức.","Nắng nằm yên trên mép bàn.","Chậm thêm một chút cũng được."]},
+    {title:'Hoàng hôn bên sông',step:0.46,melody:[67,71,74,78,74,71,69,72,76,79,76,72,74,71,69,67],
+      verses:["Hoàng hôn trôi chậm theo dòng nước.","Bóng cầu in xuống một màu cam.","Mình ngồi nghe chiều qua."]},
+    {title:'Ghế gỗ cuối chiều',step:0.35,melody:[65,69,72,76,72,69,67,70,74,77,74,70,69,67,65,60],
+      verses:["Chiếc ghế gỗ còn ấm nắng.","Ai kéo ghế ngồi sát bên tôi.","Chuyện hôm nay kể tới tối."]},
+    {title:'Ly trà còn ấm',step:0.39,melody:[62,65,69,72,74,72,69,65,64,67,71,74,72,69,67,64],
+      verses:["Hai bàn tay ôm một ly trà.","Gió ngang qua, màn đêm se lại.","Ngồi thêm nhé, trà còn thơm."]},
+    {title:'Hẻm nhỏ lên đèn',step:0.33,melody:[69,72,76,79,81,79,76,74,67,71,74,77,79,77,74,71],
+      verses:["Cuối con hẻm có một ngọn đèn.","Tiếng xe xa dần sau mái ngói.","Một bàn nhỏ đợi mình về."]}
+  ],
+  rap:[
+    {title:'Nhịp phố sau giờ',step:.24,melody:[45,45,52,55,48,53,48,55,43,50,53,55,45,52,57,55],
+      verses:["Tan ca, cất thẻ, phố lên đèn.","Kéo ghế ra, để cái mệt ở bên thềm.","Đá chạm ly, nhịp này dành cho anh em."]},
+    {title:'Chuyện bàn bên',step:.32,melody:[50,57,53,60,48,55,60,55,46,53,58,57,50,53,55,57],
+      verses:["Bàn bên kể chuyện, bàn này nghe ké.","Một câu chưa hết mà ba người cười.","Đêm còn dài, tới lượt bạn kể."]},
+    {title:'Lắc đá trong ly',step:0.23,melody:[48,60,55,58,46,53,58,53,44,56,51,56,43,50,55,58],
+      verses:["Lắc đá trong ly, nghe leng keng.","Đặt ly xuống bàn, gõ thêm hai tiếng.","Nhấc tay lên nào, vào đúng nhịp!"]},
+    {title:'Hẻm còn thức',step:0.31,melody:[45,57,64,55,43,55,62,53,41,53,60,52,40,52,59,55],
+      verses:["Cửa ngoài đã khép, con hẻm còn thức.","Đèn quán hắt vàng lên đôi giày cũ.","Chân chậm một nhịp, lời vẫn đi đều."]},
+    {title:'Kèo cuối tuần',step:0.25,melody:[50,62,57,60,48,55,60,55,46,58,53,58,45,57,52,55],
+      verses:["Đủ mặt rồi, kéo thêm một ghế!","Cuối tuần kể chuyện, ai cười tính sau.","Bàn này gọi nước, bàn kia lên câu."]},
+    {title:'Xe qua đầu phố',step:0.29,melody:[47,59,54,57,45,57,52,55,43,55,50,55,42,54,49,52],
+      verses:["Xe lướt đầu phố, đèn kéo một vệt.","Tôi gõ nhịp lên bàn, đúng lúc còi xa.","Người vừa ghé đến, nhập nhịp cùng ta."]},
+    {title:'Một vòng vỉa hè',step:0.34,melody:[53,65,60,63,51,63,58,61,49,61,56,61,48,60,55,58],
+      verses:["Đi một vòng rồi về lại chỗ quen.","Qua ngã ba, nghe ly đá gọi tên.","Dựng xe bên quán, cho tôi một ghế."]}
+  ],
+  rock:[
+    {title:'Đèn phố bật lên',step:.22,bass:[43,43,48,50,46,48,53,50],melody:[67,74,72,70,77,74,72,69],
+      verses:["Đèn phố bật lên, tiếng đàn vang xa!","Tay đưa lên cao, cho quán nghe nào!","Giữ nhịp đó, mình lên thêm một đoạn!"]},
+    {title:'Qua ngã tư',step:.28,bass:[47,47,50,52,45,45,52,54],melody:[71,74,76,78,76,74,69,73],
+      verses:["Đèn xanh sáng, ta qua ngã tư!","Nghe tiếng trống dồn từ đầu con phố!","Một nhịp nữa, nghiêng vai cùng nhau!"]},
+    {title:'Mở cửa tới khuya',step:0.24,bass:[40,40,43,45,40,48,47,43],melody:[64,67,69,76,74,72,69,67],
+      verses:["Đêm chưa hết, quán còn mở cửa!","Gõ nhịp xuống sàn, đẩy tiếng đàn lên!","Cả hai bên, vỗ tay theo tôi!"]},
+    {title:'Bật loa bên hiên',step:0.2,bass:[45,45,48,50,43,45,50,52],melody:[69,72,74,79,77,74,72,69],
+      verses:["Bật loa bên hiên, cho tiếng đàn lên!","Bàn cuối còn nghe không? Hô một tiếng nào!","Dồn thêm một nhịp, cả quán cùng nhảy!"]},
+    {title:'Gió qua cầu',step:0.27,bass:[42,42,45,47,40,42,47,49],melody:[66,69,73,78,76,73,71,69],
+      verses:["Gió qua cầu cuốn tiếng đàn đi!","Đèn hai bờ theo nhịp trống bật sáng!","Đứng lên nào, còn một đoạn cao trào!"]},
+    {title:'Tiếng giày xuống phố',step:0.23,bass:[38,38,41,43,36,38,43,45],melody:[62,65,67,74,72,69,67,65],
+      verses:["Tiếng giày xuống phố, bước đều theo trống!","Trái một nhịp, phải một nhịp!","Cả quán đổi chân khi đàn lên cao!"]},
+    {title:'Quán chưa đóng cửa',step:0.3,bass:[43,43,46,48,41,43,48,50],melody:[71,74,77,79,81,79,77,74],
+      verses:["Quán chưa đóng cửa, đèn còn sáng!","Ly cạn rồi thì vỗ tay thêm một lượt!","Hẹn nhau ngày mai, sau nhịp cuối này!"]}
+  ]
+};
+const songFlowers=new Map();
+const namedSongs=new Map();
+for(const [genre,base] of Object.entries(stageTracks)){
+  for(const track of [base,...extraStageTracks[genre]]){
+    namedSongs.set(normalize(track.title),{genre,track:{...base,...track}});
+  }
+}
+const missingKey='quan-missing-song-titles-v1';
+const missingPanel=document.createElement('details');
+const missingSummary=document.createElement('summary');
+const missingList=document.createElement('ul');
+missingPanel.append(missingSummary,missingList);
+get('events').after(missingPanel);
+const songPickers=document.querySelectorAll('.named-song-picker');
+function refreshSongPickers(){
+  for(const panel of songPickers){
+    const name=get(panel.dataset.nameField).value.trim(),id=key(name);
+    const waiting=stageQueue.find(item=>item.id===id)?.song;
+    const singing=onStage(id),flowers=songFlowers.get(id)||0n;
+    const button=panel.querySelector('button');
+    button.textContent=waiting?'Đổi bài':'Đăng ký bài';
+    button.disabled=!name||singing||flowers<=10n;
+    panel.querySelector('.song-status').textContent=singing?'Đã lên sân khấu · Đã khóa chọn bài':
+      waiting?'Đang chờ · '+waiting.track.title:name+' · '+flowers+' hoa';
+  }
+}
+for(const panel of songPickers){
+  const field=get(panel.dataset.nameField),select=panel.querySelector('select');
+  for(const {track} of namedSongs.values())select.add(new Option(track.title,track.title));
+  field.addEventListener('input',refreshSongPickers);
+  panel.querySelector('button').onclick=()=>{
+    primeAudio();
+    const guest=field.id==='guest';
+    requestNamedSong(field.value.trim(),select.value,guest?avatarUrl(get('guest-avatar').value):'',guest?get('guest-gender').value:'');
+    refreshSongPickers();
+  };
+}
+let missingSongs=new Map();
+try{missingSongs=new Map(JSON.parse(localStorage.getItem(missingKey)||'[]'));}catch{}
+function drawMissing(){
+  missingSummary.textContent='Bài khách đề nghị bổ sung ('+missingSongs.size+')';
+  missingList.replaceChildren();
+  for(const title of missingSongs.values()){
+    const item=document.createElement('li');item.textContent=title;missingList.append(item);
+  }
+}
+drawMissing();
+function requestNamedSong(name,title,avatar,gender){
+  if(!name)return;
+  const id=key(name),song=namedSongs.get(normalize(title));
+  function note(message){showLiveNotice(message);status(message);}
+  if(onStage(id)){note('Chỉ đổi bài khi còn trong hàng chờ.');return;}
+  if((songFlowers.get(id)||0n)<=10n){note(shortGuestName(name)+' cần tặng trên 10 hoa để chọn bài.');return;}
+  if(!song){
+    missingSongs.set(normalize(title),title);
+    drawMissing();
+    try{localStorage.setItem(missingKey,JSON.stringify([...missingSongs]));}catch{}
+    note('Quán chưa có “'+title+'”. Bạn vẫn còn lượt, chọn bài khác nhé!');return;
+  }
+  let item=stageQueue.find(entry=>entry.id===id);
+  if(!item){
+    if(stageQueue.length>=maxStageQueue){note('Hàng chờ đầy. Bạn vẫn còn lượt chọn bài.');return;}
+    const seat=seated(name,true),viewer=passers.get(id);
+    item={id,name:seat?.person.name??viewer?.name??name,avatar:viewer?.avatar||avatar,
+      gender:gender||seat?.person.gender||viewer?.gender,origin:roadSnapshot(id),
+      gifts:0,coins:0,backupGifts:0,order:stageOrder++};
+    stageQueue.push(item);
+  }
+  Object.assign(item,{tier:'vip',previewTrack:song.genre,song,flowers:songFlowers.get(id),backupFlowers:songFlowers.get(id)});
+  note(shortGuestName(name)+' chọn “'+song.track.title+'”.');
+  sortStageQueue();updateShowQueue();advanceStage();
+}
+const nextTrackIndex={chill:0,rap:0,rock:0};
+function nextStageTrack(genre){
+  const base=stageTracks[genre];
+  const index=nextTrackIndex[genre];
+  return index?{...base,...extraStageTracks[genre][index-1]}:base;
+}
+function stageWaitHint(show,item,now=performance.now()){
+  if(!item)return '';
+  const seat=seated(item.name,true);
+  if(seat&&seat.person.state!=='seated')return 'Đang đợi khách tới ghế';
+  if(!show||show.ending)return 'Sắp tới lượt';
+  const switching=show.namedSong||item.song||show.genre!==(item.previewTrack??'rock');
+  const members=[...show.members.values()];
+  if(!switching&&members.length<stageSlots.length)return 'Sắp tới lượt';
+  const deadlines=members.map(member=>member.ready?member.endsAt:undefined);
+  if(deadlines.some(end=>!Number.isFinite(end)))return switching?'Chờ đổi nhạc':'Đang chờ chỗ';
+  const end=switching?Math.max(...deadlines):Math.min(...deadlines);
+  const seconds=Math.ceil((end-now)/5000)*5;
+  const label=switching?'Chờ đổi nhạc':'Chờ chỗ';
+  return seconds>0?label+' ~'+seconds+' giây':label;
+}
+function updateShowQueue(){
+  refreshSongPickers();
+  const ready=[...(activeShow?.members.values()??[])].filter(member=>member.ready);
+  fitBoardText(get('stage-names'),ready.map(member=>shortGuestName(member.person.name)+(member.tier==='vip'?' ♛':'')).join(' · '),480);
+  get('stage-queue-led').setAttribute('visibility',stageQueue.length?'visible':'hidden');
+  for(let i=0;i<3;i++){
+    const item=stageQueue[i],genre=item?.previewTrack??'rock';
+    const label=item?(i+1)+'. '+shortGuestName(item.name)+(item.tier==='vip'?' ♛':'')+' · '+genre.toUpperCase()+' · '+(item.song?.track??(activeShow?.genre===genre?activeShow.track:nextStageTrack(genre))).title+' · '+(item.tier==='vip'?'1 phút':'30 giây'):'';
+    fitBoardText(get('queue-led-'+i),label,333);
+  }
+  const extra=stageQueue.length>3?' · +'+(stageQueue.length-3)+' lượt':'';
+  fitBoardText(get('queue-led-3'),stageQueue.length?'1. '+stageWaitHint(activeShow,stageQueue[0])+extra:'',333);
+  const messages=[];
+  if(activeShow&&!activeShow.ending)messages.push(activeShow.track.title);
+  if(stageQueue.length)messages.push(stageQueue.length+' khách chờ hát');
+  if(trackQueue.length)messages.push('Bài kế: '+nextStageTrack(trackQueue[0].track).title);
+  get('show-queue').textContent=messages.join(' · ')||'Sân khấu đang chờ';
+}
+function requestTrack(name,track){
+  if(!Object.hasOwn(stageTracks,track)){
+    status('Bình luận rap, chill hoặc rock để chọn tiết mục.');
+    return;
+  }
+  const id=key(name),existing=trackQueue.find(item=>item.id===id);
+  if(existing)existing.track=track;
+  else if(trackQueue.length<12)trackQueue.push({id,track});
+  else{
+    status('Danh sách xin bài đang đầy, thử lại sau nhé.');
+    return;
+  }
+  updateShowQueue();
+  status(name+' xin bài '+nextStageTrack(track).title+' cho lượt sau.');
+}
+const reactionTimes=new Map();
+function reactToShow(name,type){
+  const show=activeShow;
+  if(!show?.endsAt||show.ending){
+    status('Chờ sân khấu sáng đèn rồi cổ vũ nha!');
+    return;
+  }
+  const now=performance.now(),id=key(name);
+  if(now-(reactionTimes.get(id)??-Infinity)<1000)return;
+  reactionTimes.set(id,now);
+  if(reactionTimes.size>100)reactionTimes.delete(reactionTimes.keys().next().value);
+  const hearts=type==='heart';
+  const layer=get('stage-reactions');
+  while(layer.children.length>=8)layer.firstElementChild.remove();
+  const burst=group(0,0);
+  burst.setAttribute('class',hearts?'stage-reaction hearts':'stage-reaction applause');
+  burst.setAttribute('data-reaction',type);
+  const seat=seated(name,true);
+  const x=seat?tablePosition(seat.tableX).x:(Math.random()<.5?150:650);
+  for(let index=0;index<5;index++){
+    burst.append(node('text',{x:x+(index-2)*31,y:695+(index%2)*22,
+      'font-size':index===2?36:25},hearts?'♥':index===2?'👏':'✦'));
+  }
+  layer.append(burst);
+  setTimeout(()=>burst.remove(),1800);
+  if(hearts)show.hearts++;
+  else show.applause++;
+  status(name+(hearts?' thả tim cho sân khấu.':' vỗ tay cổ vũ!'));
+}
+const audienceLines=[
+  'Hay quá, quên luôn ly trà đá!',
+  'Quán vỉa hè mà giọng sân vận động!',
+  'Hát nữa đi, bàn em còn đá!',
+  'Vỗ tay đi, hàng xóm chưa ngủ!',
+  'Ủa, quán mình mời ca sĩ hồi nào vậy?',
+  'Hay vậy, ai dám tính tiền nữa!'
+];
+let stageSound=null,currentSpeech=null;
+function onStage(id){return activeShow?.members.has(id)??false;}
+const speakerShape=get('speaker-stack');
+for(const placeholder of document.querySelectorAll('[data-stage-speaker]')){
+  const speaker=speakerShape.cloneNode(true);
+  speaker.removeAttribute('id');
+  speaker.setAttribute('transform',placeholder.getAttribute('transform'));
+  placeholder.replaceWith(speaker);
+}
+const speakerParts=document.querySelectorAll('#quang-canh .speaker-cone, #speaker-pulses .speaker-pulse');
+const spotlightTarget=get('spotlight-target');
+const spotlightCone=get('spotlight-cone');
+const spotlightAura=spotlightTarget?.querySelector('.spotlight-aura');
+const spotlightPool=spotlightTarget?.querySelector('.spotlight-pool');
+let spotlightFrame=null;
+const spotlightPos={x:400,y:580};
+function activeStagePerformer(show){
+  if(!show?.members.size)return null;
+  const members=[...show.members.values()];
+  return members.find(m=>m.actor.hasAttribute('data-stage-lead')&&!m.returning)
+    ||members.find(m=>m.ready&&!m.returning)
+    ||members.find(m=>!m.returning)
+    ||null;
+}
+function renderSpotlight(x,y,vip){
+  const clampedX=Math.max(165,Math.min(635,x));
+  const clampedY=Math.max(548,Math.min(612,y));
+  if(spotlightTarget){
+    spotlightTarget.setAttribute('transform','translate('+clampedX.toFixed(1)+' '+clampedY.toFixed(1)+')');
+  }
+  if(spotlightCone){
+    spotlightCone.setAttribute('points',
+      '384,344 416,344 '+(clampedX+74).toFixed(1)+','+clampedY.toFixed(1)+' '+(clampedX-74).toFixed(1)+','+clampedY.toFixed(1));
+  }
+  const grad=vip?'url(#follow-spotlight-vip)':'url(#follow-spotlight)';
+  spotlightAura?.setAttribute('fill',grad);
+  spotlightPool?.setAttribute('fill',grad);
+  get('quang-canh').classList.toggle('spotlight-vip',Boolean(vip));
+}
+function updateSpotlightNow(){
+  if(!activeShow)return;
+  const performer=activeStagePerformer(activeShow);
+  if(performer){
+    const pos=performer.actor.walkPosition;
+    const onStageDeck=pos&&pos.y<=-40;
+    const tx=onStageDeck?pos.x:performer.spot.x;
+    const ty=(onStageDeck?pos.y:performer.spot.y)+690;
+    const lerp=reduce.matches?1:0.14;
+    spotlightPos.x+=(tx-spotlightPos.x)*lerp;
+    spotlightPos.y+=(ty-spotlightPos.y)*lerp;
+  }
+  renderSpotlight(spotlightPos.x,spotlightPos.y,activeShow.vip);
+}
+function startSpotlightLoop(){
+  if(spotlightFrame)return;
+  const performer=activeStagePerformer(activeShow);
+  if(performer){
+    const pos=performer.actor.walkPosition;
+    const onStageDeck=pos&&pos.y<=-40;
+    spotlightPos.x=onStageDeck?pos.x:performer.spot.x;
+    spotlightPos.y=(onStageDeck?pos.y:performer.spot.y)+690;
+  }else{
+    spotlightPos.x=400;spotlightPos.y=580;
+  }
+  renderSpotlight(spotlightPos.x,spotlightPos.y,activeShow?.vip);
+  const step=()=>{
+    if(!activeShow){spotlightFrame=null;return;}
+    updateSpotlightNow();
+    spotlightFrame=requestAnimationFrame(step);
+  };
+  spotlightFrame=requestAnimationFrame(step);
+}
+function stopSpotlightLoop(){
+  if(spotlightFrame){
+    cancelAnimationFrame(spotlightFrame);
+    spotlightFrame=null;
+  }
+  get('quang-canh').classList.remove('spotlight-vip');
+}
+function setStage(active){
+  if(active)parkOwner(true);
+  const beat=active&&activeShow?activeShow.track.step*2+'s':'';
+  for(const part of speakerParts)part.style.animationDuration=beat;
+  get('quang-canh').classList.toggle('stage-performing',active);
+  get('stage-caption').setAttribute('visibility',active?'visible':'hidden');
+  if(active){
+    startSpotlightLoop();
+  }else{
+    stopSpotlightLoop();
+    get('stage-track').textContent='';
+  }
+  get('stage-notes').setAttribute('visibility',active?'visible':'hidden');
+}
+const speechGap=8000;
+const hostAudio=new Audio();
+const hostTtsCache=new Map();
+let hostTtsController=null;
+let hostAudioUrl=null;
+let hostAudioSource=null;
+let activeUtterance=null;
+let serverTtsRetryAt=0;
+let nextSpeechAt=0,speechTimeout;
+let browserVoiceStarted=false,hostVoiceUnlocked=false,openingGreetingPlayed=false;
+
+function revokeHostAudioUrl(){
+  if(hostAudioUrl){
+    URL.revokeObjectURL(hostAudioUrl);
+    hostAudioUrl=null;
+  }
+}
+
+function stopHostSpeech(){
+  clearTimeout(speechTimeout);
+  if(hostTtsController){
+    hostTtsController.abort();
+    hostTtsController=null;
+  }
+  if(hostAudioSource){
+    try{hostAudioSource.onended=null;hostAudioSource.stop();hostAudioSource.disconnect();}catch{}
+    hostAudioSource=null;
+  }
+  if(currentSpeech){
+    currentSpeech=null;
+    hideOwnerSpeech();
+    nextSpeechAt=performance.now()+speechGap;
+    queueMicrotask(playGiftAnnouncements);
+    hostAudio.onplaying=null;
+    hostAudio.onended=null;
+    hostAudio.onerror=null;
+    hostAudio.pause();
+    hostAudio.removeAttribute('src');
+    hostAudio.load();
+    revokeHostAudioUrl();
+    activeUtterance=null;
+    window.speechSynthesis?.cancel();
+  }
+}
+
+function speakWithBrowserTts(text,rate,ownerSpeaking,request){
+  const speech=window.speechSynthesis;
+  if(!speech||typeof SpeechSynthesisUtterance==='undefined')return null;
+  try{speech.resume();}catch{}
+  const voices=speech.getVoices();
+  const voice=voices.find(item=>/^vi(?:[-_]|$)/i.test(item.lang)||/(?:Vietnamese|Tiếng Việt)/i.test(item.name));
+  const utterance=new SpeechSynthesisUtterance(text);
+  if(voice)utterance.voice=voice;
+  utterance.lang='vi-VN';
+  utterance.rate=rate;
+  activeUtterance=utterance;
+  const req=request??utterance;
+  currentSpeech=req;
+  const finish=()=>{
+    if(currentSpeech!==req)return false;
+    clearTimeout(speechTimeout);
+    currentSpeech=null;
+    activeUtterance=null;
+    hideOwnerSpeech();
+    nextSpeechAt=performance.now()+speechGap;
+    queueMicrotask(playGiftAnnouncements);
+    if(audio?.state==='interrupted'||audio?.state==='suspended')primeAudio();
+    return true;
+  };
+  const timeout=()=>{
+    if(currentSpeech!==req)return;
+    browserVoiceStarted=false;
+    finish();
+    speech.cancel();
+  };
+  speechTimeout=setTimeout(timeout,4500);
+  utterance.onstart=()=>{
+    if(currentSpeech!==req)return;
+    clearTimeout(speechTimeout);
+    speechTimeout=setTimeout(timeout,15000);
+    if(ownerSpeaking)showOwnerSpeech(text);
+  };
+  utterance.onend=finish;
+  utterance.onerror=()=>{
+    if(currentSpeech===req)browserVoiceStarted=false;
+    finish();
+  };
+  try{
+    speech.speak(utterance);
+  }catch{
+    finish();
+    return null;
+  }
+  return req;
+}
+
+function speakVietnamese(text,rate=1.04,manual=false,ownerSpeaking=true){
+  if(!voiceOn||masterMuted||currentSpeech||(!manual&&performance.now()<nextSpeechAt))return null;
+  if(!hostVoiceUnlocked)return null;
+  const cleanText=String(text||'').trim();
+  if(!cleanText)return null;
+
+  if(performance.now()>=serverTtsRetryAt){
+    const request={text:cleanText};
+    currentSpeech=request;
+    const finish=(failed=false,notAllowed=false)=>{
+      if(currentSpeech!==request)return;
+      clearTimeout(speechTimeout);
+      if(hostTtsController){
+        hostTtsController=null;
+      }
+      if(hostAudioSource){
+        try{hostAudioSource.onended=null;hostAudioSource.stop();hostAudioSource.disconnect();}catch{}
+        hostAudioSource=null;
+      }
+      currentSpeech=null;
+      hideOwnerSpeech();
+      nextSpeechAt=performance.now()+speechGap;
+      hostAudio.onplaying=null;
+      hostAudio.onended=null;
+      hostAudio.onerror=null;
+      revokeHostAudioUrl();
+      if(notAllowed&&cleanText==='Quán mở cửa rồi!')openingGreetingPlayed=false;
+      if(failed){
+        serverTtsRetryAt=performance.now()+15000;
+        const fallback=speakWithBrowserTts(cleanText,rate,ownerSpeaking);
+        if(fallback)return;
+      }
+      queueMicrotask(playGiftAnnouncements);
+    };
+
+    const controller=new AbortController();
+    hostTtsController=controller;
+    speechTimeout=setTimeout(()=>finish(false),24000);
+
+    (async()=>{
+      try{
+        await primeAudio();
+        let entry=hostTtsCache.get(cleanText);
+        if(!entry){
+          const res=await fetch('./api/host-voice?'+new URLSearchParams({text:cleanText}),{signal:controller.signal});
+          if(!res.ok)throw new Error('TTS HTTP '+res.status);
+          const type=res.headers.get('content-type')||'audio/mpeg';
+          const buffer=await res.arrayBuffer();
+          if(!buffer.byteLength)throw new Error('Empty TTS audio');
+          entry={buffer,type};
+          if(hostTtsCache.size>=60)hostTtsCache.delete(hostTtsCache.keys().next().value);
+          hostTtsCache.set(cleanText,entry);
+        }
+        if(currentSpeech!==request||controller.signal.aborted)return;
+
+        if(audio&&audio.state==='running'){
+          try{
+            const decoded=await audio.decodeAudioData(entry.buffer.slice(0));
+            if(currentSpeech!==request||controller.signal.aborted)return;
+            const src=audio.createBufferSource();
+            src.buffer=decoded;
+            src.playbackRate.value=rate;
+            const gain=audio.createGain();
+            gain.gain.value=1.0;
+            src.connect(gain);
+            gain.connect(audio.destination);
+            hostAudioSource=src;
+            clearTimeout(speechTimeout);
+            const expectedMs=Math.max(3000,Math.ceil((decoded.duration/Math.max(0.5,rate))*1000)+2500);
+            speechTimeout=setTimeout(()=>finish(false),expectedMs);
+            if(ownerSpeaking)showOwnerSpeech(cleanText);
+            src.onended=()=>{
+              try{src.disconnect();gain.disconnect();}catch{}
+              if(hostAudioSource===src)hostAudioSource=null;
+              finish(false);
+            };
+            src.start();
+            return;
+          }catch{}
+        }
+
+        if(currentSpeech!==request||controller.signal.aborted)return;
+        revokeHostAudioUrl();
+        hostAudioUrl=URL.createObjectURL(new Blob([entry.buffer],{type:entry.type}));
+        hostAudio.onplaying=()=>{
+          if(currentSpeech!==request)return;
+          clearTimeout(speechTimeout);
+          speechTimeout=setTimeout(()=>finish(false),22000);
+          if(ownerSpeaking)showOwnerSpeech(cleanText);
+        };
+        hostAudio.onended=()=>finish(false);
+        hostAudio.onerror=()=>finish(true);
+        hostAudio.src=hostAudioUrl;
+        hostAudio.playbackRate=rate;
+        await hostAudio.play();
+      }catch(err){
+        if(controller.signal.aborted||currentSpeech!==request)return;
+        serverTtsRetryAt=performance.now()+300000;
+        const fallback=speakWithBrowserTts(cleanText,rate,ownerSpeaking,request);
+        if(fallback)return;
+        const notAllowed=err?.name==='NotAllowedError';
+        finish(!notAllowed,notAllowed);
+      }
+    })();
+    return request;
+  }
+
+  return speakWithBrowserTts(cleanText,rate,ownerSpeaking);
+}
+function stopStageSound(){
+  if(stageSound){
+    clearInterval(stageSound.timer);
+    stageSound.oscillators.forEach(osc=>{
+      try{osc.stop();}catch(error){if(error.name!=='InvalidStateError')throw error;}
+    });
+    stageSound.bus.disconnect();
+    stageSound=null;
+  }
+}
+// Queue a short audio window and skip expired beats after a suspended tab resumes.
+function scheduleMusic(show,step,tail,play){
+  const sound=stageSound,start=audio.currentTime+.06;
+  let index=0;
+  function fill(){
+    if(stageSound!==sound||show.ending||audio.state!=='running')return;
+    const now=audio.currentTime;
+    index=Math.max(index,Math.ceil((now-start)/step));
+    const remaining=(show.endsAt-performance.now())/1000;
+    const until=now+Math.min(.7,remaining-tail);
+    while(start+index*step<until){
+      play(index,start+index*step);
+      index++;
+    }
+  }
+  sound.timer=setInterval(fill,160);
+  fill();
+}
+function playStageSound(show){
+  if(stageSound||audio?.state!=='running')return;
+  const remaining=(show.endsAt-performance.now())/1000;
+  if(remaining<.5)return;
+  const {rap,track}=show;
+  if(track.motion==='dance'){playDanceBeat(show);return;}
+  const bus=audio.createGain();
+  const volume=.5;
+  bus.gain.value=volume;
+  bus.connect(audio.destination);
+  const oscillators=new Set();
+  stageSound={bus,oscillators};
+  const {melody,step}=track;
+  scheduleMusic(show,step,step,(index,when)=>{
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    const kick=rap&&index%4===0;
+    osc.type=kick?'sine':rap?'triangle':index%4===0?'triangle':'sine';
+    osc.frequency.setValueAtTime(kick?112:440*2**((melody[index%melody.length]-69)/12),when);
+    if(kick)osc.frequency.exponentialRampToValueAtTime(48,when+.16);
+    gain.gain.setValueAtTime(.001,when);
+    gain.gain.exponentialRampToValueAtTime(kick ? .19 : .075,when+.025);
+    gain.gain.exponentialRampToValueAtTime(.001,when+step-.02);
+    osc.connect(gain);gain.connect(bus);
+    oscillators.add(osc);
+    osc.onended=()=>{oscillators.delete(osc);osc.disconnect();gain.disconnect();};
+    osc.start(when);osc.stop(when+step);
+  });
+}
+
+function giftMixLevel(coins){
+  if(coins>=3000)return 4;
+  if(coins>=1000)return 3;
+  if(coins>=300)return 2;
+  return coins>0?1:0;
+}
+
+const flowerMixCoins=[0,60,300,1000,3000];
+function raiseShowMix(show,member){
+  show.giftCoins=Math.max(show.giftCoins,member.giftCoins,flowerMixCoins[flowerVipLevel(member.flowers)]);
+  if(member.backupFlowers>=50n||member.backupGifts>=50)startBackupDancers(show);
+}
+
+function countFireworksGifts(member,flowers,gifts,now=performance.now()){
+  if(now-(member.lastFireworksGiftAt??-Infinity)>=5000){
+    member.fireworksFlowers=0n;
+    member.fireworksGifts=0;
+  }
+  member.lastFireworksGiftAt=now;
+  member.fireworksFlowers+=flowers;
+  member.fireworksGifts+=gifts;
+  if(member.fireworksFlowers>=100n||member.fireworksGifts>=100){
+    member.fireworksFlowers%=100n;
+    member.fireworksGifts%=100;
+    launchStageFireworks();
+  }
+}
+
+function playDanceBeat(show){
+  const bus=audio.createGain();
+  const volume=.42;
+  bus.gain.value=volume;
+  bus.connect(audio.destination);
+  const oscillators=new Set();
+  stageSound={bus,oscillators};
+
+  const noise=audio.createBuffer(1,audio.sampleRate*.12,audio.sampleRate);
+  const samples=noise.getChannelData(0);
+  for(let i=0;i<samples.length;i++)samples[i]=(Math.random()*2-1)*(1-i/samples.length);
+  const start=audio.currentTime;
+  show.audioStart=start;
+  function tone(when,freq,length,volume,type='sine',drop){
+    const osc=audio.createOscillator(),gain=audio.createGain();
+    osc.type=type;osc.frequency.setValueAtTime(freq,when);
+    if(drop)osc.frequency.exponentialRampToValueAtTime(drop,when+length);
+    gain.gain.setValueAtTime(.001,when);
+    gain.gain.exponentialRampToValueAtTime(volume,when+.005);
+    gain.gain.exponentialRampToValueAtTime(.001,when+length);
+    osc.connect(gain);gain.connect(bus);oscillators.add(osc);
+    osc.onended=()=>{oscillators.delete(osc);osc.disconnect();gain.disconnect();};
+    osc.start(when);osc.stop(when+length+.01);
+  }
+  function hit(when,volume,high){
+    const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();
+    src.buffer=noise;filter.type='highpass';filter.frequency.value=high;
+    gain.gain.setValueAtTime(volume,when);gain.gain.exponentialRampToValueAtTime(.001,when+.1);
+    src.connect(filter);filter.connect(gain);gain.connect(bus);oscillators.add(src);
+    src.onended=()=>{oscillators.delete(src);src.disconnect();filter.disconnect();gain.disconnect();};src.start(when);src.stop(when+.12);
+  }
+  const bass=show.track.bass??[48,48,55,53,48,51,55,58];
+  const riff=show.track.melody;
+  scheduleMusic(show,show.track.step,.15,(n,when)=>{
+    const beat=Math.floor(n/2);
+    const mix=giftMixLevel(show.giftCoins);
+    if(n%2===0){
+      tone(when,145,.15,.5,'sine',43);
+      tone(when,440*2**((bass[beat%bass.length]-69)/12),.2,.13,'triangle');
+      if(beat%2===1)hit(when,.22,1300);
+    }
+    hit(when,.07,7000);
+    if(mix>=1&&n%8>=6)hit(when+.1,.11,4800);
+    if(mix>=2&&n%8===7)tone(when+.07,108,.11,.18,'sine',46);
+    if(mix>=3&&n%16===0)hit(when,.14,3100);
+    if(mix>=4&&n%16>=13)hit(when+.08,.12,2200);
+    if(n%2===0){
+      const root=440*2**((bass[beat%bass.length]-69)/12);
+      tone(when,root*2,.16,mix?.075:.045,'sawtooth');
+      tone(when,root*3,.15,mix?.05:.025,'sawtooth');
+      if(mix>=2)tone(when,root*2.997,.14,.032,'triangle');
+    }
+    if(n%4===1||n%4===3){
+      const lead=440*2**((riff[Math.floor(n/4)%riff.length]-69)/12);
+      tone(when,lead,.13,.07,'triangle');
+      if(mix>=3)tone(when+.035,lead*2,.11,.032,'triangle');
+    }
+  });
+}
+function startBackupDancers(show){
+  if(show.backupDancers||show.ending)return;
+  const dancers=[];
+  show.backupDancers=dancers;
+  const layer=group(0,0);
+  show.backupLayer=layer;
+  layer.setAttribute('aria-label','Sáu nhân viên nữ nhảy phụ họa');
+  layer.setAttribute('data-depth-sorted','');
+  layer.setAttribute('data-session-actor','');
+  layer.depthY=-153;
+  layers.walking.append(layer);
+  syncActorDepth(layer);
+  for(let i=2;i>=0;i--){
+    for(const side of [-1,1]){
+      const actor=character(side<0?'#885cbd':'#367c9b',{gender:'female'});
+      actor.setAttribute('data-backup-dancer','');
+      const outfit=actor.querySelector('.actor-body');
+      line(outfit,'M-11 -30L10 -17','#ffe0a5',2.5);
+      line(outfit,'M-14 -11H14','#ffe0a5',1.5);
+      ellipse(outfit,-7,-51,4,3,'#ffe0a5');
+      // Enter through the open apron below the speakers before turning upstage.
+      const entry={x:side<0?-35:835,y:24};
+      const wingX=400+side*202;
+      const spot={x:400+side*(198-i*44),y:-153-i*13};
+      const dancer={actor,ready:false,wing:side};
+      dancers.push(dancer);
+      layer.append(actor);
+      positionActor(actor,entry);
+      walk(actor,[entry,{x:wingX,y:24},{x:wingX,y:spot.y},spot],650+i*125,show.epoch).then(arrived=>{
+        if(!arrived||activeShow!==show||show.ending)return;
+        dancer.ready=true;
+        actor.setAttribute('data-stage-motion','dance');
+        if(!show.danceFrame)animateDance(show);
+      });
+    }
+  }
+}
+
+function animateDance(show){
+  function draw(){
+    if(activeShow!==show||show.ending)return;
+    const elapsed=show.audioStart!==undefined&&audio?.state==='running'
+      ?audio.currentTime-show.audioStart:(performance.now()-show.startedAt)/1000;
+    const beat=elapsed/(2*show.track.step);
+    const phase=Math.floor(elapsed/5)%3;
+    const pulse=Math.sin(beat*Math.PI*2);
+    const performers=show.track.motion==='dance'?[...show.members.values()]:[];
+    const dancers=show.backupDancers??[];
+    for(const [index,member] of [...performers,...dancers].entries()){
+      if(!member.ready)continue;
+      const actor=member.actor,body=actor.querySelector('.actor-body');
+      const backup=Boolean(member.wing);
+      const sway=Math.sin(beat*Math.PI);
+      const side=backup?sway*member.wing:Math.sin(beat*Math.PI+index*.25);
+      const hop=backup?Math.max(0,pulse)*4:phase===2?Math.max(0,pulse)*(show.vip?19:10):Math.max(0,pulse)*(show.vip?7:3);
+      const cycle=((beat+index*.2)%8+8)%8;
+      const spinning=!backup&&(show.vip?cycle>=4:cycle>=6);
+      const spinProgress=spinning?(cycle-6)/2:0;
+      const turn=show.vip?(spinning?(cycle-4)/4*720:0):spinProgress*360;
+      const orbit=spinning?Math.sin(spinProgress*Math.PI*2)*5:0;
+      body.style.transformOrigin='0px -28px';
+      body.style.transform='translate('+(side*(phase===2?10:7)+orbit)+'px,'+(-hop)
+        +'px) rotate('+side*5+'deg) rotateY('+turn+'deg)';
+      actor.toggleAttribute('data-dance-spin',spinning);
+      const angles=backup?[45+side*32,-45+side*32,sway*18,-sway*18]:spinning?[65,-65,side*12,-side*12]:phase===0?[side*44,-side*44,side*27,-side*27]
+        :phase===1?[30+pulse*60,-30-pulse*60,side*18,-side*18]
+        :[75+side*35,-75-side*35,side*44,-side*44];
+      ['.actor-arm-left','.actor-arm-right','.actor-foot-left','.actor-foot-right'].forEach((selector,i)=>{
+        const path=actor.querySelector(selector+' path');
+        if(path)path.style.transform='rotate('+angles[i]+'deg)';
+      });
+    }
+    show.danceFrame=requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function cheerStage(){
+  const audience=seats.filter(({person})=>person?.state==='seated'&&!onStage(person.id));
+  const fan=oneOf(audience);
+  tableDialogue(fan?.tableX??400,fan?.person.name??'Khán giả',oneOf(audienceLines),true);
+}
+const ownerMovesByGenre={
+  chill:['rotate(0deg)','translateX(-3px) rotate(-5deg)','translateX(3px) rotate(5deg)','rotate(0deg)'],
+  rap:['translateY(0)','translateY(3px) rotate(8deg)','translateY(0)','translateY(3px) rotate(-5deg)','translateY(0)'],
+  rock:['translateY(0)','translate(-6px,-11px) rotate(-9deg)','translateY(0)',
+    'translate(6px,-11px) rotate(9deg)','translateY(0)']
+};
+const audienceMovesByGenre={
+  chill:{share:.25,beats:4,frames:[
+    {transform:'translate(0,6px) rotate(0deg)'},
+    {transform:'translate(-2px,6px) rotate(-5deg)'},
+    {transform:'translate(2px,6px) rotate(5deg)'},
+    {transform:'translate(0,6px) rotate(0deg)'}]},
+  rap:{share:1/3,beats:2,frames:[
+    {transform:'translateY(6px)'},{transform:'translateY(2px) rotate(7deg)'},
+    {transform:'translateY(6px)'},{transform:'translateY(2px) rotate(7deg)'},
+    {transform:'translateY(6px)'}]},
+  rock:{share:.4,beats:2,frames:[
+    {transform:'translateY(6px)'},{transform:'translateY(-3px) rotate(-8deg)'},
+    {transform:'translateY(6px)'},{transform:'translateY(-3px) rotate(8deg)'},
+    {transform:'translateY(6px)'}]}
+};
+function moveSeatedAudience(show,now){
+  if(reduce.matches||now<(show.nextAudienceAt??0))return;
+  const style=audienceMovesByGenre[show.genre];
+  const beatMs=show.track.step*2000;
+  const beat=Math.ceil(Math.max(0,now-show.startedAt)/beatMs);
+  const start=show.startedAt+beat*beatMs;
+  show.nextAudienceAt=start+8*beatMs;
+  show.audienceMoves?.forEach(animation=>animation.cancel());
+  show.audienceMoves=[];
+  if(ownerOutfit.animate){
+    const frames=ownerMovesByGenre[show.genre].map(transform=>({transform}));
+    show.audienceMoves.push(ownerOutfit.animate(frames,{
+      duration:beatMs*style.beats,iterations:8/style.beats,
+      delay:Math.max(0,start-now),easing:'ease-in-out'
+    }));
+  }
+  const audience=seats.filter(({person})=>person?.state==='seated'&&!onStage(person.id));
+  if(audience.length<2)return;
+  const count=Math.max(1,Math.round(audience.length*style.share));
+  const offset=show.audienceOffset??0;
+  show.audienceOffset=(offset+1)%audience.length;
+  for(let i=0;i<count;i++){
+    const index=(offset+Math.floor(i*audience.length/count))%audience.length;
+    const body=audience[index].person.actor.querySelector('.actor-body');
+    if(!body?.animate)continue;
+    show.audienceMoves.push(body.animate(style.frames,{
+      duration:beatMs*style.beats,iterations:2,delay:Math.max(0,start-now)+(i%3)*beatMs*.08,
+      easing:'ease-in-out'
+    }));
+  }
+}
+
+function stageTick(show){
+  const now=performance.now();
+  for(const member of show.members.values()){
+    if(member.ready&&member.endsAt<=now)void returnPerformer(show,member);
+  }
+  const ready=[...show.members.values()].filter(member=>member.ready);
+  if(stageQueue.length&&now-(show.queueShownAt??-Infinity)>=5000){
+    show.queueShownAt=now;
+    updateShowQueue();
+  }
+  if(!ready.length){
+    show.audienceMoves?.forEach(animation=>animation.cancel());
+    return;
+  }
+  moveSeatedAudience(show,now);
+  if(show.nextVerse<=now){
+    const lead=ready[show.verseIndex%ready.length];
+    show.lead=lead.person.name;
+    ready.forEach(member=>member.actor.toggleAttribute('data-stage-lead',member===lead));
+    const {verses}=show.track;
+    if(voiceOn&&(currentSpeech||giftAnnouncements.length||viewerGreetings.length)){
+      show.nextVerse=now+250;
+      return;
+    }
+    if(voiceOn&&verses?.length){
+      const lyric=verses[show.verseIndex%verses.length];
+      speakVietnamese(lyric,show.rap?1.18:.95,true,false);
+    }
+    show.verseIndex++;
+    show.nextVerse=now+(show.rap?3900:show.track.motion==='dance'?6500:4600);
+    cheerStage();
+  }
+  const genre=show.genre;
+  const mix=genre==='rock'?giftMixLevel(show.giftCoins):0;
+  const mixLabel=['',' · VIP',' · TRỐNG DỒN',' · CAO TRÀO',' · ĐẠI NHẠC HỘI'][mix];
+  fitBoardText(get('stage-track'),'ĐANG PHÁT · '+genre.toUpperCase()+' · '+show.track.title+mixLabel,480);
+}
+function stageRoute(seat,spot,origin=entry){
+  if(seat){
+    return [()=>({x:seat.x,y:seat.y}),()=>({x:seat.aisleX,y:seat.y}),
+      ()=>({x:seat.aisleX,y:Math.min(58,currentWalkwayY())}),{x:400,y:12},{x:400,y:-37},spot];
+  }
+  return [...roadApproach(origin,309),{x:309,y:58},{x:400,y:12},{x:400,y:-37},spot];
+}
+function addPerformer(show,gift,seat){
+  const person=seat?.person??gift;
+  const positions=show.vip?[400,490,310,570,230]:[300,500,230,570,400];
+  const x=positions.find(position=>![...show.members.values()].some(member=>member.spot.x===position))??400;
+  const spot={x,y:show.vip?-96:-125};
+  const passer=seat?null:takePasser(gift.id);
+  const origin=passer?.origin??gift.origin??entry;
+  const route=stageRoute(seat,spot,origin);
+  const color=person.color??(seat?colors[seat.index]:colors[show.members.size%colors.length]);
+  const gender=gift.gender||person.gender||passer?.gender||'';
+  const actor=passer&&passer.gender===gender?passer.actor:character(color,
+    {name:person.name,avatar:gift.avatar||person.avatar,gender});
+  if(passer&&actor!==passer.actor)passer.actor.remove();
+  actor.setAttribute('data-performer','');
+  actor.setAttribute('data-session-actor','');
+  if(gift.tier==='vip'){
+    actor.setAttribute('data-vip','');
+    const halo=node('ellipse',{cx:0,cy:-3,rx:28,ry:8,fill:'#ffd05b','fill-opacity':'.25',stroke:'#ffe79b','stroke-width':2});
+    actor.insertBefore(halo,actor.firstChild);
+    markVip(actor);
+  }
+  actor.setAttribute('data-stage-origin',seat?'seat':passer?'road':'entry');
+  const member={person,seat,spot,actor,origin,ready:false,returning:false,guestRequest:Boolean(gift.tier),tier:gift.tier,giftCoins:gift.coins??0,flowers:gift.flowers??0n,
+    backupFlowers:gift.backupFlowers??0n,backupGifts:gift.backupGifts??0};
+  if(!seat&&member.guestRequest&&(member.tier==='vip'||!queue.length)){
+    if(!seats.some(s=>!s.person&&!s.reservedFor))addDiningTable();
+    member.returnSeat=seats.find(s=>!s.person&&!s.reservedFor);
+    if(member.returnSeat)member.returnSeat.reservedFor=person.id;
+    info();
+  }
+  show.members.set(person.id,member);
+  if(seat){
+    person.actor.setAttribute('visibility','hidden');
+    const marker=group(seat.x,seat.y);
+    marker.setAttribute('data-stage-seat',person.name);
+    marker.append(node('text',{x:0,y:-13,'text-anchor':'middle',fill:'#ffd391',
+      'font-size':14,'font-weight':800},'♫ Giữ chỗ'));
+    person.stageMarker=marker;
+    (seat.back?layers.backPeople:layers.frontPeople).append(marker);
+  }
+  layers.walking.append(actor);
+  positionActor(actor,typeof route[0]==='function'?route[0]():route[0]);
+  member.arrival=walk(actor,route,1450,show.epoch,true).then(ok=>{
+    if(!ok||activeShow!==show||show.ending||member.returning)return;
+    member.ready=true;
+    raiseShowMix(show,member);
+    if(member.backupFlowers||member.backupGifts)countFireworksGifts(member,member.backupFlowers,member.backupGifts);
+    updateShowQueue();
+    const now=performance.now();
+    member.endsAt=now+(gift.tier==='vip'?vipShowDuration:regularShowDuration);
+    show.endsAt=Math.max(show.endsAt??0,member.endsAt);
+    actor.setAttribute('data-stage-motion',show.track.motion);
+    actor.style.setProperty('--move-delay',(-.14*[...show.members.values()].indexOf(member))+'s');
+    if(!show.tick){
+      show.startedAt=now;
+      if(show.track.motion==='dance'&&!show.danceFrame)animateDance(show);
+      setStage(true);
+      playStageSound(show);
+      show.tick=setInterval(()=>stageTick(show),250);
+      status(show.idle?person.name+' mở màn '+(show.rap?'với một đoạn rap!':'trên sân khấu!'):show.free?'Tiết mục miễn phí bắt đầu!':'Tiết mục VIP bắt đầu!');
+      stageTick(show);
+    }
+  });
+}
+async function returnPerformer(show,member){
+  if(member.returning)return;
+  if(show.namedSong)songFlowers.delete(member.person.id);
+  member.returning=true;
+  member.ready=false;
+  updateShowQueue();
+  await member.arrival;
+  if(activeShow!==show)return;
+  const {person,seat,spot,actor,origin}=member;
+  actor.querySelectorAll('.actor-body,.actor-stage-limbs path').forEach(part=>{
+    part.style.removeProperty('transform');
+    part.style.removeProperty('transform-origin');
+  });
+  for(const attribute of ['data-dance-spin','data-stage-motion','data-stage-lead']){
+    actor.removeAttribute(attribute);
+  }
+  const reserved=seat?.person===person?seat:null;
+  const destination=departedGuests.has(person.id)?null:reserved??member.returnSeat;
+  await walk(actor,stageRoute(destination,spot,origin).reverse(),1450,show.epoch,true);
+  if(activeShow!==show)return;
+  actor.remove();
+  if(reserved?.person===person){
+    person.stageMarker?.remove();
+    delete person.stageMarker;
+    person.actor.removeAttribute('visibility');
+  }
+  show.members.delete(person.id);
+  if(member.returnSeat)delete member.returnSeat.reservedFor;
+  if(departedGuests.has(person.id)){
+    if(reserved)void leave(person.name,true);
+    else if(queue.some(item=>item.id===person.id))void leave(person.name,true);
+  }else if(!reserved&&member.guestRequest){
+    const returnSeat=member.returnSeat;
+    person.priority=member.tier==='vip'||Boolean(person.priority);
+    if(returnSeat&&!returnSeat.person)takeSeat(person,returnSeat,destination===returnSeat);
+    else join(person.name,person.avatar,person.gender,{priority:member.tier==='vip'});
+  }
+  info();
+  if(!show.members.size)endShow(show);
+  else advanceStage();
+  advanceWaiting();
+  serve();
+}
+function endShow(show){
+  if(activeShow!==show||show.ending||show.members.size)return;
+  show.ending=true;
+  cancelAnimationFrame(show.danceFrame);
+  show.backupLayer?.remove();
+  show.audienceMoves?.forEach(animation=>animation.cancel());
+  get('stage-fireworks').replaceChildren();
+  clearInterval(show.tick);
+  stopStageSound();
+  setStage(false);
+  get('audience-dialogue').replaceChildren();
+  get('stage-reactions').replaceChildren();
+  activeShow=null;
+  status('Tiết mục kết thúc. Mời khách về bàn!');
+  updateShowQueue();
+  advanceStage();
+}
+function openShow(idle,rap=false,previewTrack,tier){
+  clearTimeout(idleTimer);idleTimer=null;
+  const request=previewTrack||tier==='vip'?undefined:trackQueue.shift();
+  const kind=previewTrack??(tier==='vip'?'rock':request?.track??(rap?'rap':'chill'));
+  const track=nextStageTrack(kind);
+  nextTrackIndex[kind]=(nextTrackIndex[kind]+1)%(extraStageTracks[kind].length+1);
+  const show={genre:kind,idle,free:tier==='free',vip:tier==='vip',preview:Boolean(previewTrack),rap:kind==='rap',track,request,epoch,members:new Map(),
+    endsAt:null,ending:false,verseIndex:0,nextVerse:0,applause:0,hearts:0,giftCoins:0};
+  reactionTimes.clear();
+  activeShow=show;updateShowQueue();
+  return show;
+}
+function armIdle(){
+  if(idleTimer!==null||activeShow||stageQueue.length)return;
+  idleTimer=setTimeout(()=>{
+    idleTimer=null;
+    if(activeShow||stageQueue.length)return;
+    const samples=seats.filter(seat=>seat.person?.sample&&seat.person.state==='seated');
+    const opener=lastIdleSinger===null?samples.find(seat=>seat.person.name===rapperName):null;
+    const seatedChoices=samples.filter(seat=>seat.person.id!==lastIdleSinger);
+    const roadChoices=[...passers.values()].filter(passer=>passer.sample&&passer.id!==lastIdleSinger
+      &&passer.actor.walkPosition.x>=60&&passer.actor.walkPosition.x<=740
+      &&!queue.some(guest=>guest.id===passer.id));
+    const passer=!opener&&(!lastIdleFromRoad||!samples.length)?oneOf(roadChoices):null;
+    const seat=opener??(passer?null:oneOf(seatedChoices.length?seatedChoices:samples));
+    const [name,color,hair]=oneOf(visitors.filter(([name])=>!seated(name,true)&&!passers.has(key(name))
+      &&!queue.some(guest=>guest.id===key(name))))??['Ca sĩ vỉa hè','#f0a365','#413143'];
+    const person=seat?.person??passer??{id:key(name),name,color,avatar:sampleAvatar(color,hair)};
+    lastIdleSinger=person.id;
+    lastIdleFromRoad=Boolean(passer);
+    const goalTrack=pendingGoalTrack;
+    pendingGoalTrack=undefined;
+    const show=openShow(true,person.name===rapperName,goalTrack??trackQueue.shift()?.track??(person.name===rapperName?'rap':oneOf(['rap','chill','rock'])));
+    if(passer)status(person.name+' đang đi ngang, ghé lên hát!');
+    addPerformer(show,person,seat);
+  },lastIdleSinger===null?20000:32000);
+}
+function receiveGift({name,avatarUrl:photo,gender,eventId,vipLevel,count=1,unitCoins,giftTier,giftName='',choice,stageTest=false,flowers=0n}={},previewTrack,tier='vip',fromLive=false){
+  name=typeof name==='string'?name.trim():'';
+  unitCoins=Number(unitCoins??weights[giftTier]??1);
+  if(tier==='vip'&&(!Number.isSafeInteger(unitCoins)||unitCoins<1||!Number.isSafeInteger(count)||count<1||!Number.isSafeInteger(count*unitCoins)))return;
+  if(!name||typeof eventId==='string'&&seenGifts.has(eventId))return;
+  if(typeof eventId==='string'&&eventId){
+    seenGifts.add(eventId);
+    if(seenGifts.size>300)seenGifts.delete(seenGifts.values().next().value);
+  }
+  const id=key(name);
+  if(tier==='vip'&&!stageTest){
+    songFlowers.set(id,(songFlowers.get(id)||0n)+BigInt(unitCoins)*BigInt(count));
+    refreshSongPickers();
+  }
+  const pendingSong=stageQueue.find(item=>item.id===id&&item.song);
+  if(pendingSong&&tier==='vip'&&!stageTest){
+    pendingSong.flowers=songFlowers.get(id);pendingSong.backupFlowers=pendingSong.flowers;
+  }
+  if(fromLive)touchGuest(id);
+  const performing=activeShow?.members.get(id);
+  const giftCount=tier==='vip'&&!stageTest?count:0;
+  const stageFlowers=flowers||(tier==='vip'&&!stageTest?BigInt(unitCoins)*BigInt(count):0n);
+  if(performing&&!performing.returning&&tier==='vip'){
+    performing.giftCoins+=stageTest?(flowers?0:60):unitCoins*count;
+    performing.flowers+=stageFlowers;
+    if(performing.ready){
+      performing.backupFlowers+=stageFlowers;
+      performing.backupGifts+=giftCount;
+      raiseShowMix(activeShow,performing);
+      if(stageFlowers||giftCount)countFireworksGifts(performing,stageFlowers,giftCount);
+    }else{
+      if(stageFlowers>performing.backupFlowers)performing.backupFlowers=stageFlowers;
+      performing.backupGifts=Math.max(performing.backupGifts,giftCount);
+    }
+  }
+  if(tier==='vip'&&!stageTest){
+    const label=typeof giftName==='string'?giftName.trim().slice(0,30):'';
+    queueGiftAnnouncement(name,count,unitCoins*count,label);
+    const previous=vipProfiles.get(id);
+    const level=Number.isInteger(vipLevel)&&vipLevel>=1?vipLevel:previous?.level??1;
+    const amount=Number.isFinite(count)&&count>0?Math.floor(count):1;
+    vipProfiles.set(id,{key:id,name,nickname:liveNames.get(id)||previous?.nickname,coins:(previous?.coins||0)+unitCoins*count,level,gifts:(Number(previous?.gifts)||0)+amount});
+    vipGuests.add(id);
+    saveVipProfiles();
+    const customer=seated(name,true)?.person;
+    if(customer?.actor)markVip(customer.actor);
+    const passer=passers.get(id);
+    if(passer?.actor)markVip(passer.actor);
+    const performer=activeShow?.members.get(id);
+    if(performer?.actor)markVip(performer.actor);
+  }
+  if(tier==='vip'&&!stageTest){
+    const level=unitCoins>=60?'solo':unitCoins>=30?'large':unitCoins>=10?'medium':'small';
+    const occupied=seated(name,true);
+    if((!occupied||occupied.person.sample)&&!onStage(id)){
+      join(name,avatarUrl(photo),normalizeGender(gender),{priority:true});
+    }else if(occupied&&!occupied.person.sample){
+      occupied.person.priority=true;
+    }
+    const before=board(), amount=Number.isFinite(count)?Math.max(1,Math.floor(count)):1;
+    recordDailyGifts(name,BigInt(amount),unitCoins*amount);
+    const total=board();loyalty(name,1);
+    if(total>=nextGoal(before))reachGoals(total);
+    const now=performance.now();
+    const giftEffect=now-lastGiftEffect>=6000;
+    const fxIntensity=level==='solo'?4:level==='large'?3:level==='medium'?2:1;
+    launchGiftFireworks(fxIntensity);
+    thankGuestSparkle(name,'🎆 Cảm ơn '+(giftName?.trim()||count+' quà')+'!');
+    if(unitCoins>=10000&&giftEffect){
+      lastGiftEffect=now;
+      celebrateStarGift(name,unitCoins*amount);
+    }
+    const short=shortGuestName(name);
+    if(level==='small'){
+      const own=seated(name,true),available=seats.filter(s=>s.person?.state==='seated'&&s.person.id!==id&&s.tableX!==own?.tableX);
+      if(own)available.sort((a,b)=>Math.abs(tableCenters.indexOf(a.tableX)-tableCenters.indexOf(own.tableX))-Math.abs(tableCenters.indexOf(b.tableX)-tableCenters.indexOf(own.tableX)));
+      const target=available[0];if(target){offer(target.person.name,drinks['tra da']);tell(short+' mời '+shortGuestName(target.person.name)+' một ly trà đá!',false);}
+      else tell('Cảm ơn '+short+' đã tặng quà!',false);return;
+    }
+    if(level==='medium'){
+      if(!chooseReward(name,choice,false)){choices.set(id,(choices.get(id)||0)+amount);tell(short+' ơi, chọn rap, chill, rock, trà đá, cà phê hoặc mía lau nhé!',false);}return;
+    }
+    if(level==='large'){seats.filter(s=>s.person?.state==='seated').forEach(s=>offer(s.person.name,drinks['tra da']));if(giftEffect){lastGiftEffect=now;party();ding([523,659,784,1047]);}tell('Cả quán hô nào! '+short+' bao cả quán!',false);return;}
+    tell(short+' đã mở lượt biểu diễn VIP!',false);
+  }
+  if(tier==='vip'&&stageTest&&!fromLive){
+    const demoIntensity=flowers>=100n?4:flowers>=50n?3:flowers>=10n?2:2;
+    launchGiftFireworks(demoIntensity);
+    thankGuestSparkle(name,flowers?'🌹 Cảm ơn '+flowers+' hoa!':'🎆 Cảm ơn quà VIP!');
+  }
+  if(performing)return;
+  const giftCoins=tier==='vip'?(stageTest?(flowers?0:60):unitCoins*count):0;
+  const existing=stageQueue.find(item=>item.id===id);
+  if(existing){
+    if(previewTrack&&!existing.song)existing.previewTrack=previewTrack;
+    if(tier==='vip'){
+      existing.tier='vip';
+      existing.gifts+=count;
+      existing.coins=(existing.coins??0)+giftCoins;
+      existing.flowers=(existing.flowers??0n)+stageFlowers;
+      if(stageFlowers>existing.backupFlowers)existing.backupFlowers=stageFlowers;
+      existing.backupGifts=Math.max(existing.backupGifts,giftCount);
+    }
+    sortStageQueue();
+    updateShowQueue();
+    advanceStage();
+    return;
+  }
+  if(stageQueue.length>=maxStageQueue){
+    showLiveNotice(shortGuestName(name)+' · Hàng chờ đã đầy');
+    return;
+  }
+  primeAudio();
+  const seat=seated(name,true),viewer=passers.get(id);
+  stageQueue.push({id,name:seat?.person.name??viewer?.name??name,
+    avatar:viewer?.avatar||avatarUrl(photo),gender:normalizeGender(gender)||seat?.person.gender||viewer?.gender,
+    origin:roadSnapshot(id),previewTrack,tier,gifts:tier==='vip'?count:0,coins:giftCoins,flowers:stageFlowers,backupFlowers:stageFlowers,backupGifts:giftCount,order:stageOrder++});
+  sortStageQueue();
+  updateShowQueue();
+  status(name+(stageTest?' đăng ký lượt thử VIP.':tier==='free'?' đăng ký tiết mục miễn phí.':' tặng quà · đã đăng ký tiết mục VIP.'));
+  if(!fromLive&&tier==='vip'&&!testingBesideScene()&&!document.body.classList.contains('show-mode')){
+    get('quang-canh').scrollIntoView({block:'start',behavior:reduce.matches?'instant':'smooth'});
+  }
+  advanceStage();advanceWaiting();
+}
+function sortStageQueue(){
+  stageQueue.sort((a,b)=>Number(b.tier==='vip')-Number(a.tier==='vip')||b.gifts-a.gifts||a.order-b.order);
+}
+function advanceStage(){
+  if(!stageQueue.length){armIdle();return;}
+  const show=activeShow;
+  if(show?.idle){
+    for(const member of show.members.values())void returnPerformer(show,member);
+    return;
+  }
+  if(show&&(show.ending||show.members.size>=stageSlots.length||[...show.members.values()].every(m=>m.returning)))return;
+  while(stageQueue.length&&(!activeShow||activeShow.members.size<stageSlots.length)){
+    let pickIndex=-1;
+    if(activeShow){
+      if(activeShow.namedSong)return;
+      pickIndex=stageQueue.findIndex(item=>{
+        if(item.song||activeShow.members.has(item.id)||activeShow.genre!==(item.previewTrack??'rock'))return false;
+        const seat=seated(item.name,true);
+        return !seat||seat.person.state==='seated';
+      });
+      if(pickIndex<0)return;
+    }else{
+      pickIndex=stageQueue.findIndex(item=>{
+        const seat=seated(item.name,true);
+        return !seat||seat.person.state==='seated';
+      });
+      if(pickIndex<0)return;
+      if(pickIndex>0){
+        const headSeat=seated(stageQueue[0].name,true);
+        if(headSeat?.person.state==='entering')return;
+      }
+    }
+    const gift=stageQueue.splice(pickIndex,1)[0];
+    const seat=seated(gift.name,true);
+    updateShowQueue();
+    const next=activeShow??openShow(false,false,gift.previewTrack??'rock',gift.tier);
+    if(gift.song){next.track=gift.song.track;next.namedSong=true;}
+    addPerformer(next,gift,seat?.person.state==='seated'?seat:null);
+  }
+}
+function fitBoardText(element,value,width){
+  element.textContent=value;
+  element.removeAttribute('textLength');
+  if(element.getComputedTextLength()>width){
+    element.setAttribute('textLength',width);
+    element.setAttribute('lengthAdjust','spacingAndGlyphs');
+  }
+}
+const liveCommandLabels=new Map([
+  ['vao ban','vào bàn'],
+  ['cung ly','cụng ly'], ['vo tay','vỗ tay'], ['tha tim','thả tim'],
+  ['rap','rap'], ['chill','chill'], ['rock','rock'],
+  ['nhay','nhảy'], ['len nhay','lên nhảy']
+]);
+let liveNoticeTimer;
+let giftNoticeUntil=0;
+let lastGiftEffect=-Infinity;
+const giftQuietMs=1500;
+const giftRuns=new Map(), giftAnnouncements=[];
+function queueGiftAnnouncement(name,count,coins=0,label='',flowers=false){
+  const id=(flowers?'flowers:':'gifts:')+key(name);
+  const incoming={name,count,coins,label,flowers};
+  let run=giftRuns.get(id);
+  if(!run){
+    run={extra:null,timer:null};
+    giftRuns.set(id,run);
+    if(flowers){
+      celebrateStarGift(name,count,'🌹');
+      incoming.shown=true;
+    }
+    giftAnnouncements.push(incoming);
+  }else if(!run.extra){
+    run.extra=incoming;
+  }else{
+    run.extra.count+=count;
+    run.extra.coins+=coins;
+    if(run.extra.label!==label)run.extra.label='';
+  }
+  clearTimeout(run.timer);
+  run.timer=setTimeout(()=>{
+    giftRuns.delete(id);
+    if(run.extra)giftAnnouncements.push(run.extra);
+    playGiftAnnouncements();
+  },giftQuietMs);
+  playGiftAnnouncements();
+}
+function playGiftAnnouncements(){
+  while(giftAnnouncements.length&&(!voiceOn||!currentSpeech)){
+    const {name,count,coins,label,flowers,shown}=giftAnnouncements.shift();
+    const guest=shortGuestName(name);
+    const item=flowers?'bông hoa':label||'phần quà';
+    if(flowers&&!shown)celebrateStarGift(name,count,'🌹');
+    showLiveNotice('🎆 Cảm ơn '+guest+' · '+count+' '+item+
+      (flowers?' hoa':' · '+formatCoins(coins)+' xu')+'!',true);
+    const message='Cảm ơn '+guest+' đã tặng '+count+' '+item+'!';
+    tell(message,false);
+    if(voiceOn)speakVietnamese(message,1.06,true);
+  }
+}
+function clearGiftAnnouncements(){
+  for(const run of giftRuns.values())clearTimeout(run.timer);
+  giftRuns.clear();
+  giftAnnouncements.length=0;
+}
+
+function showLiveNotice(message,gift=false){
+  const now=performance.now();
+  if(!gift&&now<giftNoticeUntil)return;
+  if(gift)giftNoticeUntil=now+4000;
+  fitBoardText(get('live-stage-message'),message,624);
+  const notice=get('live-stage-notice');
+  notice.setAttribute('visibility','visible');
+  clearTimeout(liveNoticeTimer);
+  liveNoticeTimer=setTimeout(()=>notice.setAttribute('visibility','hidden'),4000);
+}
+function parseComment(value){
+  const words=normalize(value).replace(/[^a-z0-9 ]+/g,' ').trim().replace(/\s+/g,' ');
+  const cmd=words.replace(/^(?:(?:cho minh|cho em|cho toi|minh muon|em muon|ad oi|ad) )+/,'')
+    .replace(/(?: (?:voi|nhe|nha|a|di|nhe ad))+$/,'');
+  if(['ghe','vao ban'].includes(cmd))return 'vao ban';
+  if(['dzo','dzo ne','zo','vo','can ly','cung ly'].includes(cmd))return 'cung ly';
+  return cmd;
+}
+const recentReplies=new Map();
+let lastReply=-Infinity;
+function replyToGuest(name,cmd){
+  if(!cmd)return;
+  const now=performance.now(),id=key(name);
+  if(now-lastReply<3500||now-(recentReplies.get(id)??-Infinity)<45000)return;
+  lastReply=now;
+  if(recentReplies.size>=300)recentReplies.delete(recentReplies.keys().next().value);
+  recentReplies.delete(id);recentReplies.set(id,now);
+  const nick=shortGuestName(name);
+  const line=/\b(hay|vui|dep|thich)\b/.test(cmd)?'Cảm ơn '+nick+' ghé chơi!':'Chào '+nick+'! Gõ “vào bàn” ngồi cùng quán nha.';
+  showLiveNotice(line);
+  tell(line);
+}
+const testHearts=new Map();
+function flowerVipLevel(count){
+  if(count>=100)return 4;
+  if(count>=50)return 3;
+  if(count>=20)return 2;
+  return count>=10?1:0;
+}
+function showTestFlowers(name,count){
+  queueGiftAnnouncement(name,BigInt(count),0,'',true);
+}
+function addTestHearts(name,count=1){
+  if(!Number.isSafeInteger(count)||count<1)return;
+  const id=key(name);
+  if(!testHearts.has(id)&&testHearts.size>=500)testHearts.delete(testHearts.keys().next().value);
+  const total=(testHearts.get(id)||0)+Math.min(count,1000);
+  const flowers=total-total%10;
+  testHearts.set(id,total%10);
+  if(flowers)showTestFlowers(name,flowers);
+}
+function submit(name,value,avatar,gender,live=false){
+  name=name.trim();
+  if(!name){get('guest').focus();return;}
+  if(live)touchGuest(key(name));
+  const cmd=parseComment(value);
+  const testGift=/^tang ([1-9][0-9]*)$/.exec(cmd);
+  if(testGift){
+    const id=key(name);
+    const flowers=BigInt(testGift[1]);
+    const level=flowerVipLevel(flowers);
+    if(level>=1){
+      const previous=vipProfiles.get(id);
+      vipProfiles.set(id,{key:id,name,nickname:liveNames.get(id)||previous?.nickname,coins:(previous?.coins||0)+Number(flowers),level:Math.max(previous?.level??1,level),gifts:(Number(previous?.gifts)||0)+Number(flowers)});
+      vipGuests.add(id);
+      saveVipProfiles();
+    }
+    const occupied=seated(name,true);
+    if((!occupied||occupied.person.sample)&&!onStage(id))join(name,avatar,gender,{priority:true});
+    else if(occupied&&!occupied.person.sample){
+      occupied.person.priority=true;
+      if(level>=1&&occupied.person.actor)markVip(occupied.person.actor);
+    }
+    if(level>=1){
+      const passer=passers.get(id);if(passer?.actor)markVip(passer.actor);
+      const performer=activeShow?.members.get(id);if(performer?.actor)markVip(performer.actor);
+    }
+    const before=board();
+    recordDailyGifts(name,flowers,flowers);
+    const total=board();
+    if(total>=nextGoal(before))reachGoals(total);
+    showTestFlowers(name,flowers);
+    songFlowers.set(id,(songFlowers.get(id)||0n)+flowers);
+    refreshSongPickers();
+    const queued=stageQueue.find(item=>item.id===id);
+    if(queued?.song){queued.flowers=songFlowers.get(id);queued.backupFlowers=queued.flowers;}
+    if(level||onStage(id)||stageQueue.some(item=>item.id===id&&item.tier==='vip')){
+      receiveGift({name,avatarUrl:avatar,gender,stageTest:true,flowers},'rock');
+    }else{
+      launchGiftFireworks(1);
+      thankGuestSparkle(name,'🌹 Cảm ơn '+flowers+' hoa!');
+    }
+    return;
+  }
+  if(cmd==='tha tim')addTestHearts(name);
+  if(cmd)loyalty(name,1);
+  function announce(label){
+    if(live)showLiveNotice('💬 '+shortGuestName(name)+' · '+label);
+  }
+  const label=liveCommandLabels.get(cmd);
+  if(label&&cmd!=='tha tim')announce(label);
+  if(/^xin bai (rap|rock|chill|nhay)$/.test(cmd))announce('xin bài '+cmd.slice(8).replace('nhay','nhảy'));
+  const id=key(name);
+  if(choices.get(id)>0&&chooseReward(name,cmd)){choices.set(id,choices.get(id)-1);if(!label)announce('chọn món');return;}
+  if(['rap','chill','rock'].includes(cmd))return requestFreeDance(name,avatar,gender,cmd);
+  if(cmd==='nhay'||cmd==='len nhay')return requestFreeDance(name,avatar,gender,'rock');
+  if(cmd==='vao ban')return join(name,avatar,gender);
+  if(cmd==='cung ly')return cheers(name);
+  if(cmd==='vo tay')return reactToShow(name,'applause');
+  if(cmd==='tha tim')return reactToShow(name,'heart');
+  if(cmd==='xin bai nhay')return requestTrack(name,'rock');
+  if(/^xin bai (rap|rock|chill)$/.test(cmd)||cmd==='xin bai')return requestTrack(name,cmd.slice(8));
+  if(cmd==='len hat'||cmd==='len hat mot bai'){announce('lên hát · cần quà sân khấu');status('Lượt hát dành cho khách tặng quà LIVE.');return;}
+  const title=value.trim().replace(/^(?:hát|hat|xin bài|xin bai)\s+/iu,'').slice(0,80).trim();
+  if(title&&(title!==value.trim()||namedSongs.has(normalize(title))||normalize(title)==='chau len ba'||(songFlowers.get(id)||0n)>10n)){
+    return requestNamedSong(name,title,avatar,gender);
+  }
+  if(live){replyToGuest(name,cmd);return;}
+  if(seated(name))status(name+': '+value.trim().slice(0,80));
+  else status('Gõ VÀO BÀN để lấy ghế, quán sẽ tự mang nước ra.');
+}
+function resetGifts(){
+  daily.clear();
+  saveLedger();
+  board();
+  status('Đã reset số đếm quà tặng hôm nay về 0.');
+}
+get('hud-reset-gifts')?.addEventListener('click',()=>resetGifts());
+function reset(showSamples=true){
+  songFlowers.clear();
+  parkOwner();
+  get('stage-fireworks').replaceChildren();
+  get('gift-fireworks')?.replaceChildren();
+  get('star-gift')?.replaceChildren();
+  testHearts.clear();
+  clearGiftAnnouncements();
+  viewerGreetings.length=0;
+  giftNoticeUntil=0;
+  lastGiftEffect=-Infinity;
+  clearTimeout(goalNoticeTimer);
+  pendingGoalTrack=undefined;
+  stopHostSpeech();
+  owed.clear();
+  epoch++;tableDeliveries.clear();
+  seats.forEach(seat=>{delete seat.tableReady;seat.stool?.parentNode.removeAttribute('visibility');});
+  refreshDining();running=false;queue.length=0;orders.length=0;bills.length=0;stageQueue.length=0;trackQueue.length=0;
+  reactionTimes.clear();get('stage-reactions').replaceChildren();
+  get('service-dialogue').replaceChildren();get('audience-dialogue').replaceChildren();
+  clearTimeout(seatTimer);seatTimer=null;
+  clearTimeout(idleTimer);idleTimer=null;lastIdleSinger=null;lastIdleFromRoad=false;
+  if(activeShow){
+    cancelAnimationFrame(activeShow.danceFrame);
+    clearInterval(activeShow.tick);
+  }
+  activeShow=null;stopStageSound();setStage(false);
+  clearTimeout(liveNoticeTimer);
+  get('live-stage-notice').setAttribute('visibility','hidden');
+  tableToasts.clear();get('toast-effects').replaceChildren();
+  seats.forEach(s=>{s.person=null;delete s.reservedFor;});
+  guestActivity.clear();departedGuests.clear();
+  for(const name of ['backPeople','frontPeople','drinks'])layers[name].replaceChildren();
+  layers.walking.querySelectorAll(':scope > [data-session-actor]').forEach(el=>el.remove());
+  get('staff-foreground').replaceChildren();
+  host=serverIdle();get('events').replaceChildren();get('demo').disabled=false;get('live-demo').disabled=false;
+  if(showSamples)seedSampleGuests();
+  armIdle();
+  updateShowQueue();
+  info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
+}
+get('comment-form').addEventListener('submit',e=>{
+  e.preventDefault();primeAudio();submit(get('guest').value,get('comment').value,avatarUrl(get('guest-avatar').value),get('guest-gender').value);get('comment').value='';
+});
+document.querySelectorAll('[data-command]').forEach(btn=>btn.addEventListener('click',()=>{
+  primeAudio();submit(get('guest').value,btn.dataset.command,avatarUrl(get('guest-avatar').value),get('guest-gender').value);
+}));
+function setShowMode(enabled){
+  document.body.classList.toggle('show-mode',enabled);
+  if(enabled){
+    toggleDrawer(false);
+    setSafeZoneGuide(false);
+  }else{
+    get('show-mode')?.focus();
+  }
+}
+function setSafeZoneGuide(enabled){
+  const guide=get('tiktok-safe-guide'),btn=get('safe-zone-toggle');
+  if(guide)guide.setAttribute('visibility',enabled?'visible':'hidden');
+  if(btn)btn.setAttribute('aria-pressed',String(enabled));
+}
+get('safe-zone-toggle')?.addEventListener('click',()=>{
+  const guide=get('tiktok-safe-guide');
+  const next=guide?.getAttribute('visibility')!=='visible';
+  setSafeZoneGuide(next);
+});
+get('show-mode').addEventListener('click',()=>{primeAudio();setShowMode(true);});
+document.querySelectorAll('[data-show-mode]').forEach(btn=>btn.addEventListener('click',()=>{primeAudio();setShowMode(true);}));
+get('exit-show-mode')?.addEventListener('click',()=>setShowMode(false));
+document.addEventListener('click',event=>{
+  if(document.body.classList.contains('show-mode')&&!event.target.closest('#quang-canh,#show-mode,[data-show-mode],#exit-show-mode'))setShowMode(false);
+});
+get('enable-audio').addEventListener('click',async()=>{
+  await primeAudio();
+  if(audio?.state==='running')ding();
+});
+get('demo-gift').addEventListener('click',()=>{
+  receiveGift({name:get('guest').value,avatarUrl:get('guest-avatar').value,gender:get('guest-gender').value,stageTest:true},'rock');
+});
+function requestFreeDance(name,avatar,gender,track='rock'){
+  const seat=seated(name);
+  if(seat?.person.state!=='seated'){
+    const message=seat?.person.state==='entering'
+      ?'Chờ ngồi vào bàn rồi gõ rock, chill hoặc rap nhé!'
+      :'Gõ VÀO BÀN hoặc GHÉ trước khi lên sân khấu.';
+    counterTalk(message);
+    status(message);
+    showLiveNotice(message);
+    return;
+  }
+  receiveGift({name,avatarUrl:avatar,gender},track,'free');
+}
+get('demo-dance').addEventListener('click',()=>{
+  requestFreeDance(get('guest').value,get('guest-avatar').value,get('guest-gender').value);
+});
+window.addEventListener('quannuoc:gift',event=>{
+  if(event.detail&&typeof event.detail==='object')receiveGift(event.detail,undefined,'vip',true);
+});
+get('preview-viewer').addEventListener('click',()=>{
+  const name=get('guest').value.trim();
+  const avatarField=get('guest-avatar');
+  const avatar=avatarUrl(avatarField.value);
+  if(!name){get('guest').focus();return;}
+  if(avatarField.value&&!avatar){
+    avatarField.setCustomValidity('Nhập liên kết ảnh bắt đầu bằng https://');
+    avatarField.reportValidity();
+    avatarField.setCustomValidity('');
+    return;
+  }
+  visitor({name,avatarUrl:avatar,gender:get('guest-gender').value});
+});
+let testGuestSerial=0;
+get('test-add-guests').addEventListener('click',()=>{
+  primeAudio();
+  let name;
+    do{name='Khách thử '+(++testGuestSerial);}
+    while(seated(name,true)||passers.has(key(name))||queue.some(guest=>guest.id===key(name))||onStage(key(name)));
+  join(name,'',testGuestSerial%2?'male':'female');
+  status('Đã thêm 1 khách thử · '+tableCenters.length+' bàn · '+seats.length+' ghế.');
+});
+get('reset').addEventListener('click',()=>reset());
+get('demo').addEventListener('click',async()=>{
+  primeAudio();
+  const session=epoch;
+  const targets=seats.filter(seat=>seat.person?.state==='seated'&&!seat.person.cup)
+    .map(seat=>({seat,person:seat.person}));
+  if(!targets.length){
+    status('Ai đang ngồi cũng có nước rồi hoặc bàn đang trống.');
+    return;
+  }
+  get('demo').disabled=true;
+  serve();
+  const deadline=Date.now()+35000;
+  while(epoch===session&&Date.now()<deadline&&targets.some(({seat,person})=>present(seat,person)&&!person.cup)){
+    await sleep(120);
+  }
+  if(epoch===session)get('demo').disabled=false;
+});
+async function waitForDemo(condition,session,limit){
+  const deadline=Date.now()+limit;
+  while(epoch===session&&Date.now()<deadline){
+    if(condition())return true;
+    await sleep(160);
+  }
+  return false;
+}
+async function runLiveDemoShowcase(){
+  const table=tableCenters.map(x=>seats.filter(seat=>seat.tableX===x&&!seat.person&&!seat.reservedFor))
+    .find(free=>free.length>=2);
+  if(!table||queue.length||stageQueue.length||(activeShow&&!activeShow.idle)){
+    reset(true);
+    await sleep(160);
+  }
+  const targetTable=tableCenters.map(x=>seats.filter(seat=>seat.tableX===x&&!seat.person&&!seat.reservedFor))
+    .find(free=>free.length>=2);
+  if(!targetTable){
+    status('Không tìm thấy hai ghế trống để chạy demo.');
+    return;
+  }
+  primeAudio();
+  const session=epoch;
+  const guests=['Minh Anh','Tuấn Kiệt'].map((base,index)=>{
+    let name=base,suffix=1;
+    while(seated(name,true)||passers.has(key(name))||onStage(key(name)))name=base+'-'+(++suffix);
+    return {id:key(name),name,gender:index===0?'female':'male'};
+  });
+  get('live-demo').disabled=true;
+  if(get('hud-demo'))get('hud-demo').disabled=true;
+  status('Đang chạy Demo LIVE: khách ghé quán, gọi nước, cụng ly & lên sân khấu!');
+  try{
+    guests.forEach(guest=>passBy(guest));
+    await sleep(750);
+    if(epoch!==session||queue.length||targetTable.slice(0,2).some(seat=>seat.person||seat.reservedFor))return;
+    await Promise.all(guests.map((guest,index)=>takeSeat(guest,targetTable[index])));
+    if(!await waitForDemo(()=>guests.every(guest=>seated(guest.name)?.person.cup),session,22000)){
+      if(epoch===session)status('Lượt thử chưa đủ nước để cụng ly. Mời bạn thử lại.');
+      return;
+    }
+    guests.forEach(guest=>cheers(guest.name));
+    await sleep(2200);
+    if(epoch!==session||stageQueue.length||(activeShow&&!activeShow.idle))return;
+    const genre='rock';
+    guests.forEach(guest=>receiveGift({...guest,stageTest:true,flowers:55n},genre));
+    if(!await waitForDemo(()=>activeShow&&!activeShow.idle&&activeShow.endsAt
+      &&guests.every(guest=>activeShow.members.get(guest.id)?.ready),session,9500))return;
+    reactToShow(guests[0].name,'applause');
+    reactToShow(guests[1].name,'heart');
+    if(epoch===session){
+      submit(guests[0].name,'tặng 100','','');
+    }
+  }finally{
+    if(epoch===session){
+      get('live-demo').disabled=false;
+      if(get('hud-demo'))get('hud-demo').disabled=false;
+    }
+  }
+}
+get('live-demo').addEventListener('click',()=>void runLiveDemoShowcase());
+document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{primeAudio();submit(get('gift-name').value,'tặng '+weights[b.dataset.level],'','');});
+get('test-visit').onclick=()=>visitor({name:get('gift-name').value});
+get('test-hour').onclick=hourEvent;
+let openingVoiceAttempted=false;
+const synth=window.speechSynthesis;
+synth?.getVoices();
+synth?.addEventListener?.('voiceschanged',()=>{
+  if(openingVoiceAttempted&&voiceOn&&!openingGreetingPlayed&&!currentSpeech&&performance.now()<serverTtsRetryAt&&synth.getVoices().some(v=>/^vi(?:[-_]|$)/i.test(v.lang)))requestOpeningVoice();
+});
+function startDefaultVoice(event){
+  if(event.type==='keydown'&&(event.altKey||event.ctrlKey||event.metaKey||event.repeat))return;
+  hostVoiceUnlocked=true;
+  if(!voiceOn||masterMuted||event.target.closest?.('#voice-toggle,#hud-voice-btn,#hud-sound-toggle')||currentSpeech)return;
+  if(openingGreetingPlayed)return;
+  requestOpeningVoice();
+}
+function requestOpeningVoice(){
+  openingVoiceAttempted=true;
+  hostVoiceUnlocked=true;
+  browserVoiceStarted=true;
+  window.speechSynthesis?.resume();
+  if(speakVietnamese('Quán mở cửa rồi!',1.04,true)===null){
+    browserVoiceStarted=false;
+    return;
+  }
+  openingGreetingPlayed=true;
+}
+document.addEventListener('click',startDefaultVoice,true);
+document.addEventListener('keydown',startDefaultVoice,true);
+let masterMuted=false;
+function syncSoundButtons(){
+  const hudBtn=get('hud-sound-toggle');
+  if(hudBtn){
+    hudBtn.textContent=masterMuted?'🔇 Tắt tiếng':'🔊 Âm thanh';
+    hudBtn.setAttribute('aria-pressed',String(!masterMuted));
+  }
+  const hudVoiceBtn=get('hud-voice-btn');
+  if(hudVoiceBtn){
+    const active=voiceOn&&!masterMuted;
+    hudVoiceBtn.textContent=active?'🗣️ Giọng đọc':'🔇 Tắt giọng';
+    hudVoiceBtn.setAttribute('aria-pressed',String(active));
+  }
+  const vBtn=get('voice-toggle');
+  if(vBtn){
+    vBtn.setAttribute('aria-pressed',String(voiceOn));
+    vBtn.textContent=voiceOn?'Tắt giọng chủ quán':'Bật giọng chủ quán';
+  }
+}
+get('hud-sound-toggle')?.addEventListener('click',()=>{
+  masterMuted=!masterMuted;
+  if(masterMuted){
+    stopHostSpeech();
+    stopStageSound();
+    if(audio&&audio.state==='running')void audio.suspend();
+  }else{
+    void primeAudio();
+    if(voiceOn)requestOpeningVoice();
+  }
+  syncSoundButtons();
+});
+function toggleHostVoice(){
+  voiceOn=!voiceOn;
+  if(voiceOn){
+    masterMuted=false;
+    void primeAudio();
+    requestOpeningVoice();
+  }else{
+    stopHostSpeech();
+  }
+  syncSoundButtons();
+}
+get('hud-voice-btn')?.addEventListener('click',toggleHostVoice);
+get('voice-toggle').onclick=toggleHostVoice;
+window.addEventListener('quannuoc:comment',event=>{
+  const detail=event.detail;
+  if(typeof detail?.name!=='string'||!detail.name.trim()||typeof detail.comment!=='string')return;
+  submit(detail.name,detail.comment,avatarUrl(detail.avatarUrl),normalizeGender(detail.gender),true);
+});
+window.addEventListener('quannuoc:demo',()=>{
+  setGameState('PLAYING');
+  void runLiveDemoShowcase();
+});
+
+// Game Shell State Machine (TITLE_MENU -> PLAYING -> PAUSED)
+let gameState='TITLE_MENU';
+function setGameState(next){
+  gameState=next;
+  document.body.dataset.gameState=next;
+  const pauseModal=get('game-pause-modal');
+  if(pauseModal)pauseModal.hidden=next!=='PAUSED';
+  if(next==='PAUSED'){
+    const pStage=get('pause-stage'),pEvent=get('pause-last-event');
+    if(pStage)pStage.textContent=get('show-queue')?.textContent||'Sân khấu đang chờ';
+    if(pEvent)pEvent.textContent=get('announcement')?.textContent||'—';
+  }
+}
+function toggleDrawer(force){
+  const drawer=get('controls-drawer'),btn=get('drawer-toggle');
+  if(!drawer)return;
+  const open=typeof force==='boolean'?force:drawer.hidden;
+  drawer.hidden=!open;
+  if(btn)btn.setAttribute('aria-expanded',String(open));
+}
+get('drawer-toggle')?.addEventListener('click',()=>toggleDrawer());
+get('drawer-close')?.addEventListener('click',()=>toggleDrawer(false));
+get('pause-toggle')?.addEventListener('click',()=>setGameState(gameState==='PAUSED'?'PLAYING':'PAUSED'));
+get('resume-game')?.addEventListener('click',()=>setGameState('PLAYING'));
+get('pause-reset')?.addEventListener('click',()=>{reset(true);setGameState('PLAYING');});
+get('pause-demo')?.addEventListener('click',()=>{setGameState('PLAYING');void runLiveDemoShowcase();});
+get('hud-demo')?.addEventListener('click',()=>{setGameState('PLAYING');void runLiveDemoShowcase();});
+get('title-start-demo')?.addEventListener('click',()=>{setGameState('PLAYING');void runLiveDemoShowcase();});
+get('title-play')?.addEventListener('click',()=>{primeAudio();setGameState('PLAYING');});
+get('quick-comment-form')?.addEventListener('submit',e=>{
+  e.preventDefault();
+  const input=get('quick-comment-input');
+  if(!input||!input.value.trim())return;
+  primeAudio();
+  submit(get('guest').value,input.value,avatarUrl(get('guest-avatar').value),get('guest-gender').value);
+  input.value='';
+});
+get('quick-gift-10')?.addEventListener('click',()=>{
+  primeAudio();
+  submit(get('guest').value,'tặng 10',avatarUrl(get('guest-avatar').value),get('guest-gender').value);
+});
+document.addEventListener('keydown',event=>{
+  if(event.altKey||event.ctrlKey||event.metaKey)return;
+  const typing=event.target.matches?.('input,select,textarea');
+  if(gameState==='TITLE_MENU'){
+    if(event.key==='Enter'){event.preventDefault();setGameState('PLAYING');void runLiveDemoShowcase();}
+    else if(event.key===' '){event.preventDefault();primeAudio();setGameState('PLAYING');}
+    return;
+  }
+  if(event.key==='Escape'){
+    const drawer=get('controls-drawer');
+    if(document.body.classList.contains('show-mode')){setShowMode(false);return;}
+    if(drawer&&!drawer.hidden){toggleDrawer(false);return;}
+    setGameState(gameState==='PAUSED'?'PLAYING':'PAUSED');
+    return;
+  }
+  if(typing||gameState!=='PLAYING')return;
+  const k=event.key.toLowerCase();
+  const cmdMap={'1':'VÀO BÀN','2':'CỤNG LY','3':'VỖ TAY','4':'THẢ TIM','c':'CHILL','r':'RAP','k':'ROCK'};
+  if(cmdMap[k]){
+    event.preventDefault();
+    primeAudio();
+    submit(get('guest').value,cmdMap[k],avatarUrl(get('guest-avatar').value),get('guest-gender').value);
+  }else if(k==='d'){
+    event.preventDefault();
+    void runLiveDemoShowcase();
+  }else if(k==='m'){
+    event.preventDefault();
+    get('hud-sound-toggle')?.click();
+  }else if(k==='v'){
+    event.preventDefault();
+    toggleHostVoice();
+  }
+});
+
+const ownerStops=[{x:245,y:576},{x:375,y:582},{x:485,y:574},{x:310,y:578},ownerHome];
+let ownerStopIndex=0,ownerPatrolling=false;
+function parkOwner(animateReturn=false){
+  walkingRuns.delete(owner);
+  ownerWave?.cancel();
+  const from=owner.walkPosition;
+  const distance=Math.hypot(ownerHome.x-from.x,ownerHome.y-from.y);
+  if(animateReturn&&!reduce.matches&&distance>2){
+    const duration=Math.max(450,Math.min(2200,distance*5));
+    void walk(owner,[from,ownerHome],duration,null);
+    return;
+  }
+  owner.stepLegs.setAttribute('d','M-7 -14 -9 0M7 -14 9 0');
+  positionActor(owner,ownerHome);
+}
+function patrolRoadside(){
+  if(activeShow||stageQueue.length||currentSpeech||ownerPatrolling||reduce.matches)return;
+  const destination=ownerStops[ownerStopIndex];
+  ownerStopIndex=(ownerStopIndex+1)%ownerStops.length;
+  ownerPatrolling=true;
+  walk(owner,[owner.walkPosition,destination],1600,null).then(arrived=>{
+    ownerPatrolling=false;
+    if(arrived&&!activeShow&&!stageQueue.length)waveToGuests();
+  });
+}
+setInterval(patrolRoadside,5000);
+
+const idleVoiceLines=[
+  'Chào cả nhà, tôi là Trí Chủ Quán! Gõ vào bàn hoặc ghé, Trí kéo ghế mời bạn ngồi nha!',
+  'Trí mời cả nhà ghé quầy bia! Có Huda, Tiger, Larue và bia hơi mát lạnh nha!',
+  'Bạn mới tới thì gõ vào bàn hoặc ghé để Trí kéo ghế nhé!',
+  'Bàn mình có ai muốn làm một ly bia hơi không? Quầy cũng có Huda, Tiger và Larue nha!',
+  'Ngồi vào bàn rồi, bạn có thể gõ rock, chill hoặc rap để lên sân khấu!',
+  'Mời cả nhà qua quầy bia. Huda, Tiger, Larue hay bia hơi, bạn thích loại nào?',
+  'Bàn nào có nước rồi thì gõ cụng ly để nâng ly với nhau nha!'
+];
+let idleVoiceIndex=0,lastIdleVoiceAt=performance.now();
+function speakWhileStageIdle(){
+  const now=performance.now();
+  if(!voiceOn||masterMuted||activeShow||stageQueue.length||currentSpeech||giftAnnouncements.length||
+    now<nextSpeechAt||now-lastIdleVoiceAt<12000)return;
+  if(ownerPatrolling)return;
+  if(viewerGreetings.length)return;
+  const line=idleVoiceLines[idleVoiceIndex];
+  if(speakVietnamese(line,1.06)===null)return;
+  waveToGuests();
+  idleVoiceIndex=(idleVoiceIndex+1)%idleVoiceLines.length;
+  lastIdleVoiceAt=now;
+}
+setInterval(playViewerGreeting,500);
+setInterval(speakWhileStageIdle,2000);
+let lastHour=Math.floor(Date.now()/3600000);
+setInterval(()=>{const h=Math.floor(Date.now()/3600000);if(h!==lastHour){lastHour=h;hourEvent();}board();},5000);
+
+
+board();
+connectLiveTest();
+nextCounterTip();
+seedSampleGuests();
+armIdle();
+info();status('Quán còn ghế nè. Gõ VÀO BÀN, mình kéo ghế cho!');
+syncSoundButtons();
+setGameState('TITLE_MENU');
+})();
+</script>
+</body>
+</html>
+
